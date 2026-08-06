@@ -1,17 +1,14 @@
 ---
 name: control-rig-and-ik
-description: Procedural animation and inverse kinematics in Unreal Engine — Control Rig
-  (RigVM-based graph that manipulates a bone/control hierarchy), IK Rig (solver definitions
-  with Full-Body IK, Limb IK, Set Transform), the IK Retargeter (transfers animation
-  between skeletons of different proportions), and lightweight AnimGraph IK nodes
-  (Two Bone IK, FABRIK, CCDIK). Use when implementing foot placement on terrain, hand/weapon
-  IK, look-at, procedural pose fixups, runtime retargeting, or sharing an animation library
-  across characters with different skeletons. Covers UControlRig, URigHierarchy, FRigUnit,
-  UIKRigDefinition, UIKRetargeter, FAnimNode_ControlRig, FAnimNode_IKRig,
-  FAnimNode_RetargetPoseFromMesh, FIKRigGoal, UControlRigComponent, UIKRigComponent.
+description: >-
+  Use when authoring Control Rig, IK, or retargeting. Covers rig graphs, AnimGraph IK nodes, IK Rig, IK Retargeter, and runtime integration.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: animation
+  hermes:
+    tags: [unreal-engine, ue5, control, rig, ik]
+    related_skills: [navigating-engine-source]
 ---
 
 # Control Rig & IK
@@ -92,8 +89,8 @@ from game code. `GetHierarchy()` returns the live `URigHierarchy` for direct bon
 ### Modular Control Rig (UE 5.5+)
 
 `UModularRig` (`ModularRig.h`) composes multiple rig modules into one character rig.
-Each `FRigModuleInstance` is a named slot in the modular hierarchy. An agent assembling a
-character rig should prefer modular rigs when the character has swappable limb rigs.
+Each `FRigModuleInstance` is a named slot in the modular hierarchy. Prefer modular rigs
+when a character has swappable limb rigs.
 
 ### Sequencer integration
 

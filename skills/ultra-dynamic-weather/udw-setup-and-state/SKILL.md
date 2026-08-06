@@ -1,10 +1,14 @@
 ---
 name: udw-setup-and-state
-description: Set up Ultra Dynamic Weather (UDW) and control its weather state — adding UDW (requires UDS), Basic Controls (Weather preset, Wind Direction), the seven weather state values + material state, Weather Settings Presets, Change Weather, the Manual Weather State with per-value overrides, sampling weather (Get Cloud Coverage / Get Display Name for Current Weather), weather event dispatchers (Started/Finished Raining, Getting Cloudy, Weather Display Name Changed, State Change per value), and the Actor Weather Status component for per-actor exposure tracking. Use any time the user asks about adding UDW, setting up rain/snow, changing weather, presets like Blizzard or Thunderstorm, sampling weather from blueprint, weather-driven events, or per-actor exposure.
+description: >-
+  Use when installing or controlling Ultra Dynamic Weather. Covers weather states, presets, transitions, sampling, events, and actor weather status. Use only after confirming the project uses Ultra Dynamic Weather.
+license: UNLICENSED
 metadata:
-  asset: Ultra Dynamic Weather (marketplace)
+  engine-version: "5.8"
   category: setup
-  source-docs: https://www.ultradynamicsky.com/Documentation/V9/9-5
+  hermes:
+    tags: [unreal-engine, ue5, ultra-dynamic-weather, setup, state]
+    related_skills: [uds-setup-and-modes]
 ---
 
 # UDW setup and weather state

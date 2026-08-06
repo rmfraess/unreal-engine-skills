@@ -1,16 +1,14 @@
 ---
 name: module-and-build-system
-description: Structure Unreal C++ into modules and configure the build with *.Build.cs
-  (ModuleRules) and *.Target.cs (TargetRules). Use when creating a new module, splitting
-  code out of an existing module, adding a dependency, fixing "unresolved external symbol" /
-  "cannot open include file" / "module not found" link errors, choosing public vs private
-  dependencies, wiring IMPLEMENT_MODULE / IMPLEMENT_PRIMARY_GAME_MODULE / IModuleInterface,
-  setting the module loading phase or host type, or understanding how UnrealBuildTool (UBT)
-  discovers and compiles modules. Related to plugins: see plugins-and-modules for packaging
-  modules inside .uplugin files.
+description: >-
+  Use when configuring Unreal modules or builds. Covers Build.cs, Target.cs, module phases, dependencies, exports, include visibility, and build targets.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: cpp-foundations
+  hermes:
+    tags: [unreal-engine, ue5, module, build, system]
+    related_skills: [plugins-and-modules, project-structure, navigating-engine-source]
 ---
 
 # Modules & the build system
@@ -289,9 +287,9 @@ Rules:
 
 ## References & source material
 
-Engine source (UE 5.8, under `E:\Program Files\Epic Games\UE_5.8\Engine\Source\`):
+Engine source (UE 5.8, under the verified `<UE_ENGINE_ROOT>/Engine/Source/`):
 
-**C++ module system (Runtime/Core/Public/Modules/):**
+**C++ module system (`Engine/Source/Runtime/Core/Public/Modules/`):**
 - `ModuleInterface.h` — `IModuleInterface`: `StartupModule()`:49, `ShutdownModule()`:79,
   `SupportsDynamicReloading()`:88, `IsGameModule()`:108.
 - `ModuleManager.h` — `FModuleManager`:163, `FDefaultModuleImpl`:884,
@@ -300,13 +298,13 @@ Engine source (UE 5.8, under `E:\Program Files\Epic Games\UE_5.8\Engine\Source\`
 - `Boilerplate/ModuleBoilerplate.h` — `PER_MODULE_BOILERPLATE`:115 (new/delete overrides,
   memory wrapper definitions placed in every module).
 
-**UBT C# configuration (Programs/UnrealBuildTool/Configuration/Rules/):**
+**UBT C# configuration (`Engine/Source/Programs/UnrealBuildTool/Configuration/Rules/`):**
 - `ModuleRules.cs` — `ModuleRules` class:105, `PCHUsageMode` enum:195,
   `PublicDependencyModuleNames`:1259, `PrivateDependencyModuleNames`:1270.
 - `TargetRules.cs` — `TargetType` enum:21, `TargetLinkType` enum:53,
   `DefaultBuildSettings`:740, `ExtraModuleNames`:2819.
 
-**UBT C# descriptors (Programs/UnrealBuildTool/Configuration/Descriptors/):**
+**UBT C# descriptors (`Engine/Source/Programs/UnrealBuildTool/Configuration/Descriptors/`):**
 - `ModuleDescriptor.cs` — `ModuleHostType` enum:16, `ModuleLoadingPhase` enum:102,
   `ModuleDescriptor` class:159.
 

@@ -123,4 +123,4 @@ allocations and GC passes — measure before adopting it.
 ## Version notes
 
 - Spawn APIs, parameters, and the collision-handling enum are stable across UE5. Line numbers drift
-  between patches; re-grep `World.h` / `EngineTypes.h` if a cite looks off.
+  between patches; search `World.h` / `EngineTypes.h` again if a cite looks off.

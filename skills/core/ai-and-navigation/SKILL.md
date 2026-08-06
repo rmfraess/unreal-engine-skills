@@ -1,16 +1,14 @@
 ---
 name: ai-and-navigation
-description: Build AI in Unreal — AIController-driven pawns, Behavior Trees and Blackboards
-  (tasks, decorators, services), the navigation system and NavMesh (MoveTo pathfinding,
-  NavMeshBoundsVolume, NavAreas, avoidance), the Environment Query System (EQS generators,
-  tests, C++ FEnvQueryRequest), AI Perception (sight/hearing/damage senses, ConfigureSense,
-  OnTargetPerceptionUpdated), and StateTree (UStateTreeAIComponent). Use when creating
-  enemy/NPC behavior, pathfinding/movement to targets, decision-making logic, environment
-  queries for cover/flanking/positions, sensing the player, or replacing Behavior Trees
-  with StateTree.
+description: >-
+  Use when building Unreal AI or navigation. Covers AI controllers, Behavior Trees, StateTree, perception, EQS, and navigation meshes.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: systems
+  hermes:
+    tags: [unreal-engine, ue5, ai, navigation]
+    related_skills: [navigating-engine-source]
 ---
 
 # AI & navigation

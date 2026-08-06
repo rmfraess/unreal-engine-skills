@@ -1,19 +1,14 @@
 ---
 name: gameplay-ability-system
-description: Build abilities, attributes, and effects with Unreal's Gameplay Ability System (GAS)
-  — UAbilitySystemComponent (ASC), UGameplayAbility with ActivateAbility/CommitAbility/EndAbility,
-  UAttributeSet with FGameplayAttributeData and ATTRIBUTE_ACCESSORS macro, UGameplayEffect with
-  Instant/HasDuration/Infinite policies and GE Components, FGameplayAbilitySpec for granting,
-  UAbilityTask for async steps (WaitDelay, PlayMontageAndWait, WaitGameplayEvent), GameplayCues for
-  networked VFX/SFX, instancing policies (InstancedPerActor/InstancedPerExecution), net execution
-  policies (LocalPredicted/ServerOnly), and replication modes (Full/Mixed/Minimal). Use when
-  implementing abilities with cooldowns/costs/tags, health/stamina/mana attributes, buffs/debuffs/
-  damage via Gameplay Effects, ability tasks for async gameplay, Gameplay Cues for cosmetic feedback,
-  or networked server-authoritative ability activation with client prediction. GAS requires the
-  GameplayAbilities plugin and AbilitySystemGlobals initialization.
+description: >-
+  Use when building Unreal gameplay abilities with GAS. Covers ability-system components, attributes, effects, abilities, tasks, cues, prediction, and replication.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: gameplay-framework
+  hermes:
+    tags: [unreal-engine, ue5, gameplay, ability, system]
+    related_skills: [navigating-engine-source]
 ---
 
 # Gameplay Ability System (GAS)
@@ -32,7 +27,7 @@ of simple actions, plain components may be simpler.
 
 ## Setup
 
-1. Enable the **Gameplay Abilities** plugin (`.uplugin` → Plugins, or add `GameplayAbilitiesPlugin`
+1. Enable the **Gameplay Abilities** plugin (`.uplugin` → Plugins, or add `GameplayAbilities`
    to your `.uproject`).
 2. Add `"GameplayAbilities"`, `"GameplayTags"`, `"GameplayTasks"` to your module's `Build.cs`
    `PublicDependencyModuleNames` (see `module-and-build-system`).

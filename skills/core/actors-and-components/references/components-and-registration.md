@@ -125,5 +125,5 @@ GetComponents<UActorComponent>(All);                                    // all m
 ## Version notes
 
 - The component model and registration flow are stable across UE5. Line numbers drift between 5.x
-  patches; re-grep the component headers if a cite looks off.
+  patches; search the component headers again if a cite looks off.
 - `TObjectPtr<T>` is the modern member type for component UPROPERTYs; raw `T*` still compiles.

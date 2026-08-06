@@ -1,19 +1,14 @@
 ---
 name: project-structure
-description: Navigate and configure an Unreal Engine project — the .uproject descriptor
-  (FProjectDescriptor: FileVersion, EngineAssociation, Modules, Plugins), the standard
-  folder layout (Config/ with Default*.ini files, Content/, Source/ with the primary
-  game module, Plugins/, and the generated Binaries/Intermediate/DerivedDataCache/Saved/
-  folders), the config file hierarchy and ini syntax (sections, array operators,
-  UPROPERTY(config), GConfig), content virtual paths (/Game/ /Engine/), and which files
-  to source-control versus ignore. Use when creating or opening a project, editing
-  .uproject modules or plugin references, changing project settings via Config Default*.ini
-  instead of the editor, deciding what to commit to Git/Perforce, writing a .gitignore,
-  understanding EngineAssociation values, registering a primary game module, or debugging
-  "wrong engine version" / "stale generated headers" / config-not-applying problems.
+description: >-
+  Use when configuring an Unreal project repository. Covers uproject descriptors, modules, Config, Content, Source, plugins, VCS, generated files, and folder ownership.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: cpp-foundations
+  hermes:
+    tags: [unreal-engine, ue5, project, structure]
+    related_skills: [module-and-build-system, plugins-and-modules]
 ---
 
 # Project structure

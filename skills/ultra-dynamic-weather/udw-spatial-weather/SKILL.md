@@ -1,10 +1,14 @@
 ---
 name: udw-spatial-weather
-description: Apply weather to specific regions of a level with Ultra Dynamic Weather — Weather Override Volumes (spline-defined arbitrary shape, Transition Width, Priority, Apply Wind Direction, climate preset, runtime ChangeWeather/ChangeToRandomWeatherVariation, Custom Volume Behavior), Radial Storms (circular weather actor visible from outside as a distant storm with clouds/fog/obscured lightning, spawning system, Fade In/Out, Move Over Time), Weather Above Volumetric Clouds adjustments, the Weather Mask system (Brush, Projection Box, Brush Painter editor utility) for masking material effects in interiors, and Control Point Location Source. Use any time the user asks about per-region weather, a localized storm, weather differing by area, a moving storm, a storm visible from a distance, the player driving into bad weather, weather changing above the cloud layer, or keeping snow/wetness out of an interior.
+description: >-
+  Use when localizing Ultra Dynamic Weather effects. Covers override volumes, radial storms, above-cloud weather, masks, and projection boxes. Use only after confirming the project uses Ultra Dynamic Weather.
+license: UNLICENSED
 metadata:
-  asset: Ultra Dynamic Weather (marketplace)
+  engine-version: "5.8"
   category: spatial-weather
-  source-docs: https://www.ultradynamicsky.com/Documentation/V9/9-5
+  hermes:
+    tags: [unreal-engine, ue5, ultra-dynamic-weather, spatial, weather]
+    related_skills: [udw-setup-and-state, uds-setup-and-modes]
 ---
 
 # UDW spatial weather

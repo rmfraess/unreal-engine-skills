@@ -1,17 +1,14 @@
 ---
 name: subsystems
-description: >
-  Implement engine-managed singletons scoped to a defined lifetime using Unreal's Subsystem
-  framework — UEngineSubsystem, UGameInstanceSubsystem, UWorldSubsystem,
-  UTickableWorldSubsystem, and ULocalPlayerSubsystem. Covers Initialize/Deinitialize
-  lifecycle, ShouldCreateSubsystem for conditional creation, InitializeDependency for
-  ordered init, and Blueprint/Python exposure. Use when building a service or manager
-  (save system, ability registry, match service, analytics) and deciding whether to scope
-  it to the process, game session, world, or local player — and when choosing between a
-  subsystem, a manager actor, or a GameInstance override.
+description: >-
+  Use when choosing an Unreal subsystem lifetime. Covers Engine, GameInstance, World, LocalPlayer, and Editor subsystems, lifecycle, access, and dependency boundaries.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: gameplay-framework
+  hermes:
+    tags: [unreal-engine, ue5, subsystems]
+    related_skills: [navigating-engine-source]
 ---
 
 # Subsystems

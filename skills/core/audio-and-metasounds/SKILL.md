@@ -1,15 +1,14 @@
 ---
 name: audio-and-metasounds
-description: Play and control audio in Unreal — the sound asset types (SoundWave, SoundCue,
-  MetaSound Source), playing 2D/3D sounds from C++ (UGameplayStatics, UAudioComponent),
-  spatial attenuation, sound classes/submixes/concurrency for mixing, runtime MetaSound
-  parameters, Quartz beat-quantized playback, and the MetaSound Builder API. Use when
-  playing SFX/music, attaching looping sounds to actors, setting up 3D spatialization,
-  mixing/ducking audio, driving procedural audio with MetaSounds, or debugging silent
-  sounds, voice spam, or parameter mismatches.
+description: >-
+  Use when implementing Unreal audio or MetaSounds. Covers playback, spatialization, attenuation, mixing, concurrency, and runtime parameters.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: vfx-audio
+  hermes:
+    tags: [unreal-engine, ue5, audio, metasounds]
+    related_skills: [navigating-engine-source]
 ---
 
 # Audio & MetaSounds

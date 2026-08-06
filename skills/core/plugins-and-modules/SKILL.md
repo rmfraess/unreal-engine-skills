@@ -1,17 +1,14 @@
 ---
 name: plugins-and-modules
-description: Create, structure, and manage Unreal Engine plugins — the .uplugin descriptor
-  (FileVersion, Modules array, CanContainContent, EnabledByDefault, Plugins dependencies),
-  plugin folder layout (Source/Content/Resources), EHostType module types (Runtime, Editor,
-  Developer, UncookedOnly, ServerOnly, ClientOnly) and ELoadingPhase values, IModuleInterface
-  StartupModule/ShutdownModule, IPluginManager/IPlugin runtime queries, content-only plugins,
-  engine vs project plugins, explicit-load plugins, plugin dependency hierarchy, and packaging
-  for distribution. Use when creating a reusable plugin, deciding plugin vs project module,
-  structuring an editor or runtime plugin, wiring plugin module C++, enabling plugins in a
-  project, or troubleshooting a plugin that won't load or whose content won't mount.
+description: >-
+  Use when creating or maintaining Unreal plugins. Covers descriptors, modules, dependencies, loading phases, packaging, editor-runtime boundaries, and distribution.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: tooling
+  hermes:
+    tags: [unreal-engine, ue5, plugins, modules]
+    related_skills: [navigating-engine-source]
 ---
 
 # Plugins & modules
@@ -302,7 +299,7 @@ For code-level dependencies between modules inside or across plugins, list the m
 
 ## References & source material
 
-Engine source (UE 5.8, under `E:\Program Files\Epic Games\UE_5.8\Engine\Source\`):
+Engine source (UE 5.8, under the verified `<UE_ENGINE_ROOT>/Engine/Source/`):
 - `Runtime/Projects/Public/PluginDescriptor.h` — `FPluginDescriptor`:38,
   `EPluginEnabledByDefault`:28, `Modules` field:90, `bCanContainContent`:127,
   `Plugins` field:174.
@@ -317,7 +314,7 @@ Engine source (UE 5.8, under `E:\Program Files\Epic Games\UE_5.8\Engine\Source\`
 - `Runtime/Core/Public/Modules/ModuleInterface.h` — `IModuleInterface`, `StartupModule`:49,
   `ShutdownModule`:79.
 
-Real example descriptor: `E:\Program Files\Epic Games\UE_5.8\Engine\Plugins\FX\Niagara\Niagara.uplugin`
+Real example descriptor: `<UE_ENGINE_ROOT>/Engine/Plugins/FX/Niagara/Niagara.uplugin`
 
 Official docs (UE 5.8):
 - Plugins in Unreal Engine —

@@ -1,10 +1,14 @@
 ---
 name: uds-sun-moon-stars
-description: Control the sun, moon, stars, aurora, sky glow, and space layer (planets/moons/nebula) in Ultra Dynamic Sky. Covers sun/moon path (Yaw, Pitch, Vertical Offset, Moon Orbit Offset), manual positioning with Sun/Moon Target widgets, sun appearance (scale/softness/color/eclipse), moon appearance and phases, Stars (tiling vs 360 starmap), 2D and Volumetric Aurora, Night Sky Glow + Light Pollution, and adding planets/moons/nebula via the Space Layer. Use whenever the user asks about sun/moon position, where the sun rises, manual sun placement, moon phases, stars not appearing, aurora effects, light pollution, or adding visible planets/moons — even phrased generally like "I want a giant moon" or "how do I get aurora borealis".
+description: >-
+  Use when controlling Ultra Dynamic Sky celestial objects. Covers sun, moon, stars, aurora, sky glow, planets, moons, and space layers. Use only after confirming the project uses Ultra Dynamic Sky.
+license: UNLICENSED
 metadata:
-  asset: Ultra Dynamic Sky (marketplace)
+  engine-version: "5.8"
   category: celestial-bodies
-  source-docs: https://www.ultradynamicsky.com/Documentation/V9/9-5
+  hermes:
+    tags: [unreal-engine, ue5, ultra-dynamic-sky, sun, moon, stars]
+    related_skills: [uds-setup-and-modes]
 ---
 
 # UDS sun, moon, stars, aurora, space

@@ -1,9 +1,14 @@
 ---
 name: game-thread-performance
-description: Explain how game-thread time drives frame rate and how to optimize it. Use when profiling CPU-bound frame-time spikes, tick-heavy actors, hitches, or when deciding whether to move work off the game thread.
+description: >-
+  Use when diagnosing Unreal game-thread frame cost. Connects frame budgets to tick, allocation, Blueprint, AI, physics, and profiling decisions.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: performance
+  hermes:
+    tags: [unreal-engine, ue5, game, thread, performance]
+    related_skills: [navigating-engine-source]
 ---
 
 # Game-thread performance
@@ -115,8 +120,16 @@ If the work is heavy, move it to a worker task and apply the result back on the 
 ```cpp
 AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [WeakThis = TWeakObjectPtr<AMyActor>(this)]()
 {
-    // Heavy CPU work here.
+    FMyResult Result = ComputeThreadSafeResult();
     // Do NOT touch UObject / Actor state from this thread.
+
+    AsyncTask(ENamedThreads::GameThread, [WeakThis, Result = MoveTemp(Result)]() mutable
+    {
+        if (WeakThis.IsValid())
+        {
+            WeakThis->ApplyResult(MoveTemp(Result));
+        }
+    });
 });
 ```
 

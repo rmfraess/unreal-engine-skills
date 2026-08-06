@@ -1,17 +1,14 @@
 ---
 name: meshes-static-and-skeletal
-description: Work with static and skeletal meshes in Unreal C++ — UStaticMesh +
-  UStaticMeshComponent, USkeletalMesh + USkeletalMeshComponent + USkinnedMeshComponent,
-  instanced meshes (ISM/HISM), material slots (SetMaterial/GetMaterial), sockets
-  (static and skeletal), collision setup (UBodySetup, ECollisionTraceFlag, simple vs
-  complex), the Skeleton/PhysicsAsset relationship, Nanite enable flag on static and
-  skeletal meshes, LODs, and mesh sections. Use when assigning or swapping meshes in
-  C++, configuring collision, enabling Nanite, choosing ISM vs HISM vs individual
-  components, attaching to mesh sockets, overriding material slots, querying LOD data,
-  or debugging missing materials, wrong skeleton, or silent socket attachment failures.
+description: >-
+  Use when working with Unreal mesh assets. Covers static and skeletal meshes, materials, LODs, collision, sockets, instancing, and runtime access.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: content-assets
+  hermes:
+    tags: [unreal-engine, ue5, meshes, static, skeletal]
+    related_skills: [navigating-engine-source]
 ---
 
 # Static & skeletal meshes

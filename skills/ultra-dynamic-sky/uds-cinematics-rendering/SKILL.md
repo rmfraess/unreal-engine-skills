@@ -1,10 +1,14 @@
 ---
 name: uds-cinematics-rendering
-description: Use Ultra Dynamic Sky for cinematic work — animating UDS with Sequencer (keyframing Time of Day, Cloud Coverage/Fog, Cloud Movement, exposing extra variables to cinematics), rendering movies with Movie Render Queue (Project Mode Cinematic/Offline), supporting the Path Tracer (`Adjust for Path Tracer`, post-process height fog approximation), and configuring volumetric clouds to seamlessly loop. Use any time the user mentions Sequencer with UDS, cinematic rendering, MRQ, path-traced renders with UDS, looping clouds for a film, or keyframing the sky/weather over time.
+description: >-
+  Use when rendering cinematics with Ultra Dynamic Sky. Covers Sequencer animation, Movie Render Queue, path tracing, and seamless cloud loops. Use only after confirming the project uses Ultra Dynamic Sky.
+license: UNLICENSED
 metadata:
-  asset: Ultra Dynamic Sky (marketplace)
+  engine-version: "5.8"
   category: cinematics
-  source-docs: https://www.ultradynamicsky.com/Documentation/V9/9-5
+  hermes:
+    tags: [unreal-engine, ue5, ultra-dynamic-sky, cinematics, rendering]
+    related_skills: [uds-setup-and-modes]
 ---
 
 # UDS cinematics and rendering

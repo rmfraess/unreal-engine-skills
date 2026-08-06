@@ -1,17 +1,14 @@
 ---
 name: logging-and-assertions
-description: Add structured logging and runtime checks to Unreal C++ — UE_LOG with custom log
-  categories (DECLARE_LOG_CATEGORY_EXTERN/DEFINE_LOG_CATEGORY), all seven verbosity levels
-  (Fatal/Error/Warning/Display/Log/Verbose/VeryVerbose), structured named-field logging with
-  UE_LOGFMT, the assertion families check/checkf (halts, compiled out in shipping),
-  verify/verifyf (expression always evaluates), ensure/ensureMsgf/ensureAlways (non-fatal,
-  reports once), and the FMsg/FDebug helpers. Use when adding diagnostics to gameplay or
-  engine code, defining a dedicated log category for a module or feature, choosing between
-  crashing and recovering on a bad assumption, printing transient values to screen during PIE,
-  filtering log output by category, or debugging shipping-only crashes where ensures would help.
+description: >-
+  Use when adding Unreal logs or runtime checks. Covers log categories, verbosity, structured logging, check, verify, ensure, and shipping behavior.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: cpp-foundations
+  hermes:
+    tags: [unreal-engine, ue5, logging, assertions]
+    related_skills: [navigating-engine-source]
 ---
 
 # Logging & assertions

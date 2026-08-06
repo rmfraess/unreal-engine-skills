@@ -1,10 +1,14 @@
 ---
 name: uds-fog-and-atmosphere
-description: Configure fog, volumetric fog, dust, and atmospheric coloring in Ultra Dynamic Sky. Covers Fog Density (base + cloud/fog/dust contributions, height falloff, start distance), Fog Color (and the `Support Sky Atmosphere Affecting Height Fog` project setting), Volumetric Fog with light scattering, the Global Volumetric Material (3D noise, ground fog, water-level fog), Dust, the Sky Atmosphere settings (Rayleigh scattering, absorption, overcast luminance), and Simplified Color mode for cheaper sky shading. Use whenever the user mentions UDS fog, height fog, volumetric fog, atmospheric scattering, sky color tinting, dust/sand haze, ground fog, fog below water, or sees a "hard line where fog suddenly starts" issue.
+description: >-
+  Use when configuring Ultra Dynamic Sky atmosphere. Covers fog, volumetric fog, dust, atmospheric color, simplified color, and global volumetric materials. Use only after confirming the project uses Ultra Dynamic Sky.
+license: UNLICENSED
 metadata:
-  asset: Ultra Dynamic Sky (marketplace)
+  engine-version: "5.8"
   category: atmosphere
-  source-docs: https://www.ultradynamicsky.com/Documentation/V9/9-5
+  hermes:
+    tags: [unreal-engine, ue5, ultra-dynamic-sky, fog, atmosphere]
+    related_skills: [uds-setup-and-modes]
 ---
 
 # UDS fog and atmosphere

@@ -1,17 +1,14 @@
 ---
 name: timers-and-async
-description: Schedule and defer work in Unreal C++ — FTimerManager (SetTimer with FTimerHandle,
-  looping and one-shot timers, SetTimerForNextTick, ClearTimer, PauseTimer/UnPauseTimer,
-  timer delegates with payloads), async work (Async/EAsyncExecution, AsyncTask/ENamedThreads,
-  TFuture/TPromise, FNonAbandonableTask/FAutoDeleteAsyncTask/FAsyncTask, FRunnable/FRunnableThread,
-  the UE Tasks System UE::Tasks::Launch/FTask/FPipe), FTSTicker for non-actor ticking,
-  thread-safety and game-thread marshaling, latent actions overview. Use when implementing
-  a delay or repeating callback, replacing per-frame Tick with a periodic timer, deferring
-  one frame, offloading CPU-heavy work to a background thread, or building a non-actor
-  ticker. Cross-references actors-and-components (EndPlay cleanup) and delegates-and-events.
+description: >-
+  Use when scheduling or parallelizing Unreal work. Covers timers, tickers, latent actions, tasks, async execution, threads, runnables, and lifetime safety.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: gameplay-framework
+  hermes:
+    tags: [unreal-engine, ue5, timers, async]
+    related_skills: [navigating-engine-source]
 ---
 
 # Timers & async work

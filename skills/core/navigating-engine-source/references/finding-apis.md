@@ -1,10 +1,10 @@
 # Finding APIs in the engine source
 
-Deep-dive companion to [../SKILL.md](../SKILL.md). Grounded in UE 5.8 at
-`E:\Program Files\Epic Games\UE_5.8\Engine\Source` (Build.version: 5.8.1).
+Deep-dive companion to [../SKILL.md](../SKILL.md). Grounded in UE 5.8 source under
+the verified `<UE_ENGINE_ROOT>/Engine/Source`.
 
 A repeatable, step-by-step playbook for locating any class, function, or type
-without guessing. Uses tools available to an agent (Grep, Glob, Read).
+without guessing. Examples use Hermes `search_files` and `read_file`.
 
 ---
 
@@ -12,16 +12,17 @@ without guessing. Uses tools available to an agent (Grep, Glob, Read).
 
 **Goal:** find `FGameplayTag`'s header, module, and real signature.
 
-1. **Glob for the header** — most UE types have a header named after them:
+1. **Search for the header** — most UE types have a header named after them:
    ```
-   Glob("**/*.h", path="E:/Program Files/Epic Games/UE_5.8/Engine/Source")
-   → filter for "GameplayTagContainer.h"
+   search_files(target="files", pattern="*GameplayTagContainer.h",
+                path="<UE_ENGINE_ROOT>/Engine/Source")
    ```
    Result: `Runtime\GameplayTags\Classes\GameplayTagContainer.h`.
 
-2. **Grep for the declaration** (faster on large headers than reading the full file):
+2. **Search for the declaration** without reading the full file:
    ```
-   Grep("struct FGameplayTag\b", path="...GameplayTagContainer.h", output_mode="content")
+   search_files(target="content", pattern="struct FGameplayTag\b",
+                path="<resolved GameplayTagContainer.h>")
    → line 41: struct FGameplayTag
    ```
 
@@ -44,14 +45,14 @@ without guessing. Uses tools available to an agent (Grep, Glob, Read).
 
 **Goal:** find `SpawnActor` signature on `UWorld`.
 
-1. **Grep for the symbol** — limit to one pass of headers:
+1. **Search for the symbol** in the narrowest known source root:
    ```
-   Grep("SpawnActor", path="E:/Program Files/Epic Games/UE_5.8/Engine/Source/Runtime/Engine/Classes/Engine/World.h",
-        output_mode="content")
+   search_files(target="content", pattern="SpawnActor",
+                path="<UE_ENGINE_ROOT>/Engine/Source/Runtime/Engine/Classes/Engine/World.h")
    ```
    Scan the output for the templated overload signature.
 
-2. **Read a focused range** around the match using Read with `offset`/`limit`. Do
+2. **Read a focused range** around the match using `read_file` with `offset`/`limit`. Do
    not read the full `World.h` (it exceeds 5,000 lines).
 
 3. Note line numbers as approximate — they drift across patch releases. Cite the
@@ -64,7 +65,8 @@ without guessing. Uses tools available to an agent (Grep, Glob, Read).
 **Goal:** find all uses of `ReplicatedUsing` in `Actor.h`.
 
 ```
-Grep("ReplicatedUsing", path="...GameFramework/Actor.h", output_mode="content")
+search_files(target="content", pattern="ReplicatedUsing",
+             path="<resolved GameFramework/Actor.h>")
 → line 351, …  (UPROPERTY lines with ReplicatedUsing=OnRep_*)
 ```
 
@@ -102,7 +104,7 @@ Plugin APIs live under `Engine\Plugins\` and follow the same pattern. Example:
 `Engine\Plugins\Runtime\GameplayAbilities\Source\GameplayAbilities\Public\AbilitySystemComponent.h`.
 
 Steps:
-1. Glob for the header under `Engine\Plugins\`.
+1. Use `search_files(target="files")` for the header under `Engine\Plugins\`.
 2. Confirm the module via `<Module>.Build.cs` in the plugin's `Source\<Module>\`.
 3. Confirm the plugin is enabled in the `.uproject`'s `Plugins` array.
 4. Add the module name to `Build.cs` dependencies.
@@ -111,15 +113,8 @@ Steps:
 
 ## Workflow 6 — Comparing a signature across engine versions
 
-Use the other available engine roots:
-
-| Version | Root |
-|---|---|
-| 5.5.1 | `E:\Repo\Git\UE_5_5_1_Fresh\UnrealEngine\Engine\Source` |
-| 5.7 | `E:\Program Files\Epic Games\UE_5.7\Engine\Source` |
-| 5.8.1 (primary) | `E:\Program Files\Epic Games\UE_5.8\Engine\Source` |
-
-Grep the same symbol in all three, then diff the results. When an API changed
+Resolve each installed or source-built engine root independently. Search the same symbol
+in each tree, then diff the focused declaration windows. When an API changed
 between versions, document the version it changed in the skill or code you produce.
 
 ---
@@ -128,17 +123,17 @@ between versions, document the version it changed in the skill or code you produ
 
 | Situation | Strategy |
 |---|---|
-| Looking for a class | Grep `"class AMyClass\b"` in the expected file |
-| Looking for a method | Grep `"MethodName"` in the header, then Read ±10 lines |
-| Looking for a UPROPERTY | Grep `"MemberName"` — the UPROPERTY line is usually 1–2 lines above |
-| Looking for specifiers on a known member | Read a 15-line window starting 2 lines before the member |
-| Navigating a 2,000+ line header | Grep first; never read the whole file |
+| Looking for a class | `search_files(target="content")` for `"class AMyClass\b"` |
+| Looking for a method | Search the header, then `read_file` a ±10-line window |
+| Looking for a UPROPERTY | Search for the member; the UPROPERTY line is usually 1–2 lines above |
+| Looking for specifiers on a known member | `read_file` a 15-line window starting 2 lines before the member |
+| Navigating a 2,000+ line header | Search first; never read the whole file |
 
-### Reading trick: line-range Read
+### Reading trick: focused `read_file`
 
-When the Grep shows a hit at line 351 in `Actor.h`, read 10 lines of context:
+When the search shows a hit at line 351 in `Actor.h`, read a focused context window:
 ```
-Read(file_path="...Actor.h", offset=347, limit=20)
+read_file(path="<resolved Actor.h>", offset=347, limit=20)
 ```
 This avoids loading the entire file. For `Actor.h` (~4,500 lines) this is
 critical.
@@ -182,11 +177,11 @@ Key reading points:
 
 ## Common mistakes
 
-- **Grepping the Private folder first** — most public APIs are in `Public/` or
+- **Searching the Private folder first** — most public APIs are in `Public/` or
   `Classes/`; start there.
-- **Reading the full header** — always Grep first, then read a focused range.
+- **Reading the full header** — always search first, then read a focused range.
 - **Trusting a memorized line number** — line numbers drift across patch releases.
-  Grep fresh each session for precision.
+  Search fresh each session for precision.
 - **Forgetting the `*.generated.h` include** — UHT generates it; if your header
   uses reflection macros and omits the `#include "MyClass.generated.h"` (last
   include), compilation fails with an obscure macro-not-found error.

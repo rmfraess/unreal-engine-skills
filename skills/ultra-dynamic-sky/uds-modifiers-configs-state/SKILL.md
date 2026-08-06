@@ -1,10 +1,14 @@
 ---
 name: uds-modifiers-configs-state
-description: Use UDS's higher-level state features — Sky Modifiers (data assets that override sky/post-process properties, time-of-day-triggered modifiers), the Configuration Manager (save/apply complete UDS configs, runtime Apply Sky Configuration, configuration override), Save UDS+UDW state for save games, Sun Lens Flare, Post Process Components driven by time/weather/interior, Interior Adjustments + Player Occlusion (with UDS Occlusion Volume and Portal), Water Level (caustics, underwater fog, Water Body Classes), Ambient Sound — Time and Weather Controlled, and the UDS Onscreen Controls widget (with multiplayer client controller). Use any time the user asks about saving/loading sky presets, applying a different sky config, save-game serialization for time/weather, sun lens flare, post-processing tied to time of day, indoor vs outdoor differences, water/underwater effects, ambient sounds that change with time, or an on-screen UI to control the sky.
+description: >-
+  Use when managing Ultra Dynamic Sky state. Covers modifiers, configurations, save and load, lens flare, interiors, occlusion, water level, and UI. Use only after confirming the project uses Ultra Dynamic Sky.
+license: UNLICENSED
 metadata:
-  asset: Ultra Dynamic Sky (marketplace)
+  engine-version: "5.8"
   category: state-management
-  source-docs: https://www.ultradynamicsky.com/Documentation/V9/9-5
+  hermes:
+    tags: [unreal-engine, ue5, ultra-dynamic-sky, modifiers, configs, state]
+    related_skills: [uds-setup-and-modes]
 ---
 
 # UDS modifiers, configurations, state, and misc features

@@ -1,18 +1,14 @@
 ---
 name: importing-content
-description: Import external assets into Unreal using the Interchange framework (UInterchangeManager,
-  UInterchangePipelineBase, UInterchangeFactoryBase, UInterchangeTranslatorBase, UInterchangeSourceData)
-  and the legacy FBX pipeline (UFbxFactory / UnFbx::FFbxImporter). Covers the three-stage
-  Interchange pipeline (translate → pipeline → factory), pipeline stacks, format support
-  (FBX, glTF/GLB, OBJ, USD, images, audio), mesh and texture import settings (units/axes,
-  normals, lightmap UVs, Nanite, sRGB/compression), skeletal mesh skeleton assignment,
-  import asset data (UInterchangeAssetImportData / UAssetImportData), and programmatic
-  runtime import via C++, Blueprint, and Python. Use when importing DCC content, troubleshooting
-  wrong scale/rotation/shading after import, scripting automated batch import, customising
-  an import pipeline, or setting up a repeatable reimport workflow.
+description: >-
+  Use when importing or reimporting Unreal content. Covers Interchange, meshes, textures, import data, automation, reimport behavior, and asset verification.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: content-assets
+  hermes:
+    tags: [unreal-engine, ue5, importing, content]
+    related_skills: [navigating-engine-source]
 ---
 
 # Importing content
@@ -27,8 +23,9 @@ their import provenance so reimport stays predictable.
   Painter, or other DCC tools.
 - Wrong scale, rotation, flipped normals, or washed-out/over-saturated textures after import.
 - Setting up skeleton assignment and morph targets for character assets.
-- Writing automated batch import via `UInterchangeManager` in C++, Blueprint, or Python.
-- Customising an import pipeline (C++ subclass, Blueprint, or Python) to enforce project
+- Writing automated editor batch import via `UInterchangeManager` in C++, Blueprint, or
+  Python. Python workflows are editor-only.
+- Customising an import pipeline (C++ subclass, Blueprint, or editor Python) to enforce project
   conventions.
 - Debugging why reimport does not pick up the expected source file or settings.
 
@@ -171,6 +168,8 @@ Key API points:
   the project-default pipeline stack with a custom one.
 - `FImportAssetParameters::bIsAutomated = true` prevents any modal dialog from opening —
   essential for unattended batch import.
+- Python is not available in cooked runtime builds. Runtime Interchange must use cooked C++ or
+  Blueprint entry points and supports only translators and pipeline assets included in the build.
 - For runtime import in a cooked build, the `Interchange` content folder must be added to
   **Project Settings > Packaging > Additional Asset Directories to Cook**.
 
