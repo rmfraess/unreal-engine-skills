@@ -56,7 +56,8 @@ unreal-engine-skills/
 ├── README.md                  # this file — index + conventions
 ├── docs/
 │   ├── hermes-agent-integration.md # install, routing, validation, provenance
-│   └── skill-authoring-guide.md    # house style for writing skills in this repo
+│   ├── skill-authoring-guide.md    # house style for writing skills in this repo
+│   └── agents/validation.md        # checks by change scope and failure semantics
 ├── evals/                     # golden tasks measuring skill effectiveness (see evals/README.md)
 │   └── tasks/
 ├── scripts/
@@ -185,31 +186,8 @@ See [`docs/skill-authoring-guide.md`](docs/skill-authoring-guide.md). In short:
 
 ## Validation
 
-Validate any skill against the spec with the
-[`skills-ref`](https://github.com/agentskills/agentskills/tree/main/skills-ref) tool:
-
-```
-npx --yes skills-ref@0.1.5 validate ./skills/<category>/<skill-name>
-```
-
-Verify that every engine-source citation in the skills still exists on disk (run after
-editing skills, and when re-targeting a new engine version):
-
-```
-node scripts/check-citations.mjs            # all skills
-node scripts/check-citations.mjs core/gameplay-tags   # one skill
-```
-
-Set `UE_ENGINE_ROOT` if your engine install is not at the default path.
-
-Validate every skill's Hermes trigger, metadata, links, and source-navigation tool names:
-
-```
-node scripts/check-hermes-compatibility.mjs
-```
-
-The citation checker exits non-zero when a selected category contains zero recognized
-engine-source citations. It does not validate marketplace documentation or asset paths.
+Use [`docs/agents/validation.md`](docs/agents/validation.md) for exact commands, change scopes,
+prerequisites, and failure semantics.
 
 ## Evals
 

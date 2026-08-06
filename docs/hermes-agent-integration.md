@@ -68,23 +68,8 @@ an exact skill lookup rather than relying only on a truncated table row.
 
 ## Validation
 
-Run both compatibility layers:
-
-```text
-node scripts/check-hermes-compatibility.mjs
-npx --yes skills-ref@0.1.5 validate ./skills/<category>/<skill-name>
-```
-
-Validate engine-source claims against the installed UE 5.8 tree:
-
-```text
-UE_ENGINE_ROOT='C:/Program Files/Epic Games/UE_5.8' node scripts/check-citations.mjs
-```
-
-The citation checker covers `Engine/Source` and `Engine/Plugins` paths. It intentionally fails
-when a selected category contains zero recognized engine citations; that prevents a zero-work
-success from being mistaken for marketplace validation. Ultra Dynamic Sky and Ultra Dynamic
-Weather still require separate validation against the installed asset version and vendor docs.
+Use [`docs/agents/validation.md`](agents/validation.md) for exact commands, change scopes,
+routing checks, and marketplace-validation boundaries.
 
 ## Provenance and licensing
 

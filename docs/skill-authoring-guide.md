@@ -115,5 +115,5 @@ Order skills roughly like this. Omit sections that don't apply.
 - [ ] C++ snippets compile against 5.8 (correct includes, macros, module deps).
 - [ ] Has verified engine-source references, or versioned vendor evidence for marketplace skills.
 - [ ] Domain guidance has no editor-transport instructions; meta tooling uses real Hermes names.
-- [ ] `npx --yes skills-ref@0.1.5 validate ./skills/<category>/<name>` passes.
-- [ ] `node scripts/check-hermes-compatibility.mjs` passes for the full tree.
+- [ ] The checks required by [`docs/agents/validation.md`](agents/validation.md) pass for the
+  changed scope.

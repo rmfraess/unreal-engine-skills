@@ -20,3 +20,6 @@ yarn-error.log*
 
 # Personal VS Code multi-root workspace (machine-specific paths)
 *.code-workspace
+
+# Local agent instructions
+/AGENTS.md
