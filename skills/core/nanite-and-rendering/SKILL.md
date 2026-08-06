@@ -1,7 +1,7 @@
 ---
 name: nanite-and-rendering
 description: >-
-  Use when configuring Nanite or Unreal rendering. Covers virtualized geometry, render paths, Virtual Textures, Virtual Shadow Maps, and post processing.
+  Use when configuring Nanite, render paths, or GPU Scene. Covers virtualized geometry, Virtual Textures, Virtual Shadow Maps, and post processing.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"

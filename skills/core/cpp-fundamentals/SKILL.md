@@ -1,7 +1,7 @@
 ---
 name: cpp-fundamentals
 description: >-
-  Use when writing reflected Unreal C++. Covers UObject lifecycle, reflection macros, class defaults, object creation, garbage collection, and UHT contracts.
+  Use when implementing Unreal UObject-based C++. Covers reflection, lifecycle, CDOs, object creation, garbage collection, pointers, and UHT errors.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"
@@ -41,20 +41,11 @@ Three interlocking pieces:
 UObjects are garbage-collected. Any UObject* you want kept alive must be stored in a `UPROPERTY`.
 A plain C++ pointer is invisible to the GC and will dangle after the next collection.
 
-## Class prefixes (mandatory)
+## Reflection-critical type forms
 
-| Prefix | Meaning | Examples |
-|---|---|---|
-| `U` | UObject-derived (non-Actor) | `UActorComponent`, `UMyDataAsset` |
-| `A` | Actor-derived (world-placeable) | `AActor`, `AMyCharacter` |
-| `F` | Plain struct / non-UObject value type | `FVector`, `FMyConfig` |
-| `E` | Enum | `EMyState` |
-| `I` | Interface (the `IFoo` half of a `UFoo`/`IFoo` pair) | `IInteractable` |
-| `T` | Template | `TArray`, `TObjectPtr` |
-| `S` | Slate widget | `SButton` |
-
-The class name after the prefix must match the filename (minus prefix): `AMyPawn` lives in
-`MyPawn.h / MyPawn.cpp`.
+Use `U` for non-Actor UObject classes, `A` for Actors, `F` for reflected structs, and the
+paired `U`/`I` forms for reflected interfaces. Load `coding-standards` for the authoritative
+prefix table, naming rules, and filename conventions.
 
 ## Anatomy of a UObject class
 

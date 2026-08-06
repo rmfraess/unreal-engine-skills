@@ -1,7 +1,7 @@
 ---
 name: mover-movement-system
 description: >-
-  Use when implementing movement with Unreal Mover. Covers movement modes, transitions, layered moves, instant effects, networking, and backend selection.
+  Use when using experimental Unreal Mover for movement. Covers movement modes, transitions, layered moves, instant effects, networking, and backend selection.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"
@@ -356,38 +356,16 @@ if (UCommonLegacyMovementSettings* Settings =
 
 ## Networking backends (overview)
 
-The MoverComponent doesn't tick itself; a **backend liaison**
-(`Backends/MoverBackendLiaison.h:24`, chosen by `BackendClass`,
-`MoverComponent.h:206`) drives ProduceInput/SimulationTick/FinalizeFrame:
-
-| Backend | Class | Use for |
-|---------|-------|---------|
-| Network Prediction (default) | `UMoverNetworkPredictionLiaisonComponent` (`Backends/MoverNetworkPredictionLiaison.h:29`) | kinematic characters with client prediction + rollback |
-| Chaos networked physics | `UChaosMoverBackendComponent` (ChaosMover plugin, `ChaosMover/Backends/ChaosMoverBackend.h:28`) | physics-driven movement (`UChaosCharacterMoverComponent` + `Chaos*` modes) |
-| Standalone | `UMoverStandaloneLiaisonComponent` (`Backends/MoverStandaloneLiaison.h:100`) | single-player / no networking, lowest overhead |
-
-Rollbacks re-simulate forward from a corrected state; `OnPostSimulationRollback`
-(`MoverComponent.h:124`) fires so gameplay/VFX can react. Custom replicated
-movement state = your own `FMoverDataStructBase` (`MoverTypes.h:203`) added to
-the input/sync collections (the Mover analog of CMC's `FSavedMove` flags). Full
-detail — backend setup, custom state data, smoothing, reconciliation — in
+The default Network Prediction backend fits kinematic characters with client prediction and
+rollback. Select ChaosMover for physics-driven movement and Standalone only when networking is
+out of scope. Backend setup, required component/mode combinations, custom replicated state,
+smoothing, rollback, and reconciliation are in
 [references/networking-and-backends.md](references/networking-and-backends.md).
 
 ## CMC → Mover migration cheat sheet
 
-| CMC | Mover |
-|-----|-------|
-| `MaxWalkSpeed` | `UCommonLegacyMovementSettings::MaxSpeed` |
-| `JumpZVelocity` | `UCommonLegacyMovementSettings::JumpUpwardsSpeed` |
-| `SetMovementMode(MOVE_Flying)` | `QueueNextMode("Flying")` or input `SuggestedMovementMode` |
-| `PhysCustom` + `CustomMovementMode` | custom `UBaseMovementMode` registered under its own name |
-| `LaunchCharacter` | `FApplyVelocityEffect` / `FLayeredMove_LinearVelocity` |
-| `SetActorLocation` / teleport | `FTeleportEffect` |
-| Root motion montage | `FLayeredMove_AnimRootMotion` |
-| `FSavedMove_Character` custom flags | custom `FMoverDataStructBase` in the input cmd collection |
-| `bOrientRotationToMovement` | author `OrientationIntent` in `ProduceInput` (see pawn example) |
-| `IsMovingOnGround()` | `IsOnGround()` / `Mover_IsOnGround` tag |
-| `GetCharacterMovement()->Velocity = V` | not allowed — queue an instant effect or layered move |
+Translate CMC concepts only after choosing the Mover backend. Use
+[references/cmc-migration.md](references/cmc-migration.md) for the mapping and migration gate.
 
 ## Gotchas
 
@@ -494,6 +472,8 @@ Deep-dive references in this skill:
 - [references/networking-and-backends.md](references/networking-and-backends.md)
   — backend liaisons, rollback flow, custom sync/input state data, smoothing,
   physics-driven movement.
+- [references/cmc-migration.md](references/cmc-migration.md)
+  — CMC concept mapping and migration verification.
 
 Related skill: `character-and-movement` covers `ACharacter` +
 `UCharacterMovementComponent`, including when to prefer CMC over Mover.

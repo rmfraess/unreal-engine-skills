@@ -25,7 +25,17 @@ of simple actions, plain components may be simpler.
 - Gameplay Cues for cosmetic effects that replicate without bespoke RPCs.
 - Async ability logic: waiting for animation, input, events, or delays inside an ability.
 
-## Setup
+## Core workflow
+
+1. Choose ASC owner and avatar lifetimes, including respawn behavior.
+2. Initialize actor info on server and owning client.
+3. Register and replicate attributes.
+4. Grant abilities on authority.
+5. Configure costs, cooldowns, effects, tags, cues, and prediction policy.
+6. Activate, commit, and terminate every success, cancellation, and failure path.
+7. Verify authority, prediction reconciliation, attribute replication, and cue behavior.
+
+## Project prerequisites
 
 1. Enable the **Gameplay Abilities** plugin (`.uplugin` → Plugins, or add `GameplayAbilities`
    to your `.uproject`).
@@ -74,6 +84,11 @@ public:
 
 GAS does not support a single Actor having multiple ASCs (ambiguous queries). Multiple Actors can
 share one ASC (e.g. equipment routing to the character's ASC).
+
+Integration is complete when server and owning client both initialize valid actor info, one
+granted ability activates through the intended authority/prediction path, one replicated
+attribute update reaches the client, and rejection or correction reconciles without a stuck
+ability or cosmetic cue.
 
 ## Attributes
 

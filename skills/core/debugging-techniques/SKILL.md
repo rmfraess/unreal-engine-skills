@@ -32,6 +32,17 @@ Pick the tool that fits the question:
 - Stepping through C++ to find a crash or logic error; attaching a debugger and reading a callstack.
 - Adding a custom in-game debug overlay for a new system (Gameplay Debugger custom category).
 
+## Investigation workflow
+
+1. State one falsifiable hypothesis.
+2. Choose the narrowest evidence channel from the opening table.
+3. Reproduce under controlled conditions and capture the evidence.
+4. Change one suspected cause, then reproduce the original case and a nearby control case.
+5. Remove temporary instrumentation or bound it behind an explicit debug switch.
+
+Debugging is complete when the original reproduction no longer fails, the control case remains
+correct, and retained diagnostics are safe for the intended build configuration.
+
 ## Logging and assertions — start here
 
 For "what is the value / did this path run" questions, a `UE_LOG` line is fastest. For
@@ -309,19 +320,6 @@ Source: `Runtime/Engine/Classes/GameFramework/CheatManager.h` — `UCheatManager
 
 Full stat commands, cvar authoring, and `displayall`:
 [references/draw-debug-and-console.md](references/draw-debug-and-console.md).
-
-## Decision guide
-
-```
-Bug type                        → Tool
-──────────────────────────────────────────────────────
-Wrong value / missing execution → UE_LOG / ensure
-Wrong position / shape / range  → DrawDebug* or UE_VLOG_LOCATION
-AI makes wrong decision         → Gameplay Debugger + Visual Logger
-Intermittent / race / sequence  → Visual Logger (scrub timeline)
-Crash / access violation        → Native debugger + callstack
-Perf regression (fps/ms)        → profiling-and-optimization
-```
 
 ## Gotchas
 

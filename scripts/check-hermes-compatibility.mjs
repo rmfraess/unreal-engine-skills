@@ -164,22 +164,23 @@ async function main() {
     if (description && !description.startsWith('Use when ')) {
       failures.push(`${relative}: description must start with 'Use when '`);
     }
+    let firstTrigger = '';
     if (description) {
       const firstStop = description.indexOf('.');
       if (firstStop < 0 || firstStop + 1 > HERMES_PREVIEW_LENGTH) {
         failures.push(`${relative}: first trigger sentence must finish within ${HERMES_PREVIEW_LENGTH} characters`);
+      } else {
+        firstTrigger = description.slice(0, firstStop + 1);
       }
     }
     if (name?.startsWith('uds-')) {
-      const packageGate = 'Use only after confirming the project uses Ultra Dynamic Sky.';
-      if (!description?.includes('Ultra Dynamic Sky') || !description.includes(packageGate)) {
-        failures.push(`${relative}: Ultra Dynamic Sky description lacks its package gate`);
+      if (!firstTrigger.startsWith('Use when confirmed Ultra Dynamic Sky')) {
+        failures.push(`${relative}: first trigger must begin "Use when confirmed Ultra Dynamic Sky"`);
       }
     }
     if (name?.startsWith('udw-')) {
-      const packageGate = 'Use only after confirming the project uses Ultra Dynamic Weather.';
-      if (!description?.includes('Ultra Dynamic Weather') || !description.includes(packageGate)) {
-        failures.push(`${relative}: Ultra Dynamic Weather description lacks its package gate`);
+      if (!firstTrigger.startsWith('Use when confirmed Ultra Dynamic Weather')) {
+        failures.push(`${relative}: first trigger must begin "Use when confirmed Ultra Dynamic Weather"`);
       }
     }
     if (!license) failures.push(`${relative}: missing explicit license status`);

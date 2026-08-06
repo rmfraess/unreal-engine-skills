@@ -1,7 +1,7 @@
 ---
 name: blueprint-fundamentals
 description: >-
-  Use when reasoning about Unreal Blueprints. Covers generated classes, graphs, variables, components, inheritance, and the C++ to Blueprint boundary.
+  Use when designing or debugging Unreal Blueprints. Covers generated classes, graphs, variables, components, inheritance, and the C++ to Blueprint boundary.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"

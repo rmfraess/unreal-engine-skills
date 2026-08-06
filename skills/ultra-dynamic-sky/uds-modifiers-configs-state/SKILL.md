@@ -1,7 +1,7 @@
 ---
 name: uds-modifiers-configs-state
 description: >-
-  Use when managing Ultra Dynamic Sky state. Covers modifiers, configurations, save and load, lens flare, interiors, occlusion, water level, and UI. Use only after confirming the project uses Ultra Dynamic Sky.
+  Use when confirmed Ultra Dynamic Sky manages state. Covers modifiers, configurations, save and load, lens flare, interiors, occlusion, water level, and UI.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"

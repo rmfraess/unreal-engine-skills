@@ -32,6 +32,17 @@ Unreal has a layered test ecosystem. Each layer trades world setup cost against 
 - Running tests headless in CI on every commit.
 - Reaching devices or larger sessions via Gauntlet.
 
+## Core workflow
+
+1. Classify the dependency boundary: pure C++, engine/editor, world, or device session.
+2. Choose the lowest test layer that supplies that boundary.
+3. Implement deterministic setup, assertion, timeout, and cleanup.
+4. Run the test headlessly by its exact dotted filter or target invocation.
+5. Inspect the report and process exit status; reproduce failures with the same filter.
+
+Testing is complete when the selected test is discovered, its intended headless invocation
+produces a bounded pass/fail result, and world, actor, latent, and async state are cleaned up.
+
 ## Mental model
 
 Tests live outside `UObject` reflection — they are not Blueprints-visible. The

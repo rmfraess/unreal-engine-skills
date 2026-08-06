@@ -29,6 +29,19 @@ their import provenance so reimport stays predictable.
   conventions.
 - Debugging why reimport does not pick up the expected source file or settings.
 
+## Core workflow
+
+1. Identify the asset type, source format, and translator that will own the import.
+2. Confirm source units, axes, naming, and the intended Interchange or legacy pipeline.
+3. Import to an explicit package path with recorded settings rather than relying on dialog state.
+4. Verify created asset count, types, paths, transforms, shading, materials, skeleton, collision,
+   and texture color space as applicable to the asset type.
+5. Reimport the unchanged source and confirm provenance and settings remain stable.
+
+Import is complete when every expected asset exists at the intended package path, passes its
+type-specific checks, and an unchanged-source reimport introduces no unintended asset or setting
+changes.
+
 ## Pipelines: Interchange vs legacy
 
 **Interchange** (default for FBX, glTF, GLB, OBJ, most images, audio)

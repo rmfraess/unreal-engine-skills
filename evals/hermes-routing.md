@@ -9,7 +9,8 @@ leak into routing.
 - Positive cases load the expected package skill and no unrelated package skill.
 - Negative twins do not load any `uds-*` or `udw-*` skill.
 - Multi-skill activation is acceptable only when the prompt explicitly spans both domains.
-- The package-qualified trigger remains complete within the first 57 description characters.
+- The package-qualified trigger confirms package context and remains complete within the first
+  57 description characters.
 
 ## Ultra Dynamic Sky
 

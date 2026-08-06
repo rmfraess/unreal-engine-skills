@@ -1,7 +1,7 @@
 ---
 name: uds-sun-moon-stars
 description: >-
-  Use when controlling Ultra Dynamic Sky celestial objects. Covers sun, moon, stars, aurora, sky glow, planets, moons, and space layers. Use only after confirming the project uses Ultra Dynamic Sky.
+  Use when confirmed Ultra Dynamic Sky controls the sky. Covers sun, moon, stars, aurora, sky glow, planets, moons, and space layers.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"

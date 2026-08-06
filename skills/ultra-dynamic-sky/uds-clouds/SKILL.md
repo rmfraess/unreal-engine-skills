@@ -1,7 +1,7 @@
 ---
 name: uds-clouds
 description: >-
-  Use when configuring Ultra Dynamic Sky clouds. Covers volumetric, static, 2D, and voxel clouds, movement, painting, wisps, and light rays. Use only after confirming the project uses Ultra Dynamic Sky.
+  Use when confirmed Ultra Dynamic Sky needs cloud tuning. Covers volumetric, static, 2D, and voxel clouds, movement, painting, wisps, and light rays.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"
@@ -23,6 +23,8 @@ UDS renders clouds via one of four mutually exclusive systems plus a shared move
 | Voxel Clouds | Hard cubic voxel render of Volumetric Clouds | Heavy | Same tools as Volumetric Clouds |
 
 ## When to use this skill
+
+Use these branches only after Ultra Dynamic Sky is confirmed as the system owning the clouds.
 
 - Tuning the look (altitude, scale, density, color, second layer) of any cloud type.
 - Cutting cloud-rendering GPU cost.

@@ -1,7 +1,7 @@
 ---
 name: udw-setup-and-state
 description: >-
-  Use when installing or controlling Ultra Dynamic Weather. Covers weather states, presets, transitions, sampling, events, and actor weather status. Use only after confirming the project uses Ultra Dynamic Weather.
+  Use when confirmed Ultra Dynamic Weather controls state. Covers setup, presets, transitions, sampling, events, and actor weather status.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"
@@ -41,6 +41,12 @@ UDW requires UDS — make sure there's an **Ultra Dynamic Sky** actor in the lev
 Drag an **Ultra Dynamic Weather** actor from the Blueprints folder into the scene. It detects UDS automatically and hooks everything up.
 
 By default, UDW starts with a manual weather state matching the Cloud Coverage and Fog already set on UDS. The **Weather** variable in Basic Controls lets you apply different weather presets immediately.
+
+## Validation / done when
+
+Setup is complete when UDW resolves the intended UDS actor, `Change Weather` visibly
+transitions to a known preset, sampled state values match the visible weather, and one
+relevant dispatcher or actor-exposure query has been exercised.
 
 ## Basic Controls
 

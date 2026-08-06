@@ -1,7 +1,7 @@
 ---
 name: udw-material-and-screen-effects
 description: >-
-  Use when adding Ultra Dynamic Weather surface effects. Covers wetness, snow, puddles, glass drips, foliage wind, screen effects, breath, and icicles. Use only after confirming the project uses Ultra Dynamic Weather.
+  Use when confirmed Ultra Dynamic Weather adds wetness. Covers snow, puddles, glass drips, foliage wind, screen effects, breath, and icicles.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"
@@ -34,6 +34,8 @@ Everything UDW renders into materials (per-object) and the camera (screen/post) 
 | Weather Occlusion Volume | Volume texture | Distance field |
 
 ## When to use this skill
+
+These branches use Ultra Dynamic Weather assets and controls, not native Unreal weather systems.
 
 - Making props or scenery materials respond to weather (wet, snowy, dusty).
 - Adding footprints/tire tracks in snow or sand (landscape).
@@ -319,90 +321,13 @@ Masking in interiors:
 | **Weather Occlusion Volume** *(default, best)* | Volume texture caching weather exposure around the camera via global distance field |
 | Player Occlusion | Alternative |
 
-## Puddle Fluid Volume
+## Placed, character, and water-linked effects
 
-Renders a puddle as an actual water surface that moves up/down as the puddle fills/empties with weather. Use when there's a real geometric recess for water to fill.
-
-In `Blueprints/Weather_Effects/`.
-
-Optional **Puddle Fluid Interactions** renders the puddle as a dense grid mesh simulating natural ripples from DLWE Interaction components contacting the surface. Cost scales significantly with size — keep small.
-
-Placement notes:
-
-| Detail | Reason |
-| --- | --- |
-| Editor preview state comes from currently selected weather on UDW | Override via **Level Editor Preview State** |
-| Place so the puddle is fully hidden under ground when dry | Mesh visible in editor when dry (helps placement); hidden at runtime when dry |
-| Scale via `Puddle Area` or actor scaling; only Z-axis rotation supported | Geometry constraint |
-| Translucent water surface by default | Enable **High Quality Translucency Reflections** in project settings for good Lumen reflections |
-
-Categories: **Puddle State** (when/how filled/emptied), **Fluid Interactions** (DLWE interaction behavior toggles).
-
-## Dripping Mesh Particles
-
-Niagara systems that make a mesh spawn drip particles on its surface in response to rain / material wetness. In `Particles/Standalone/`.
-
-| Mesh type | System | Setup |
-| --- | --- | --- |
-| Static mesh | **Dripping Static Mesh** | Add Niagara component as a child of the static mesh component |
-| Skeletal mesh | **Dripping Skeletal Mesh** | Same with skeletal mesh component |
-
-User parameters scale lifetime, max spawn rate, and the spawn rate fraction used when raining/wet/independent.
-
-Drip appearance (sprite size, color, alpha) comes from UDW's rain particle settings.
-
-If the actor has an **Actor Weather Status** component, the actor's local status drives the drip amount instead of global weather state. See `udw-setup-and-state`.
-
-## Freezing Breath
-
-Niagara system for visible character breath in cold air. Asset: **Freezing Breath** at `Particles/Standalone/`.
-
-```
-1. Add a Niagara component using Freezing Breath to your actor
-2. Position + parent it in front of the mouth
-3. Rotate so X axis points in direction of exhale
-```
-
-| State | Behavior |
-| --- | --- |
-| Default | Visible in freezing temperatures (UDW's calculated local temperature) |
-| With Actor Weather Status component | Uses actor-local temperature instead |
-
-## Rain Drip Spline
-
-Actor in `Blueprints/Weather_Effects/` for spawning rain droplets along a line/curve — e.g. dripping from a building roof edge.
-
-Drag in → small straight line. Edit the spline (move/rotate points; right-click to add) for length/shape.
-
-Particle collision/appearance use UDW's rain particle settings.
-
-**Optional icicle meshes** hanging from the spline render in cold weather — for icicles on a roof edge.
-
-## Icicles
-
-For icicles hanging from mesh edges, see Rain Drip Spline above — the optional icicle feature along its spline.
-
-## Weather Occlusion Volume
-
-Volume texture caching how occluded each point around the camera is from weather/wind. Built by sampling the global distance field — requires distance fields enabled and supported.
-
-Used by **Post Process Wind Fog** to mask intensity in spaces blocked by scenery.
-
-## Water Level effects (UDW side)
-
-The **Use UDS Water Level** option in UDW's **Water Level** category enables UDS water level for several UDW features. Actual water level config is on UDS — see `uds-modifiers-configs-state`.
-
-What UDS water level affects on UDW:
-
-- Weather particles kept out of below-water space
-- Sound Occlusion fully occludes when camera goes below water
-- Screen Droplets auto-off underwater; screen wet effect on resurface
-- Rainbow masked beneath water level (when its option is on)
-- Surface Weather Effects + DLWE functions have inputs to mask coverage below water
-
-## Current Weather Display widget
-
-**UDW_Current_Weather_Display** widget (widget designer → Ultra Dynamic Sky Widgets). Represents current weather as an icon by default, sourced via `Get Display Name for Current Weather`. Exposed settings switch to text display or read the current weather preset asset.
+Read [references/placed-and-water-effects.md](references/placed-and-water-effects.md) only when
+the task needs a Puddle Fluid Volume, dripping mesh particles, freezing breath, a Rain Drip
+Spline or icicles, Weather Occlusion Volume, UDS water-level integration, or the current-weather
+widget. The reference keeps each effect's placement, state source, masking, and cost constraints
+co-located.
 
 ## Gotchas
 
@@ -416,10 +341,7 @@ What UDS water level affects on UDW:
 - **Rainbow never appears** — cloud coverage is too high (camera not exposed to sunlight); or sun too high; or neither rain nor fog is contributing.
 - **Screen Frost appearing indoors** — Player Occlusion isn't detecting the interior. See `uds-modifiers-configs-state`.
 - **Heat Distortion always at max** — calculated temperature is hot, OR Manual Heat Distortion is also driving it. Disable manual contribution.
-- **Puddle Fluid Volume mesh visible at runtime in dry state** — that's a bug only in the editor; at runtime the dry mesh is hidden. If it's visible at runtime, the puddle isn't fully under ground — place it lower.
-- **Puddle Fluid Interactions performance terrible** — fluid interaction simulation cost scales with puddle area. Keep to small puddles.
-- **Freezing Breath always visible** — Actor Weather Status component overriding to its local temperature (warmer than ambient). Tune the actor temperature inputs.
-- **Dripping Mesh Particles ignoring weather** — has an Actor Weather Status component on the actor; drip uses actor-local status instead of global state. Intended behavior.
+- **Placed puddle, drip, or breath effect is wrong** — use the effect-specific troubleshooting in [references/placed-and-water-effects.md](references/placed-and-water-effects.md).
 - **Custom material with Sample UDW Material State ignoring WOV / Weather Mask** — `Sample UDW Material State` already applies those by default. If you're not using it, you're not getting WOV/mask effects.
 
 ## References & source material

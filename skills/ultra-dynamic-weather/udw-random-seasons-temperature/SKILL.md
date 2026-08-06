@@ -1,7 +1,7 @@
 ---
 name: udw-random-seasons-temperature
 description: >-
-  Use when simulating Ultra Dynamic Weather climate. Covers random variation, seasons, climate presets, temperatures, and temperature volumes. Use only after confirming the project uses Ultra Dynamic Weather.
+  Use when confirmed Ultra Dynamic Weather varies seasons. Covers random variation, climate presets, temperatures, and temperature volumes.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"

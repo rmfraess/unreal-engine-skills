@@ -112,6 +112,10 @@ Each flag maps to a stage: `-build` compiles the target, `-cook` runs the cooker
 containers, `-archive` copies the final build to the output path. Omit any stage to skip
 it (e.g. skip `-build` when the executable is already built by a separate CI step).
 
+Packaging is complete when every selected stage succeeds, a clean launch outside the editor
+loads the startup map and representative soft-referenced content, and the target-platform
+Shipping build completes its smoke test without missing-package errors.
+
 Add `-iostore` to enable IoStore container output (`.utoc`/`.ucas`) instead of classic
 `.pak`-only output. This matches enabling `bUseIoStore` in Project Settings.
 

@@ -1,7 +1,7 @@
 ---
 name: udw-spatial-weather
 description: >-
-  Use when localizing Ultra Dynamic Weather effects. Covers override volumes, radial storms, above-cloud weather, masks, and projection boxes. Use only after confirming the project uses Ultra Dynamic Weather.
+  Use when confirmed Ultra Dynamic Weather is localized. Covers override volumes, radial storms, above-cloud weather, masks, and projection boxes.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"

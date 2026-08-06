@@ -1,7 +1,7 @@
 ---
 name: uds-cinematics-rendering
 description: >-
-  Use when rendering cinematics with Ultra Dynamic Sky. Covers Sequencer animation, Movie Render Queue, path tracing, and seamless cloud loops. Use only after confirming the project uses Ultra Dynamic Sky.
+  Use when confirmed Ultra Dynamic Sky needs cinematics. Covers Sequencer animation, Movie Render Queue, path tracing, and seamless cloud loops.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"
@@ -161,6 +161,13 @@ Cloud Phase: 0 → 200
 ```
 
 Full lightning details in `udw-particles-lightning-wind-sounds`.
+
+## Completion gates
+
+- **Deterministic playback:** two previews show matching cloud positions at the same frames.
+- **Cloud loop:** first and last rendered frames join without a visible seam.
+- **Path Tracer:** an MRQ test frame contains the expected sky and distant-fog treatment.
+- **Cleanup:** Project Mode is restored to **Game / Real-time** after the render.
 
 ## Gotchas
 

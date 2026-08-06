@@ -1,7 +1,7 @@
 ---
 name: uds-lighting-and-shadows
 description: >-
-  Use when lighting with Ultra Dynamic Sky. Covers sun and moon lights, cloud shadows, sky-light modes, exposure, light shafts, and day-night switching. Use only after confirming the project uses Ultra Dynamic Sky.
+  Use when confirmed Ultra Dynamic Sky controls lighting. Covers sun and moon lights, cloud shadows, sky-light modes, exposure, light shafts, and day-night switching.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"
@@ -25,6 +25,8 @@ UDS owns three lights (sun, moon, sky light) as components on the actor, and a c
 | Exposure | Auto / Manual auto-exposure control | **Exposure** | Drives the whole image brightness |
 
 ## When to use this skill
+
+Use these branches only after Ultra Dynamic Sky is confirmed as the system owning sky lighting.
 
 - Configuring or limiting the sun/moon directional lights.
 - Choosing or tuning the sky light mode (capture / cubemap / tinted).

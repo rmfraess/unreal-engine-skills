@@ -1,7 +1,7 @@
 ---
 name: uds-setup-and-modes
 description: >-
-  Use when installing or configuring Ultra Dynamic Sky. Covers actor setup, operating modes, project settings, feature modes, and initial validation. Use only after confirming the project uses Ultra Dynamic Sky.
+  Use when confirmed Ultra Dynamic Sky needs setup. Covers actor setup, operating modes, project settings, feature modes, and initial validation.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"
@@ -51,6 +51,12 @@ NOT actor translation (which disturbs atmosphere/fog).
 ```
 
 On first use the editor may need to compile shaders for UDS before features become visible. It will indicate this; it can take a while depending on hardware.
+
+## Validation / done when
+
+Setup is complete when exactly one UDS actor owns the sky stack, replaced native sky actors
+are absent, shaders have finished compiling, the selected Sky / Color / Project / Feature
+Level modes match the target, and both daylight and night lighting have been observed.
 
 ## Basic Controls category
 

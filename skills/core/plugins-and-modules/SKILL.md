@@ -102,84 +102,16 @@ For full field reference see
 
 ## Module types and loading phases
 
-Each entry in `Modules` maps to `FModuleDescriptor`
-(`Runtime/Projects/Public/ModuleDescriptor.h`:154). The two most important fields:
-
-**Type** (`EHostType`, `ModuleDescriptor.h`:82) — controls which targets load the module:
-
-| Type | Loads in |
-|---|---|
-| `Runtime` | All targets (game, editor, server, client) |
-| `RuntimeNoCommandlet` | Runtime, but not editor commandlets |
-| `Editor` | Editor only — stripped from packaged games |
-| `EditorNoCommandlet` | Editor, not commandlets |
-| `Developer` / `DeveloperTool` | Builds with developer tools enabled |
-| `UncookedOnly` | Uncooked builds only (Blueprint nodes, etc.) |
-| `ServerOnly` / `ClientOnly` | Dedicated server or client targets |
-| `Program` | Standalone programs only |
-
-**LoadingPhase** (`ELoadingPhase`, `ModuleDescriptor.h`:24) — controls when the module is
-loaded relative to engine startup. Common choices:
-
-| Phase | When | Use for |
-|---|---|---|
-| `PostConfigInit` | After config, before CoreUObject | Low-level hooks |
-| `PreDefault` | Just before Default | Types/factories other modules depend on |
-| `Default` | Standard — after game modules are loaded | Nearly all gameplay/plugin code |
-| `PostEngineInit` | After engine is fully initialized | Systems that need everything available |
-| `None` | Not loaded automatically | Load on demand via `FModuleManager` |
-
-All phases are in `ELoadingPhase::Type` (`ModuleDescriptor.h`:26–59). Cross-reference
-`module-and-build-system` for the build-side implications of each phase.
+Each `Modules` entry declares a module name, host `Type`, and `LoadingPhase`. Keep runtime code
+in runtime host types and editor integrations in an editor module so packaged targets never
+acquire editor-only dependencies. Load `module-and-build-system` for the authoritative host-type
+and loading-phase tables, `Build.cs` dependencies, registration macros, and load verification.
 
 ## Module C++ wiring
 
-Every plugin module needs exactly one registration macro in one `.cpp`:
-
-```cpp
-// MyFeatureModule.cpp
-#include "Modules/ModuleManager.h"
-#include "MyFeatureModule.h"
-
-IMPLEMENT_MODULE(FMyFeatureModule, MyFeature)
-
-void FMyFeatureModule::StartupModule()
-{
-    // Load any modules this one depends on to guarantee ordering
-    FModuleManager::Get().LoadModuleChecked(TEXT("MyDependency"));
-    // Register services, type actions, detail customizations…
-}
-
-void FMyFeatureModule::ShutdownModule()
-{
-    // Mirror every registration from StartupModule
-}
-```
-
-- `IMPLEMENT_MODULE` is in `Runtime/Core/Public/Modules/ModuleManager.h`:946. It registers
-  the module with the `FModuleManager` and installs UE's memory allocator overrides
-  (`PER_MODULE_BOILERPLATE`). Every plugin module must have exactly one call.
-- `IModuleInterface::StartupModule()`:49 / `ShutdownModule()`:79 in
-  `Runtime/Core/Public/Modules/ModuleInterface.h`.
-- Use `FDefaultModuleImpl` (no startup logic) or `FDefaultGameModuleImpl` (gameplay module)
-  when you don't need custom init. See `module-and-build-system` for these helpers.
-
-Editor module pattern — guard editor-only includes with `#if WITH_EDITOR` in headers shared
-with runtime modules:
-
-```cpp
-// MyFeatureEditor/Private/MyFeatureEditorModule.cpp
-#include "Modules/ModuleManager.h"
-
-class FMyFeatureEditorModule : public IModuleInterface
-{
-public:
-    virtual void StartupModule() override { /* register detail panels, asset actions */ }
-    virtual void ShutdownModule() override { /* unregister */ }
-};
-
-IMPLEMENT_MODULE(FMyFeatureEditorModule, MyFeatureEditor)
-```
+Every plugin module still needs exactly one registration macro in one `.cpp`, and shutdown must
+mirror startup registrations. Keep plugin-specific ownership here; use `module-and-build-system`
+for the canonical `IMPLEMENT_MODULE`, `IModuleInterface`, and editor/runtime wiring patterns.
 
 ## Enabling plugins
 

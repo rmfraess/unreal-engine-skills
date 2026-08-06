@@ -1,7 +1,7 @@
 ---
 name: editor-scripting-and-python
 description: >-
-  Use when automating the Unreal Editor with Python. Covers editor subsystems, Python APIs, Editor Utility Widgets, asset operations, and editor-only boundaries.
+  Use when automating UE Editor via Python or Blutility. Covers editor subsystems, APIs, Editor Utility Widgets, asset operations, and editor-only boundaries.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"

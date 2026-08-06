@@ -1,7 +1,7 @@
 ---
 name: uds-fog-and-atmosphere
 description: >-
-  Use when configuring Ultra Dynamic Sky atmosphere. Covers fog, volumetric fog, dust, atmospheric color, simplified color, and global volumetric materials. Use only after confirming the project uses Ultra Dynamic Sky.
+  Use when confirmed Ultra Dynamic Sky tunes atmosphere. Covers fog, volumetric fog, dust, atmospheric color, simplified color, and global volumetric materials.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"
@@ -26,6 +26,8 @@ UDS owns three air-shading systems — height fog, volumetric fog, and the globa
 | Simplified Color | **Simplified Color** | LUT-based sky coloring with adjustable color values | Cheap |
 
 ## When to use this skill
+
+Use these branches only after Ultra Dynamic Sky is confirmed as the system owning atmosphere.
 
 - Tuning how thick fog gets with cloud coverage / weather / dust.
 - Making fog look different per weather (cloudy, foggy, dusty).

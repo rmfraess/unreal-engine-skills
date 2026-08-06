@@ -1,7 +1,7 @@
 ---
 name: uds-performance-mobile-troubleshooting
 description: >-
-  Use when diagnosing Ultra Dynamic Sky performance. Covers quality levers, mobile setup, feature levels, upgrades, cache resets, and runtime failures. Use only after confirming the project uses Ultra Dynamic Sky.
+  Use when confirmed Ultra Dynamic Sky runs slowly. Covers quality levers, mobile setup, feature levels, upgrades, cache resets, and runtime failures.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"
@@ -203,7 +203,9 @@ More involved — you'll have to do the move in another project and copy it over
 6. Open the target project. Update is applied.
 ```
 
-After the update, read the change log (linked from the docs home page) for any project work needed.
+The update is complete only when the target project—not only the blank staging project—opens its
+representative maps, compiles required shaders, and exercises project-owned UDS child assets or
+configurations without missing references. Then read the change log for required project work.
 
 ## Modifying UDS (survives updates)
 

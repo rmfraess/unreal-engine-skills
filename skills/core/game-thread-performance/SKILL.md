@@ -65,6 +65,10 @@ stutter, input lag, or hitchy gameplay even when the average FPS looks acceptabl
    `SCOPE_CYCLE_COUNTER`, or `TRACE_CPUPROFILER_EVENT_SCOPE`.
 4. Re-test after each fix; optimize the real hotspot, not the obvious one.
 
+Triage is complete when the same scene and build have before/after captures, the limiting
+thread is identified, and the changed hotspot—not only aggregate FPS—shows the expected cost
+reduction without moving the bottleneck elsewhere.
+
 ## Optimization levers
 
 ### 1. Reduce per-frame work

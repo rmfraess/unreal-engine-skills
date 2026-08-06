@@ -1,7 +1,7 @@
 ---
 name: project-structure
 description: >-
-  Use when configuring an Unreal project repository. Covers uproject descriptors, modules, Config, Content, Source, plugins, VCS, generated files, and folder ownership.
+  Use when changing Unreal project structure or config. Covers uproject descriptors, modules, Content, Source, plugins, VCS, generated files, and folder ownership.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"

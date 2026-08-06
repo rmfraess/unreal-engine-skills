@@ -13,11 +13,18 @@ metadata:
 
 # Profiling & optimization
 
-Optimize by measurement, not guesswork: capture data, find the actual hotspot, fix it,
-re-measure. The three tool layers are **Unreal Insights** (deep trace-based profiling),
-the in-game **stat** commands (quick triage), and **instrumentation** macros for your own
-code. Start with stat commands to identify which thread owns the frame budget, then open
-Insights for a precise call-by-call view.
+## Core workflow
+
+1. Record target hardware, build configuration, scene, workload, and frame or memory budget.
+2. Capture a baseline with **stat** commands for quick triage and **Unreal Insights** for traces.
+3. Identify the dominant measured bottleneck; add instrumentation only where evidence is coarse.
+4. Make one attributable change.
+5. Repeat the same capture and compare the target plus adjacent budgets.
+6. Stop when the stated budget is met or evidence places the remaining bottleneck outside scope.
+
+Optimization is complete only when the same scenario and build have before/after captures,
+the targeted counter or trace scope improves, and adjacent frame-time or memory budgets do not
+regress beyond the project's accepted variance.
 
 ## When to use this skill
 

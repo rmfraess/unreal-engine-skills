@@ -53,7 +53,7 @@ description: Helps with gameplay.
 ```
 
 Include the words an agent's task would contain (class names, system names, error phrases).
-Marketplace triggers must name the package and require confirmed package context; generic
+Marketplace triggers must name the package and say `confirmed` in the first sentence; generic
 cloud, weather, lighting, material, audio, or time prompts belong to native Unreal skills.
 
 ## 3. Body structure (recommended sections)

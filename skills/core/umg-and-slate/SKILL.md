@@ -324,19 +324,9 @@ For game UI, stay in UMG/CommonUI — Slate skips `UPROPERTY`/GC and needs more 
 - **Widget not in a `UPROPERTY`** — the GC destroys it even if still displayed; always hold
   in a `UPROPERTY()` member.
 - **`RemoveFromViewport` deprecated** (5.1+) — use `RemoveFromParent()`.
-- **Per-frame property bindings** across many widgets → significant CPU cost; push updates
-  from gameplay instead.
-- **Canvas Panels nested inside reusable widgets** — each canvas child gets its own layer
-  ID → extra draw calls across the whole screen. One canvas at the root only; templates
-  use Overlay/boxes.
-- **Scale Box wrapping a Size Box** (or vice versa) — the two fight over desired size and
-  can flip layout every frame; let content size itself or pick one.
 - **Calling `SetVisibility` every frame** — it's surprisingly expensive (can invalidate
   layout); only call on actual state change. Prefer `Collapsed` over `Hidden`, and
   `HitTestInvisible` for decorations.
-- **Hidden widgets still load and construct** — unused widgets in the tree and every page
-  of a `WidgetSwitcher` pay full load/construct cost; delete leftovers, async-load rare
-  screens.
 - **Create/destroy churn for dynamic entries** — use `UListView` or `FUserWidgetPool`
   instead; with `FUserWidgetPool`, call `ReleaseAllSlateResources()` from the owner's
   `ReleaseSlateResources` or the pool leaks via circular refs.

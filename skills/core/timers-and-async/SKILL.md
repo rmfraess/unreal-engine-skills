@@ -1,7 +1,7 @@
 ---
 name: timers-and-async
 description: >-
-  Use when scheduling or parallelizing Unreal work. Covers timers, tickers, latent actions, tasks, async execution, threads, runnables, and lifetime safety.
+  Use when adding Unreal timers, tasks, or worker threads. Covers tickers, latent actions, async execution, runnables, and lifetime safety.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"
@@ -26,6 +26,19 @@ then marshal results back — UObjects and actors must only be touched on the ga
 - Offloading expensive work (procedural gen, parsing, path pre-computation) to a worker
   thread and applying the result on the game thread.
 - Ticking a non-actor subsystem without a `UActorComponent` (`FTSTicker`).
+
+## Choose the mechanism first
+
+| Need | Mechanism |
+|---|---|
+| Delay or repeat at a fixed cadence | `FTimerManager::SetTimer` |
+| Defer exactly one frame | `SetTimerForNextTick` |
+| Per-frame smooth interpolation | `Tick` (enable selectively) |
+| Short background work, fire-and-forget | `Async(EAsyncExecution::ThreadPool, ...)` |
+| Background work with result / dependencies | `UE::Tasks::Launch` |
+| Reusable background task class | `FNonAbandonableTask` + `FAutoDeleteAsyncTask` |
+| Long-running dedicated OS thread | `FRunnable` + `FRunnableThread` |
+| Non-actor periodic callback | `FTSTicker` |
 
 ## Timers — FTimerManager
 
@@ -326,19 +339,6 @@ Full reference: [references/tickers-and-latent.md](references/tickers-and-latent
 - `FTimerManager` itself is game-thread-only; set/clear timers only from the game thread.
 - `FTSTicker::AddTicker` is thread-safe (the callback fires on the game thread); the
   `FTSTicker::RemoveTicker` call blocks until any in-progress callback finishes.
-
-## Choosing the right mechanism
-
-| Need | Mechanism |
-|---|---|
-| Delay or repeat at a fixed cadence | `FTimerManager::SetTimer` |
-| Defer exactly one frame | `SetTimerForNextTick` |
-| Per-frame smooth interpolation | `Tick` (enable selectively) |
-| Short background work, fire-and-forget | `Async(EAsyncExecution::ThreadPool, ...)` |
-| Background work with result / dependencies | `UE::Tasks::Launch` |
-| Reusable background task class | `FNonAbandonableTask` + `FAutoDeleteAsyncTask` |
-| Long-running dedicated OS thread | `FRunnable` + `FRunnableThread` |
-| Non-actor periodic callback | `FTSTicker` |
 
 ## Latent actions (Blueprint async nodes)
 

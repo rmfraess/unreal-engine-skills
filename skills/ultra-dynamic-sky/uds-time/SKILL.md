@@ -1,7 +1,7 @@
 ---
 name: uds-time
 description: >-
-  Use when controlling time in Ultra Dynamic Sky. Covers time of day, day-night cycles, runtime functions, event dispatchers, and animation. Use only after confirming the project uses Ultra Dynamic Sky.
+  Use when confirmed Ultra Dynamic Sky controls time. Covers time of day, day-night cycles, runtime functions, event dispatchers, and animation.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"
@@ -26,6 +26,8 @@ UDS has a single canonical time variable, three categories of runtime control (s
 | Display the time | Built-in clock widgets in the widget designer palette |
 
 ## When to use this skill
+
+Use these branches only after Ultra Dynamic Sky is confirmed as the system owning time of day.
 
 - Setting up a day/night cycle.
 - Triggering game events at sunrise, sunset, midnight, hourly, or arbitrary custom times.

@@ -1,7 +1,7 @@
 ---
 name: udw-particles-lightning-wind-sounds
 description: >-
-  Use when configuring Ultra Dynamic Weather effects. Covers precipitation, lightning, wind, sounds, collision, and environment audio. Use only after confirming the project uses Ultra Dynamic Weather.
+  Use when confirmed Ultra Dynamic Weather makes storms. Covers precipitation, lightning, wind, sounds, collision, and environment audio.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"
@@ -35,10 +35,12 @@ All the rendered/heard weather effects: particles, lightning, wind systems, and 
 
 ## When to use this skill
 
+These branches use Ultra Dynamic Weather assets and controls, not native Unreal effects systems.
+
 - Rain or snow not visible, or visible where it shouldn't be.
 - Choosing between particle collision modes for perf vs flexibility.
 - Lightning bolts striking specific actors as game logic.
-- Adding wind force to physics objects or making chaos cloth react.
+- Driving physics objects or Chaos cloth from UDW Wind Physics Force or Wind Directional Source.
 - Weather sounds going quiet at wrong times.
 - Adding ambient outdoor audio (birds, insects, city) that changes with time/weather.
 - Diagnosing VR splash particles only rendering in one eye.

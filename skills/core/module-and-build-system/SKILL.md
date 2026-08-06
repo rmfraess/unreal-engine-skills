@@ -233,6 +233,9 @@ plugin, try `PreDefault`.
 6. Regenerate project files (right-click `.uproject` → Generate Visual Studio Project Files).
 7. Build.
 
+The module is complete when every intended target builds from a clean state and a consuming
+module can include and link its public API without reaching into `Private/`.
+
 ## `<MODULE>_API` export macros
 
 `MYGAME_API` expands to `__declspec(dllexport)` when compiling the module and

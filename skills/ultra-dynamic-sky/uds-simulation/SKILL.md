@@ -1,7 +1,7 @@
 ---
 name: uds-simulation
 description: >-
-  Use when simulating real-world skies with UDS. Covers location, date, time zone, city presets, system time, and astronomical positioning. Use only after confirming the project uses Ultra Dynamic Sky.
+  Use when confirmed Ultra Dynamic Sky simulates astronomy. Covers location, date, time zone, city presets, system time, and astronomical positioning.
 license: UNLICENSED
 metadata:
   engine-version: "5.8"

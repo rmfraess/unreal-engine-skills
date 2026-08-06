@@ -54,6 +54,9 @@ to them and uses the subsystem and component to wire them up.
 6. On possession/spawn: push the context via the subsystem.
 7. In `SetupPlayerInputComponent`: cast to `UEnhancedInputComponent`, call `BindAction`.
 
+Setup is complete when each action delivers the expected value type to its handler, context
+priority resolves conflicting mappings, and removing a context stops its bindings.
+
 ## Core types
 
 | Type | Role |
