@@ -7,7 +7,9 @@ Blueprints, assets, and the editor, and cross-referencing the engine source.
 Each skill is a self-contained folder following the
 [Agent Skills specification](https://agentskills.io/specification): a `SKILL.md` with YAML
 frontmatter (`name`, `description`) plus Markdown instructions, optionally accompanied by
-`references/`, `scripts/`, and `assets/`.
+`references/`, `scripts/`, and `assets/`. This downstream also carries concise Hermes Agent
+triggers, routing metadata, and validation; see
+[`docs/hermes-agent-integration.md`](docs/hermes-agent-integration.md).
 
 ## Who/what these are for
 
@@ -23,13 +25,27 @@ tutorials, and not tool/automation instructions. The agent brings its own toolin
 MCP bridge to a live editor) and has separate skills for that; these skills tell it *what is
 correct in Unreal*, not *which tool to operate*.
 
+The exception is `navigating-engine-source`, a meta skill whose examples use Hermes'
+read-only `search_files` and `read_file` operations to verify APIs without guessing.
+
+## Hermes Agent
+
+All 61 descriptions begin with a complete task trigger inside Hermes' 57-character skill-index
+preview. Marketplace triggers require established Ultra Dynamic Sky or Ultra Dynamic Weather
+context so they do not capture native Unreal work.
+
+To load the repository through `skills.external_dirs`, preserve any existing entries and add
+the absolute `skills/` path through `hermes config edit`. Start a fresh session afterward. Full install,
+category-scoped install, precedence, validation, provenance, and update guidance are documented
+in [`docs/hermes-agent-integration.md`](docs/hermes-agent-integration.md).
+
 ## Target environment
 
 | Item | Value |
 |---|---|
-| Primary engine version | **UE 5.8** (`E:\Program Files\Epic Games\UE_5.8`) |
-| Engine source for cross-ref | 5.8 (binary install incl. source); 5.7 install kept for version diffing |
-| Engine source root (5.8) | `E:\Program Files\Epic Games\UE_5.8\Engine\Source` |
+| Primary engine version | **UE 5.8** |
+| Engine source for cross-ref | Local binary or source install with C++ source available |
+| Engine root | Set `UE_ENGINE_ROOT` to the directory that contains `Engine/` |
 
 Skills target 5.8 APIs. Where an API moved or changed between 5.x versions, the skill notes it.
 
@@ -39,11 +55,13 @@ Skills target 5.8 APIs. Where an API moved or changed between 5.x versions, the 
 unreal-engine-skills/
 ├── README.md                  # this file — index + conventions
 ├── docs/
-│   └── skill-authoring-guide.md   # house style for writing skills in this repo
+│   ├── hermes-agent-integration.md # install, routing, validation, provenance
+│   └── skill-authoring-guide.md    # house style for writing skills in this repo
 ├── evals/                     # golden tasks measuring skill effectiveness (see evals/README.md)
 │   └── tasks/
 ├── scripts/
-│   └── check-citations.mjs    # verifies every cited Engine/Source path exists on disk
+│   ├── check-citations.mjs    # verifies every cited Engine/Source path exists on disk
+│   └── check-hermes-compatibility.mjs # validates Hermes discovery contract
 └── skills/
     ├── <category>/            # core, ultra-dynamic-sky, ultra-dynamic-weather
     │   ├── category.md        # category description
@@ -159,7 +177,8 @@ See [`docs/skill-authoring-guide.md`](docs/skill-authoring-guide.md). In short:
 
 - One skill = one folder under `skills/`; folder name **must equal** the `name` frontmatter.
 - `name`: lowercase letters/digits/hyphens, ≤64 chars, no leading/trailing/double hyphens.
-- `description`: ≤1024 chars, states **what it does and when to use it**, with searchable keywords.
+- `description`: ≤1024 chars; starts with a complete `Use when ...` trigger inside 57 chars.
+- Preserve `metadata.engine-version`/`category`; add `metadata.hermes.tags/related_skills`.
 - Keep `SKILL.md` under ~500 lines; push deep detail into `references/`.
 - Ground claims in real 5.8 source paths; cite `Engine/Source/...` locations.
 - Prefer C++ that compiles against 5.8; flag version-specific behavior.
@@ -170,7 +189,7 @@ Validate any skill against the spec with the
 [`skills-ref`](https://github.com/agentskills/agentskills/tree/main/skills-ref) tool:
 
 ```
-skills-ref validate ./skills/<category>/<skill-name>
+npx --yes skills-ref@0.1.5 validate ./skills/<category>/<skill-name>
 ```
 
 Verify that every engine-source citation in the skills still exists on disk (run after
@@ -182,6 +201,15 @@ node scripts/check-citations.mjs core/gameplay-tags   # one skill
 ```
 
 Set `UE_ENGINE_ROOT` if your engine install is not at the default path.
+
+Validate every skill's Hermes trigger, metadata, links, and source-navigation tool names:
+
+```
+node scripts/check-hermes-compatibility.mjs
+```
+
+The citation checker exits non-zero when a selected category contains zero recognized
+engine-source citations. It does not validate marketplace documentation or asset paths.
 
 ## Evals
 

@@ -1,10 +1,14 @@
 ---
 name: uds-clouds
-description: Configure clouds in Ultra Dynamic Sky — Volumetric, Static, 2D Dynamic, Voxel clouds, plus Cloud Movement, Cloud Wisps, the Volumetric Cloud Painter, Volumetric Cloud Light Rays, and the Cloud Profile Authoring Tool. Use this skill any time the user mentions clouds in UDS — appearance, altitude, scale, performance, second cloud layer, painting coverage, hard mesh intersections, blurry/streaky when moving fast, looking dark, custom cloud shapes, cloud direction/speed, looping clouds, the wispy high-altitude texture, light rays through clouds, or making a custom static cloud texture. Trigger even when the user just says "the clouds" without naming the system.
+description: >-
+  Use when configuring Ultra Dynamic Sky clouds. Covers volumetric, static, 2D, and voxel clouds, movement, painting, wisps, and light rays. Use only after confirming the project uses Ultra Dynamic Sky.
+license: UNLICENSED
 metadata:
-  asset: Ultra Dynamic Sky (marketplace)
+  engine-version: "5.8"
   category: clouds
-  source-docs: https://www.ultradynamicsky.com/Documentation/V9/9-5
+  hermes:
+    tags: [unreal-engine, ue5, ultra-dynamic-sky, clouds]
+    related_skills: [uds-setup-and-modes]
 ---
 
 # UDS clouds

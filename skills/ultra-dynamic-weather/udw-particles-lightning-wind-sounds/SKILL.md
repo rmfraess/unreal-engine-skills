@@ -1,10 +1,14 @@
 ---
 name: udw-particles-lightning-wind-sounds
-description: Configure Ultra Dynamic Weather's rendered effects — Rain / Snow / Dust Particles (including Splash Particles), Particle Collision modes (Simple, Distance Field, None, Kill Sphere), Shared Particle Settings, Lightning (Flashes + Obscured, Flash Lightning function, Strikable Actor Interface), Wind (Direction + variation, Debris, Gusts, Directional Source for chaos cloth/SpeedTree, Physics Force, Camera Shake), Weather Sound Effects (wind/rain/thunder + Close Thunder Delay Per KM), Sound Occlusion with UDS Occlusion Portal, and Environment Sounds (UDS_Environment_Sound data assets, 5.1 metasound format, ChangeEnvironmentSound, UDS_TimeWeather_VolumeManager). Use any time the user asks about rain/snow not visible or blocked wrong, particle collision modes, lightning striking specific actors, wind on physics/cloth, weather sounds in interiors, ambient outdoor audio, or VR splash issues.
+description: >-
+  Use when configuring Ultra Dynamic Weather effects. Covers precipitation, lightning, wind, sounds, collision, and environment audio. Use only after confirming the project uses Ultra Dynamic Weather.
+license: UNLICENSED
 metadata:
-  asset: Ultra Dynamic Weather (marketplace)
+  engine-version: "5.8"
   category: weather-rendering
-  source-docs: https://www.ultradynamicsky.com/Documentation/V9/9-5
+  hermes:
+    tags: [unreal-engine, ue5, ultra-dynamic-weather, particles, lightning, wind, sounds]
+    related_skills: [udw-setup-and-state, uds-setup-and-modes]
 ---
 
 # UDW particles, lightning, wind, sounds

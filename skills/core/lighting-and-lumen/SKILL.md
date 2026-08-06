@@ -1,19 +1,14 @@
 ---
 name: lighting-and-lumen
-description: Light Unreal scenes in C++ and configure them correctly — light component
-  types (UDirectionalLightComponent, UPointLightComponent, USpotLightComponent,
-  URectLightComponent, USkyLightComponent), mobility (Static/Stationary/Movable) and
-  its impact on GI, baking, and runtime cost, Lumen global illumination and reflections
-  (enabling, quality settings, hardware vs software ray tracing), Virtual Shadow Maps,
-  sky and atmosphere (USkyAtmosphereComponent, UExponentialHeightFogComponent), post
-  process volumes for exposure/auto-exposure and Lumen overrides, and reflection captures.
-  Use when creating or configuring light components in C++, choosing light mobility,
-  enabling or troubleshooting Lumen GI/reflections, setting up sky/fog/atmosphere,
-  tuning exposure or color grading, placing reflection captures, or deciding between
-  baked and dynamic lighting.
+description: >-
+  Use when lighting Unreal scenes or configuring Lumen. Covers light components, mobility, baked and dynamic GI, reflections, Virtual Shadow Maps, exposure, and post processing.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: world-building
+  hermes:
+    tags: [unreal-engine, ue5, lighting, lumen]
+    related_skills: [navigating-engine-source]
 ---
 
 # Lighting & Lumen

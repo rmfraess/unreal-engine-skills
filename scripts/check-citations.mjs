@@ -39,7 +39,8 @@ const CITATION_RE =
 // A cited base DIRECTORY, e.g. "Engine source (UE 5.8, `Engine/Source/Runtime/GameplayTags/`):".
 // Subsequent backticked relative paths in list items resolve against the most
 // recent base until the next base appears.
-const BASE_DIR_RE = /Engine[\\/](?:Source|Plugins)[\\/][A-Za-z0-9_.\-\\/]+[\\/](?=`|\)|\s|$)/;
+const BASE_DIR_RE =
+  /Engine[\\/](?:Source|Plugins)[\\/](?:[A-Za-z0-9_.\-\\/]+[\\/])?(?=`|\)|\s|$)/;
 
 // A backticked relative source path at the start of a list item, e.g.
 // "- `Classes/GameplayTagContainer.h` — ...".
@@ -158,6 +159,12 @@ async function main() {
   console.log(`[check-citations] Engine root: ${engineRoot}`);
   console.log(`[check-citations] Markdown files scanned: ${mdFiles.length}`);
   console.log(`[check-citations] Unique citations checked: ${citedTotal}`);
+
+  if (citedTotal === 0) {
+    console.error('[check-citations] NO COVERAGE — no engine-source citations were recognized.');
+    console.error('[check-citations] Use a validator appropriate to this skill/category.');
+    process.exit(1);
+  }
 
   if (failures.length === 0) {
     console.log('[check-citations] OK — every cited engine path exists on disk.');

@@ -138,5 +138,5 @@ Important nuances:
 - The SCS model (`USimpleConstructionScript` / `USCS_Node`) is stable across UE5.
 - `bRunConstructionScriptInSequencer` (`Blueprint.h`:457) was added in UE4 and controls CS
   execution during Sequencer playback; it is present and stable in UE 5.8.
-- Line numbers cited above are from the UE 5.8 headers; verify with a Grep if a patch release
+- Line numbers cited above are from the UE 5.8 headers; search again if a patch release
   shifts them.

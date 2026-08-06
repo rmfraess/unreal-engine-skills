@@ -1,10 +1,14 @@
 ---
 name: udw-material-and-screen-effects
-description: Add weather-responsive material effects and screen-space effects with Ultra Dynamic Weather — Surface Weather Effects (wetness/snow/dust/dripping/droplets), Dynamic Landscape Weather Effects V3 (DLWE) with the DLWE Interaction component for trails/ripples, Glass Window Rain Drips, Foliage Wind Movement, Water Surface Rain Ripples, the Sample UDW Material State / Season / Wind nodes, plus screen/environmental effects — Rainbow, Screen Droplets, Screen Frost, Heat Distortion, Post Process Wind Fog, Puddle Fluid Volume (with fluid interactions), Dripping Mesh Particles, Freezing Breath, Rain Drip Spline (with icicles), and the Weather Occlusion Volume. Use any time the user asks about materials responding to weather, footprints/tracks in snow, puddles, rain on windows, foliage sway, rain ripples on water, rainbow, screen droplets/frost, heat haze, breath in cold weather, or water dripping from a roof edge.
+description: >-
+  Use when adding Ultra Dynamic Weather surface effects. Covers wetness, snow, puddles, glass drips, foliage wind, screen effects, breath, and icicles. Use only after confirming the project uses Ultra Dynamic Weather.
+license: UNLICENSED
 metadata:
-  asset: Ultra Dynamic Weather (marketplace)
+  engine-version: "5.8"
   category: material-and-screen-effects
-  source-docs: https://www.ultradynamicsky.com/Documentation/V9/9-5
+  hermes:
+    tags: [unreal-engine, ue5, ultra-dynamic-weather, material, screen, effects]
+    related_skills: [udw-setup-and-state, uds-setup-and-modes]
 ---
 
 # UDW material and screen effects

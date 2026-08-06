@@ -1,23 +1,22 @@
 ---
 name: core-types-and-containers
-description: Use Unreal's core C++ types instead of the standard library — containers
-  (TArray, TMap, TSet, TQueue, TArrayView), string types (FString, FName, FText,
-  TStringBuilder) with conversion patterns and localization rules, math types (FVector,
-  FRotator, FQuat, FTransform) with Large World Coordinates (LWC/double precision), and
-  utility types (TOptional, TVariant, TTuple). Use when writing any UE C++ that stores
-  collections, manipulates strings, does 3D math, or when choosing between FString/FName/
-  FText, between std:: and UE containers, or between FRotator and FQuat for rotation.
+description: >-
+  Use when choosing Unreal core types or containers. Covers strings, text, names, arrays, maps, sets, math types, optionals, and utility types.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: cpp-foundations
+  hermes:
+    tags: [unreal-engine, ue5, core, types, containers]
+    related_skills: [navigating-engine-source]
 ---
 
 # Core types & containers
 
-Unreal ships its own containers, string types, and math types. Use them, not `std::`:
-they integrate with UObject reflection, serialization, allocators, and garbage collection.
-Mixing in `std::string` or `std::vector` causes friction and these types won't serialize
-or reflect correctly.
+Unreal ships containers, string types, and math types designed for engine APIs,
+serialization, allocators, and reflection. Prefer them at reflected and engine-facing
+boundaries. A UE container participates in reflection and UObject reachability only when
+the containing member is declared appropriately, normally with `UPROPERTY`.
 
 ## When to use this skill
 
@@ -35,7 +34,7 @@ or reflect correctly.
 | `TMap<K,V>` | key→value | hashed, unique keys, O(1) avg lookup |
 | `TSet<T>` | unique set | hashed, O(1) avg membership test |
 | `TQueue<T>` | FIFO, cross-thread | lock-free SPSC/MPSC |
-| `TArrayView<T>` | non-owning read-only window | zero-copy; pass over contiguous data |
+| `TArrayView<T>` | non-owning contiguous view | mutable for `T`; read-only for `const T` |
 | `TArray<T, TInlineAllocator<N>>` | small array, avoid heap | N elements on stack, spills to heap |
 
 ### TArray — the default container
@@ -151,10 +150,12 @@ See [references/strings-and-text.md](references/strings-and-text.md) for the ful
 conversion matrix, `FStringView`, string tables, encoding rules, and `NSLOCTEXT` vs
 `LOCTEXT`.
 
-## Math types (UE5 = double precision everywhere)
+## Math types and Large World Coordinates
 
-All primary math types are `double` in UE5 (Large World Coordinates). Float variants
-(`FVector3f`, `FQuat4f`, etc.) exist for rendering/physics payloads.
+Common world-space aliases such as `FVector`, `FRotator`, and `FTransform` use double
+precision in UE5's Large World Coordinates model. Float variants (`FVector3f`,
+`FQuat4f`, and others) remain common in rendering, animation, and physics payloads;
+verify the concrete alias at an API boundary instead of assuming every math type is double.
 
 | Type | Meaning |
 |---|---|
@@ -221,8 +222,9 @@ See [references/utility-types.md](references/utility-types.md) for usage rules, 
 
 ## Gotchas
 
-- **`std::string`/`std::vector` in UE C++** — avoid; they skip reflection/serialization
-  and don't interact with GC. Use `FString`/`TArray`.
+- **`std::string`/`std::vector` at reflected boundaries** — they are unavailable to
+  Unreal reflection and property serialization. Prefer `FString`/`TArray`; remember that
+  a `TArray` of UObject pointers still needs a reflected owner or another explicit lifetime path.
 - **Missing `TEXT()`** around literals — produces narrow `char*`; implicit conversion may
   silently mangle non-ASCII characters.
 - **`TMap::Find` returns a pointer** (null if absent) — always null-check before

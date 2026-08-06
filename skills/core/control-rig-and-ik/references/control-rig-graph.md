@@ -140,7 +140,7 @@ be keyframed in Sequencer.
 one character rig. Each module is a standalone `UControlRig` (arm rig, leg rig, spine rig)
 wired together through connector rules (`RigConnectionRules.h`).
 
-An agent assembling a rig programmatically can use `UModularRigController` to add, remove,
+Code assembling a rig programmatically can use `UModularRigController` to add, remove,
 and reconnect modules without opening the editor. The deprecated `GetRigModuleNameSpace()`
 (5.6+) is replaced by `GetRigModulePrefix()` on `UControlRig`.
 

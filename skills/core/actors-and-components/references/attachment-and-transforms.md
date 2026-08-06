@@ -112,4 +112,4 @@ the actor's transform; moving the root moves the whole attached tree.
 ## Version notes
 
 - Attachment APIs and transform rules are stable across UE5. Line numbers drift between patches;
-  re-grep `SceneComponent.h` / `EngineTypes.h` if a cite looks off.
+  search `SceneComponent.h` / `EngineTypes.h` again if a cite looks off.

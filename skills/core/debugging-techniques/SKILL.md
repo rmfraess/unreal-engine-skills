@@ -1,16 +1,14 @@
 ---
 name: debugging-techniques
-description: Debug Unreal C++ and gameplay code — native debugger usage (VS/Rider, natvis, Live
-  Coding caveats), DrawDebug* world-space helpers (DrawDebugLine, DrawDebugSphere, DrawDebugString,
-  etc.), on-screen messages (GEngine->AddOnScreenDebugMessage), the Visual Logger (UE_VLOG*,
-  timestamped replay of spatial/temporal events), the Gameplay Debugger (FGameplayDebuggerCategory,
-  custom categories), ensure/check as debugging aids, and stat/console commands for runtime
-  interrogation. Use when diagnosing wrong behavior, visualizing traces/ranges/AI state in the
-  world, reproducing intermittent or AI bugs with timeline replay, stepping through a crash, or
-  adding in-game debug overlays to a custom system.
+description: >-
+  Use when debugging Unreal gameplay or C++. Covers native debugging, console and debug drawing, Visual Logger, Gameplay Debugger, and packaged-build evidence.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: tooling
+  hermes:
+    tags: [unreal-engine, ue5, debugging, techniques]
+    related_skills: [navigating-engine-source]
 ---
 
 # Debugging techniques
@@ -264,7 +262,8 @@ safe for changing logic inside existing functions. It cannot handle:
 - Changing class layout (new member variables, changed base classes).
 - Changes to header files that affect other translation units.
 
-After any of these, restart the editor for a full hot reload or use Unreal Build Tool. The
+After any of these, close the editor and perform a normal full rebuild with Unreal Build Tool
+before reopening the project. The
 common failure mode is that Live Coding "succeeds" on a structural change but the old CDO or
 Blueprint instance retains the stale layout, causing silent data corruption or crashes on the
 next frame. When in doubt after a crash following Live Coding, do a full rebuild.

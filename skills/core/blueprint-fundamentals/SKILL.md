@@ -1,15 +1,14 @@
 ---
 name: blueprint-fundamentals
-description: Understand Blueprints as Unreal's visual scripting and asset-class system — what a
-  Blueprint class is, the UBlueprint editor asset vs. UBlueprintGeneratedClass runtime class,
-  how it relates to its C++ parent, the graph types (Event Graph, Functions, Construction Script,
-  Macros, Interfaces), variables and categories, components in Blueprint, and the C++-base +
-  Blueprint-subclass workflow. Use when reasoning about Blueprint vs C++ responsibilities,
-  designing a class hierarchy that spans both, explaining how Blueprint logic maps onto the
-  underlying C++/UObject model, or debugging Blueprint compilation and class-relationship issues.
+description: >-
+  Use when reasoning about Unreal Blueprints. Covers generated classes, graphs, variables, components, inheritance, and the C++ to Blueprint boundary.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: blueprints
+  hermes:
+    tags: [unreal-engine, ue5, blueprint, fundamentals]
+    related_skills: [navigating-engine-source]
 ---
 
 # Blueprint fundamentals

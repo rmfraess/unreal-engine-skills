@@ -1,10 +1,14 @@
 ---
 name: udw-random-seasons-temperature
-description: Configure dynamic weather variation, seasons, climate, and temperature on Ultra Dynamic Weather. Covers Random Weather Variation (Random Interval / Daily / Hourly timing, Weather Type Probabilities, Transition Length, Begin Play Weather is Random, Change to Random Weather Variation), Seasons (0-4 float, Set Season, Season Mode driven by date, Meteorological vs Astronomical, Sample UDW Season + Season Color Blend material nodes), Climate Presets (real-world data setting probability + temperature ranges), Temperature (Get Current Temperature with F/C, Temperature Bias, Min/Max per season, Sample Location Global vs local, Interior Temperature), Temperature Volumes, and the UDW Thermometer widget. Use whenever the user asks about random weather, season cycling, climate presets, temperature reading, hot/cold zones, or what season it is.
+description: >-
+  Use when simulating Ultra Dynamic Weather climate. Covers random variation, seasons, climate presets, temperatures, and temperature volumes. Use only after confirming the project uses Ultra Dynamic Weather.
+license: UNLICENSED
 metadata:
-  asset: Ultra Dynamic Weather (marketplace)
+  engine-version: "5.8"
   category: weather-variation
-  source-docs: https://www.ultradynamicsky.com/Documentation/V9/9-5
+  hermes:
+    tags: [unreal-engine, ue5, ultra-dynamic-weather, random, seasons, temperature]
+    related_skills: [udw-setup-and-state, uds-setup-and-modes]
 ---
 
 # UDW random weather, seasons, climate, temperature

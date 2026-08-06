@@ -1,19 +1,14 @@
 ---
 name: gameplay-tags
-description: Use Gameplay Tags in Unreal C++ — hierarchical FName-based labels (FGameplayTag,
-  FGameplayTagContainer), native tag declaration and definition (UE_DECLARE_GAMEPLAY_TAG_EXTERN /
-  UE_DEFINE_GAMEPLAY_TAG / UE_DEFINE_GAMEPLAY_TAG_COMMENT / UE_DEFINE_GAMEPLAY_TAG_STATIC),
-  tag registration via UGameplayTagsManager, runtime lookup with RequestGameplayTag,
-  container operations (AddTag, RemoveTag, HasTag, HasTagExact, HasAny, HasAll),
-  single-tag matching (MatchesTag, MatchesTagExact, MatchesAny), data-driven conditions
-  with FGameplayTagQuery, the IGameplayTagAssetInterface, and config via
-  DefaultGameplayTags.ini / DataTable sources. Use when modeling states, categories,
-  damage types, ability identifiers, or any open-ended hierarchical label that multiple
-  systems share; when replacing brittle enums or string comparisons; or when working
-  with GAS, AI behavior trees, animation, or UI systems that gate behavior on tags.
+description: >-
+  Use when modeling Unreal state with Gameplay Tags. Covers native tags, containers, queries, matching, replication, and tag-driven architecture.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: gameplay-framework
+  hermes:
+    tags: [unreal-engine, ue5, gameplay, tags]
+    related_skills: [navigating-engine-source]
 ---
 
 # Gameplay Tags

@@ -1,0 +1,36 @@
+name: Validate skills
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  skill-metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate Hermes compatibility
+        run: node scripts/check-hermes-compatibility.mjs
+
+      - name: Validate Agent Skills compatibility
+        shell: bash
+        run: |
+          failures=0
+          for skill_file in skills/*/*/SKILL.md; do
+            skill_dir="$(dirname "$skill_file")"
+            if ! npx --yes skills-ref@0.1.5 validate "$skill_dir"; then
+              failures=$((failures + 1))
+            fi
+          done
+          test "$failures" -eq 0

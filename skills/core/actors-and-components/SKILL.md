@@ -1,15 +1,14 @@
 ---
 name: actors-and-components
-description: Build and compose gameplay objects from Actors and Components in Unreal C++ — the
-  AActor lifecycle (constructor, PostInitializeComponents, BeginPlay, Tick, EndPlay, Destroyed),
-  the component types (UActorComponent, USceneComponent, UPrimitiveComponent), the root component
-  and attachment, spawning actors and creating/registering components at construction or runtime,
-  and ticking. Use when creating an actor or component, setting up a component hierarchy, attaching
-  components, spawning actors, registering runtime components, or debugging lifecycle/ticking/
-  attachment/overlap issues.
+description: >-
+  Use when building Unreal actors or components. Covers lifecycle, composition, transforms, attachment, spawning, and destruction.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: gameplay-framework
+  hermes:
+    tags: [unreal-engine, ue5, actors, components]
+    related_skills: [navigating-engine-source]
 ---
 
 # Actors & components

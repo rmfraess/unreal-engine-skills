@@ -1,19 +1,14 @@
 ---
 name: save-and-load
-description: Persist and restore game data in Unreal C++ using the SaveGame system — define a
-  USaveGame subclass with UPROPERTY members, create/save/load/delete named slots via
-  UGameplayStatics (SaveGameToSlot, LoadGameFromSlot, AsyncSaveGameToSlot,
-  AsyncLoadGameFromSlot, DoesSaveGameExist, DeleteGameInSlot), and serialize actor state into
-  a byte buffer with FMemoryWriter/FMemoryReader and FObjectAndNameAsStringProxyArchive. Covers
-  the SaveGame UPROPERTY specifier and ArIsSaveGame archive flag for selective actor
-  serialization, the ULocalPlayerSaveGame subclass for per-user saves, save versioning and
-  migration, ISaveGameSystem platform abstraction, and design rules for what belongs in a save.
-  Use when implementing save/load, persisting progress, inventory, or settings, handling
-  multiple save slots or user profiles, serializing dynamic actor state, migrating old saves, or
-  troubleshooting missing fields and null returns on load.
+description: >-
+  Use when persisting Unreal gameplay state. Covers SaveGame objects, slots, actor state, serialization, versioning, migration, async saves, and validation.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: systems
+  hermes:
+    tags: [unreal-engine, ue5, save, load]
+    related_skills: [navigating-engine-source]
 ---
 
 # Save & load

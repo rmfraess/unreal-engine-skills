@@ -204,4 +204,4 @@ remove elements via `It.RemoveCurrent()` (supported on `TArray` iterators).
 
 - **UE 5.5+**: `TSet` defaults may use `TCompactSet` internals when
   `UE_USE_COMPACT_SET_AS_DEFAULT` is set. The public API is unchanged.
-- Line numbers in headers drift between patch releases. Verify with Grep before citing.
+- Line numbers in headers drift between patch releases. Search the local headers before citing.

@@ -1,16 +1,14 @@
 ---
 name: navigating-engine-source
-description: Locate, read, and cite exact Unreal Engine APIs in the on-disk engine source
-  instead of guessing. Use when you need a real function signature, class hierarchy,
-  UPROPERTY/UFUNCTION specifier, module name, or include path; when verifying that an API
-  exists in UE 5.8; when resolving "which module do I add to Build.cs?"; or when an API
-  changed between engine versions. Covers the full source tree layout (Runtime/Editor/
-  Developer/Plugins), the Public/Private/Classes folder convention, UHT-generated files,
-  naming prefixes as navigation hints, IWYU include rules, and repeatable search patterns
-  for finding any class, function, or type from first principles.
+description: >-
+  Use when verifying Unreal APIs in engine source. Provides Hermes-native search patterns for signatures, includes, modules, reflection, and version drift.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: meta
+  hermes:
+    tags: [unreal-engine, ue5, navigating, engine, source]
+    related_skills: [coding-standards, module-and-build-system]
 ---
 
 # Navigating the Unreal Engine source
@@ -29,19 +27,16 @@ Memory is often a version or two stale.
 - You are resolving a build error ("unresolved external", "identifier not found")
   caused by a missing `#include` or missing `Build.cs` dependency.
 
-## Source tree on this machine
+## Resolve the engine source root
 
-| Version | Root | Notes |
-|---|---|---|
-| **5.8** (primary) | `E:\Program Files\Epic Games\UE_5.8\Engine` | Binary install; ships full C++ source |
-| 5.7 | `E:\Program Files\Epic Games\UE_5.7\Engine` | Binary install; previous release for comparison |
-| 5.5.1 | `E:\Repo\Git\UE_5_5_1_Fresh\UnrealEngine\Engine` | Full source build |
+Do not inherit a path from this skill or from another developer's machine. Resolve the
+active project's engine association, then identify the installed root that contains
+`Engine/`. If `UE_ENGINE_ROOT` is configured, verify it against the project before using it.
 
-Default to **5.8**. Use the others only to compare signatures across versions.
-
-Confirm the exact version any time:
-`E:\Program Files\Epic Games\UE_5.8\Engine\Build\Build.version`
-→ MajorVersion 5, MinorVersion 8, PatchVersion 1.
+Hermes file tools accept forward-slash Windows paths. Examples below use
+`<UE_ENGINE_ROOT>/Engine`; substitute the verified local root. Confirm the exact version
+from `<UE_ENGINE_ROOT>/Engine/Build/Build.version` before treating line numbers or
+signatures as authoritative.
 
 ## Source tree organization
 
@@ -142,28 +137,31 @@ Confirm by finding `<ModuleName>.Build.cs` under the source folder.
 
 ### 1. Find a class header
 
-Glob for `**/<ClassName>.h` under the source root, then confirm with Grep:
+Use `search_files` to locate the header, then narrow the declaration search:
 ```
-Glob("**/Character.h", path="E:/Program Files/Epic Games/UE_5.8/Engine/Source")
+search_files(target="files", pattern="*Character.h",
+             path="<UE_ENGINE_ROOT>/Engine/Source")
 → Runtime\Engine\Classes\GameFramework\Character.h
 
-Grep("class ACharacter", path="...Character.h")
+search_files(target="content", pattern="class ACharacter",
+             path="<resolved Character.h>")
 → line 338: class ACharacter : public APawn
 ```
 
 ### 2. Find a function signature
 
-Grep within the known file; read a ±10-line window — do not read the whole file:
+Search within the known file, then use `read_file` for a focused window:
 ```
-Grep("virtual.*BeginPlay", path="...Actor.h", output_mode="content")
+search_files(target="content", pattern="virtual.*BeginPlay",
+             path="<resolved Actor.h>")
 → line 2125: ENGINE_API virtual void BeginPlay();
 
-Read(path="...Actor.h", offset=2121, limit=15)  // read only the relevant range
+read_file(path="<resolved Actor.h>", offset=2121, limit=15)
 ```
 
 ### 3. Resolve module → include → Build.cs
 
-1. **Find the header**: Glob or Grep for the type across `Engine\Source\`.
+1. **Find the header**: use `search_files` by filename or symbol under `Engine\Source\`.
 2. **Identify the module**: the source folder directly under `Source\<Tier>\`
    that contains the found file. Confirm by locating `<Module>.Build.cs` there.
 3. **Write the `#include`**: relative to the module's `Public\`/`Classes\` root,
@@ -187,7 +185,8 @@ UPROPERTY and UFUNCTION lines directly above a member ARE the API contract.
 Read them when you need to reproduce or override behavior:
 
 ```
-Grep("ReplicatedUsing", path="...Actor.h", output_mode="content")
+search_files(target="content", pattern="ReplicatedUsing",
+             path="<resolved Actor.h>")
 → line 351: UPROPERTY(ReplicatedUsing=OnRep_ReplicateMovement, Category=Replication, EditDefaultsOnly)
 ```
 
@@ -213,7 +212,7 @@ the module's `Intermediate\` folder, not in `Source\`.
 
 ## Verified examples (UE 5.8)
 
-All paths relative to `E:\Program Files\Epic Games\UE_5.8\Engine\Source\`:
+All paths are relative to `<UE_ENGINE_ROOT>/Engine/Source/`:
 
 **AActor** (`Runtime\Engine\Classes\GameFramework\Actor.h`):
 - :281 `UCLASS(BlueprintType, Blueprintable, config=Engine, meta=(ShortTooltip="..."), MinimalAPI)`
@@ -237,7 +236,7 @@ All paths relative to `E:\Program Files\Epic Games\UE_5.8\Engine\Source\`:
 **FGameplayTag** (`Runtime\GameplayTags\Classes\GameplayTagContainer.h:41`),
 `FGameplayTagContainer`:247
 
-(Line numbers drift between patch releases — re-Grep to confirm, but paths and
+(Line numbers drift between patch releases — search again to confirm, but paths and
 class/function names are stable.)
 
 ## Gotchas
@@ -249,15 +248,23 @@ class/function names are stable.)
 - **Version skew**: if a signature differs from memory, the source wins. Note the
   difference when producing code or skill content.
 - **Never read a whole large header**: `Actor.h` is ~4,500 lines; `World.h`
-  exceeds 5,000. Grep first; then Read a focused offset+limit window.
+  exceeds 5,000. Search first; then use `read_file` with a focused offset and limit.
 - **`*.generated.h` last, `GENERATED_BODY()` first**: violating either rule
   produces cryptic UHT or compiler errors.
 - **IWYU**: include only specific headers you use — not `Engine.h` or
   `UnrealEd.h`. The compiler will warn on monolithic includes.
 
+## Verification Checklist
+
+- [ ] Active project and installed engine version agree
+- [ ] Exact declaration and reflection specifiers read from local source
+- [ ] Include path, export macro, and owning module agree
+- [ ] Editor/runtime and plugin gates accounted for
+- [ ] Any copied line number rechecked against the installed patch version
+
 ## References & source material
 
-Engine source (UE 5.8, under `E:\Program Files\Epic Games\UE_5.8\Engine\`):
+Engine source (UE 5.8, under the verified `<UE_ENGINE_ROOT>/Engine/`):
 - Version file: `Build\Build.version` (5.8.1, changelist 56057345).
 - Primary source root: `Engine\Source\` → `Runtime\`, `Editor\`, `Developer\`,
   `Programs\`, `ThirdParty\`.

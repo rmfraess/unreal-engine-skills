@@ -1,16 +1,14 @@
 ---
 name: character-and-movement
-description: Implement player/AI characters in Unreal C++ with ACharacter and
-  UCharacterMovementComponent — capsule/mesh setup, movement modes
-  (walking/falling/flying/swimming/custom), rotation behaviors, jumping,
-  crouching, root motion sources, client-predicted networked movement, and the
-  experimental Mover plugin successor. Use when creating or configuring a
-  Character class, setting movement speeds/gravity/air-control, overriding a
-  custom movement mode (PhysCustom), adding root motion, or debugging network
-  smoothing and prediction on a character.
+description: >-
+  Use when implementing Unreal characters or movement. Covers ACharacter, movement modes, networking, root motion, launching, and custom movement.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: gameplay-framework
+  hermes:
+    tags: [unreal-engine, ue5, character, movement]
+    related_skills: [navigating-engine-source]
 ---
 
 # Characters & movement

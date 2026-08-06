@@ -1,16 +1,14 @@
 ---
 name: automation-and-testing
-description: Write and run automated tests for Unreal Engine projects — simple/complex
-  automation tests (IMPLEMENT_SIMPLE_AUTOMATION_TEST, IMPLEMENT_COMPLEX_AUTOMATION_TEST),
-  BDD-style Spec tests (DEFINE_SPEC, BEGIN_DEFINE_SPEC, Describe/It/BeforeEach/AfterEach),
-  functional in-level tests (AFunctionalTest), low-level tests (Catch2-based LLTs),
-  latent/async commands, EAutomationTestFlags, FAutomationTestBase assertion API
-  (TestTrue/TestEqual/TestNotNull/AddError), and running tests from the editor, CLI,
-  or CI. Use when writing unit or integration tests for gameplay logic or systems,
-  setting up headless CI test runs, verifying data/content, or catching regressions.
+description: >-
+  Use when testing Unreal projects or plugins. Covers automation specs, latent commands, functional tests, low-level tests, flags, and CI execution.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: tooling
+  hermes:
+    tags: [unreal-engine, ue5, automation, testing]
+    related_skills: [navigating-engine-source]
 ---
 
 # Automation & testing

@@ -1,20 +1,14 @@
 ---
 name: physics-and-chaos
-description: Implement collision, physics simulation, and world queries using Unreal's Chaos
-  physics engine in C++ — collision channels (ECollisionChannel), response types
-  (ECollisionResponse / ECR_Block/Overlap/Ignore), collision presets and profiles, query vs
-  physics collision (ECollisionEnabled), FBodyInstance damping/mass, SetSimulatePhysics,
-  AddForce/AddImpulse, line traces and shape sweeps (LineTraceSingleByChannel,
-  SweepSingleByChannel, OverlapMultiByChannel), FHitResult/FCollisionQueryParams, hit and
-  overlap events (OnComponentHit, OnComponentBeginOverlap), physical materials
-  (UPhysicalMaterial friction/restitution), ragdoll via UPhysicsAsset, and physics
-  constraints (FConstraintInstance, UPhysicsConstraintComponent). Use when setting up
-  what collides with what, creating trigger volumes, doing line/shape traces for aiming or
-  interaction, simulating rigid-body objects, applying forces or impulses, building
-  ragdolls, constraining bodies, or debugging missing hit/overlap events.
+description: >-
+  Use when implementing Unreal collision or physics. Covers channels, profiles, traces, sweeps, overlap queries, simulation, constraints, and Chaos behavior.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: systems
+  hermes:
+    tags: [unreal-engine, ue5, physics, chaos]
+    related_skills: [navigating-engine-source]
 ---
 
 # Physics & collision (Chaos)

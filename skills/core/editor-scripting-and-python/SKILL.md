@@ -1,19 +1,14 @@
 ---
 name: editor-scripting-and-python
-description: >
-  Automate and extend the Unreal Editor using Python (the `unreal` module, startup scripts,
-  commandlets), Editor Utility Widgets/Blueprints (Blutility — UEditorUtilityWidget,
-  UEditorUtilityObject, UEditorUtilityWidgetBlueprint, UAssetActionUtility), the editor
-  scripting subsystems (UEditorActorSubsystem, UEditorAssetSubsystem, ULevelEditorSubsystem,
-  UAssetEditorSubsystem, UEditorUtilitySubsystem), and how C++ UFUNCTION specifiers
-  (BlueprintCallable, CallInEditor, ScriptMethod, ScriptName) control which APIs surface in
-  Python and Blueprints. Use when batch-processing assets, building in-editor tools or
-  dockable UMG panels, running headless Python commandlets in CI, scripting repetitive
-  editor tasks, or exposing custom C++ editor APIs to Python/Blueprints. Editor-only —
-  never used in packaged games.
+description: >-
+  Use when automating the Unreal Editor with Python. Covers editor subsystems, Python APIs, Editor Utility Widgets, asset operations, and editor-only boundaries.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: tooling
+  hermes:
+    tags: [unreal-engine, ue5, editor, scripting, python]
+    related_skills: [navigating-engine-source]
 ---
 
 # Editor scripting & Python

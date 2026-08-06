@@ -1,7 +1,7 @@
 # Target.cs (TargetRules) Reference
 
 Grounded in UE 5.8 engine source:
-`E:\Program Files\Epic Games\UE_5.8\Engine\Source\Programs\UnrealBuildTool\Configuration\Rules\TargetRules.cs`
+`<UE_ENGINE_ROOT>/Engine/Source/Programs/UnrealBuildTool/Configuration/Rules/TargetRules.cs`
 
 See also: [../SKILL.md](../SKILL.md)
 
@@ -124,7 +124,7 @@ to the current release (`Unreal5_8` in 5.8, `TargetRules.cs`:242).
 ## Source references
 
 All paths under:
-`E:\Program Files\Epic Games\UE_5.8\Engine\Source\Programs\UnrealBuildTool\Configuration\Rules\`
+`<UE_ENGINE_ROOT>/Engine/Source/Programs/UnrealBuildTool/Configuration/Rules/`
 
 - `TargetRules.cs`:21 — `public enum TargetType`
 - `TargetRules.cs`:53 — `public enum TargetLinkType`

@@ -114,6 +114,6 @@ GC frees them together, reducing churn (configurable under Project Settings → 
 ## Version notes
 
 - The lifecycle is stable across UE5. Function **line numbers** drift across 5.x patch releases;
-  header paths and names are stable. Re-grep `Actor.h` if a line cite looks off.
+  header paths and names are stable. Search `Actor.h` again if a line cite looks off.
 - `RF_PendingKill` semantics evolved with UE5's move toward null-on-destroy object handling; the
   practical guidance (use weak pointers, do cleanup in `EndPlay`) is unchanged. See `memory-and-gc`.

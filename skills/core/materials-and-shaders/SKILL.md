@@ -1,19 +1,14 @@
 ---
 name: materials-and-shaders
-description: Author and drive Unreal materials — UMaterial (the node graph asset), material
-  instances (UMaterialInstanceConstant for editor-authored variants, UMaterialInstanceDynamic
-  for runtime parameter changes), material domain (Surface/Deferred Decal/Light Function/Post
-  Process/UI/Volume), shading models (Default Lit/Unlit/Subsurface/Clear Coat/Hair/Cloth/Eye),
-  blend modes (Opaque/Masked/Translucent/Additive), scalar/vector/texture parameters,
-  material functions, material parameter collections (global scene-wide values), and
-  the material C++ API (CreateDynamicMaterialInstance, SetScalarParameterValue,
-  SetVectorParameterValue, SetTextureParameterValue, UKismetMaterialLibrary). Use when
-  creating materials, making parameterized variants, changing material parameters at runtime,
-  setting global weather or world-state parameters, fixing material shader permutation count
-  or translucency overdraw, or cross-referencing the material class hierarchy.
+description: >-
+  Use when authoring Unreal materials or shaders. Covers material graphs, domains, instances, parameters, collections, runtime APIs, and shader cost.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: content-assets
+  hermes:
+    tags: [unreal-engine, ue5, materials, shaders]
+    related_skills: [navigating-engine-source]
 ---
 
 # Materials & shaders

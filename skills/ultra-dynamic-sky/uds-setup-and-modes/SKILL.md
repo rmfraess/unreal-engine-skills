@@ -1,10 +1,14 @@
 ---
 name: uds-setup-and-modes
-description: How to install Ultra Dynamic Sky (UDS) in an Unreal level and pick its top-level modes — Sky Mode (Volumetric/Static/2D/Voxel/Aurora/Space), Color Mode (Sky Atmosphere vs Simplified), Project Mode (Game vs Cinematic), Feature Level (Desktop/Mobile). Use whenever the user mentions adding UDS to a scene, the UDS actor not working, choosing between cloud types, setting up the sky in a new level, mobile/console targets, or anything in the "Basic Controls" category — even when phrased generically like "why are my volumetric clouds missing on mobile", "switch to performance-friendly clouds", or "is there a space-only sky mode".
+description: >-
+  Use when installing or configuring Ultra Dynamic Sky. Covers actor setup, operating modes, project settings, feature modes, and initial validation. Use only after confirming the project uses Ultra Dynamic Sky.
+license: UNLICENSED
 metadata:
-  asset: Ultra Dynamic Sky (marketplace)
+  engine-version: "5.8"
   category: setup
-  source-docs: https://www.ultradynamicsky.com/Documentation/V9/9-5
+  hermes:
+    tags: [unreal-engine, ue5, ultra-dynamic-sky, setup, modes]
+    related_skills: [lighting-and-lumen, sequencer-and-cinematics]
 ---
 
 # UDS setup and top-level modes

@@ -1,22 +1,14 @@
 ---
 name: umg-and-slate
-description: Build game UI in Unreal — UMG user widgets (UUserWidget) with the C++ lifecycle
-  (NativeOnInitialized, NativeConstruct, NativeDestruct, NativeTick), the widget tree and
-  common leaf/panel widgets (UButton/UTextBlock/UImage/UProgressBar/UCanvasPanel/UHorizontalBox/
-  UVerticalBox/UOverlay), the meta=(BindWidget/BindWidgetOptional) pattern to wire C++ to
-  Blueprint-designed widgets, CreateWidget + AddToViewport / RemoveFromParent, UWidgetComponent
-  for 3D in-world UI, event binding (OnClicked AddDynamic), the Slate layer (SWidget,
-  SCompoundWidget, declarative syntax), and CommonUI for input-routed multiplatform menus —
-  plus UI best practices and performance optimization: invalidation boxes/retainer boxes/
-  volatility, widget pooling (FUserWidgetPool, ListView), event-driven updates instead of
-  property bindings or Tick, Canvas Panel nesting rules, animation cost tiers, MVVM
-  viewmodels (FieldNotify), CommonUI layer stacks (the Lyra pattern), DPI scaling, and safe
-  zones. Use when creating HUDs/menus/inventory/widgets, wiring UI to gameplay in C++,
-  handling button/input events, choosing UMG vs Slate vs CommonUI, debugging BindWidget name
-  mismatches, optimizing slow UI, or architecting screen flow for a production game.
+description: >-
+  Use when building Unreal UI with UMG or Slate. Covers widgets, binding, layout, input, CommonUI, world-space UI, invalidation, and performance.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: ui
+  hermes:
+    tags: [unreal-engine, ue5, umg, slate]
+    related_skills: [navigating-engine-source]
 ---
 
 # UMG & Slate

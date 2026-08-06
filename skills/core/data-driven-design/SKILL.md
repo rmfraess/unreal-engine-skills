@@ -1,16 +1,14 @@
 ---
 name: data-driven-design
-description: Drive Unreal gameplay from externally-editable data instead of hardcoded values —
-  DataTables (UDataTable, FTableRowBase, CSV/JSON import, UCompositeDataTable), DataAssets
-  (UDataAsset, UPrimaryDataAsset with AssetManager), Curves (UCurveFloat, UCurveTable,
-  FRuntimeFloatCurve), config-driven UPROPERTY(config) in .ini files, and DeveloperSettings
-  (UDeveloperSettings) for project-wide tuning. Use when defining item/enemy/level/balance
-  schemas, choosing the right data container, exposing designer-tunable values, replacing
-  magic numbers with editable assets, or layering data across DLC/platforms with composite
-  tables.
+description: >-
+  Use when making Unreal systems data-driven. Covers Data Assets, Data Tables, curves, config files, validation, and runtime data access.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: content-assets
+  hermes:
+    tags: [unreal-engine, ue5, data, driven, design]
+    related_skills: [navigating-engine-source]
 ---
 
 # Data-driven design

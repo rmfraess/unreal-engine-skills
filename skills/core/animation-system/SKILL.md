@@ -1,17 +1,14 @@
 ---
 name: animation-system
-description: Animate skeletal meshes in Unreal using the AnimInstance / Animation Blueprint
-  model — C++ UAnimInstance base class (NativeInitializeAnimation, NativeUpdateAnimation,
-  NativeThreadSafeUpdateAnimation), AnimGraph with state machines and blend spaces,
-  animation assets (UAnimSequence, UBlendSpace, UAnimMontage, UAnimComposite, UPoseAsset),
-  anim notifies and notify states, montage playback and delegates, linked anim layers,
-  Motion Matching (Pose Search plugin), and Motion Warping. Use when setting up character
-  animation, driving locomotion blends from C++, playing montages for actions, firing
-  gameplay events at precise animation frames (notifies), switching animation sets at
-  runtime, or integrating the Pose Search / Motion Warping plugins.
+description: >-
+  Use when building Unreal character animation. Covers animation instances, state machines, montages, slots, blending, and motion warping.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: animation
+  hermes:
+    tags: [unreal-engine, ue5, animation, system]
+    related_skills: [navigating-engine-source]
 ---
 
 # Animation system

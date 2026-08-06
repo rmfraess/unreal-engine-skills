@@ -1,17 +1,14 @@
 ---
 name: levels-and-world-partition
-description: Structure and stream Unreal worlds in C++ — UWorld (persistent level +
-  streaming levels), ULevel, ULevelStreaming; World Partition (UWorldPartition, runtime
-  spatial-hash grid, UWorldPartitionRuntimeCell, streaming sources/UWorldPartitionStreamingSourceComponent);
-  Data Layers (UDataLayerAsset, UDataLayerInstance, UDataLayerManager, EDataLayerRuntimeState);
-  Level Instances (ALevelInstance, APackedLevelActor); One File Per Actor (OFPA); legacy
-  sublevel streaming (UGameplayStatics::LoadStreamLevel / UnloadStreamLevel, Level Streaming
-  Volumes). Use when organizing a level, building open-world or large-level streaming,
-  toggling content sets (day/night, quest states) at runtime, creating reusable instanced
-  level chunks, or choosing between World Partition and explicit sublevels.
+description: >-
+  Use when structuring or streaming Unreal worlds. Covers levels, World Partition, streaming sources, Data Layers, HLOD, OFPA, and Level Instances.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: world-building
+  hermes:
+    tags: [unreal-engine, ue5, levels, world, partition]
+    related_skills: [navigating-engine-source]
 ---
 
 # Levels & World Partition

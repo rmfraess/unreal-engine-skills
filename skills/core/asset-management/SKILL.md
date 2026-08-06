@@ -1,15 +1,14 @@
 ---
 name: asset-management
-description: Reference and load Unreal assets correctly — hard vs soft references (TObjectPtr vs
-  TSoftObjectPtr/TSoftClassPtr), virtual content paths, FSoftObjectPath, async loading with
-  FStreamableManager and FStreamableHandle, the Asset Registry for querying without loading,
-  ConstructorHelpers::FObjectFinder, UAssetManager/primary data assets, and asset bundles. Use
-  when choosing a reference type, fixing load hitches or cook/memory bloat from hard references,
-  loading assets on demand (level streaming, DLC, runtime content), enumerating or filtering
-  assets without loading, or setting up a managed primary-asset pipeline with UPrimaryDataAsset.
+description: >-
+  Use when loading or referencing Unreal assets. Covers hard and soft references, the Asset Registry, Asset Manager, bundles, and asynchronous loading.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: content-assets
+  hermes:
+    tags: [unreal-engine, ue5, asset, management]
+    related_skills: [navigating-engine-source]
 ---
 
 # Asset management
