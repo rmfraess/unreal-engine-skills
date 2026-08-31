@@ -92,7 +92,7 @@ Ability tag containers control which abilities block or cancel each other. These
 
 | Property | Effect |
 |---|---|
-| `AbilityTags` | This ability's identity tags |
+| `AbilityTags` | This ability's identity tags — deprecated in 5.5 (`UE_DEPRECATED_FORGAME(5.5, ...)`, `GameplayAbility.h:474`); read via `GetAssetTags()`, set defaults via `SetAssetTags(...)` in the constructor only |
 | `CancelAbilitiesWithTag` | Cancels currently executing abilities with matching tags |
 | `BlockAbilitiesWithTag` | Prevents activation of abilities with matching tags while active |
 | `ActivationOwnedTags` | Granted to the ASC owner while this ability is active |
@@ -110,6 +110,32 @@ Cost and cooldown are `UGameplayEffect` assets referenced via:
 
 Set these in the Blueprint subclass of the ability (not in C++ for data-driven flexibility).
 `CommitAbility` internally calls `CommitAbilityCost` and `CommitAbilityCooldown`.
+
+### SetByCaller cost/cooldown magnitudes
+
+A cost or cooldown GE whose magnitude/duration is a `FSetByCallerFloat` (e.g. a shared cooldown GE
+whose duration comes from a per-weapon or per-enemy property) does NOT work with bare
+`CommitAbility` — the default `ApplyCost`/`ApplyCooldown` never set the SetByCaller value, so the
+spec resolves to 0 with a runtime warning. Override the apply function and fill the magnitude:
+
+```cpp
+void UGA_MyAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle,
+    const FGameplayAbilityActorInfo* ActorInfo,
+    const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+    if (const UGameplayEffect* CooldownGE = GetCooldownGameplayEffect())
+    {
+        FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(
+            Handle, ActorInfo, ActivationInfo, CooldownGE->GetClass(), GetAbilityLevel(Handle, ActorInfo));
+        Spec.Data->SetSetByCallerMagnitude(CooldownDurationTag, /*seconds*/ Duration);
+        ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, Spec);
+    }
+}
+```
+
+Non-attribute costs (ammo held in an inventory component, a consumable item) follow the same
+shape: override `CheckCost` to query the resource and `ApplyCost` to consume it, calling `Super`
+first so an optional cost GE still applies.
 
 ## Gameplay Events
 

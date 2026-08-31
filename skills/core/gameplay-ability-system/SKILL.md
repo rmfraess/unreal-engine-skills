@@ -299,10 +299,22 @@ Cue handlers are `UGameplayCueNotify_Static` (one-shot, `OnExecute`) or
   `Minimal`-mode ASCs won't replicate GE data to simulated proxies.
 - **Cue tags not prefixed `GameplayCue.`** — the manager won't find or route them.
 - **Forgot to call `CommitAbility`** — cost/cooldown not consumed; server may reject prediction.
+- **`FindOrAddComponent`/`AddComponent` in a GE constructor** — NewObject with an empty name
+  fatal-asserts at CDO construction and kills the editor at module load. Use
+  `CreateDefaultSubobject` + `GEComponents.Add` instead (see
+  [references/attributes-and-effects.md](references/attributes-and-effects.md)).
+- **SetByCaller cost/cooldown with bare `CommitAbility`** — the magnitude is never set, so the
+  spec applies at 0 with a warning. Override `ApplyCost`/`ApplyCooldown` (see
+  [references/gameplay-abilities.md](references/gameplay-abilities.md)).
+- **No `GameplayCueNotifyPaths` configured** — the cue manager falls back to scanning all of
+  `/Game/` (startup warning + scan cost). Set
+  `[/Script/GameplayAbilities.AbilitySystemGlobals]` `+GameplayCueNotifyPaths=/Game/GameplayCues`.
 
 ## Version notes
 
 - `NonInstanced` policy deprecated in 5.5; `InstancedPerActor` is the recommended default.
+- `AbilityTags` deprecated in 5.5: read `GetAssetTags()`, set defaults with `SetAssetTags(...)`
+  (constructor only).
 - `UGameplayEffect` became component-based in 5.3 (`EGameplayEffectVersion::Modular53`). Legacy
   monolithic GE data still works but new functionality is via `UGameplayEffectComponent` subclasses.
 - `GetAbilitySystemComponentFromActorInfo_Checked()` deprecated in 5.5; use

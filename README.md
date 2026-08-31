@@ -79,6 +79,7 @@ unreal-engine-skills/
 Status: ✅ built · 🟡 planned. (Planned skills are tracked as tasks and built in batches.)
 
 ### Cross-cutting / meta
+- ✅ `gameplay-architecture-planning` — brainstorm systems, compare trade-offs, map ownership/communication/data, and produce implementation plans
 - ✅ `navigating-engine-source` — locate and cite exact APIs in the on-disk engine source
 - ✅ `coding-standards` — Epic C++ coding standard, naming prefixes, conventions
 
