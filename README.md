@@ -30,7 +30,7 @@ read-only `search_files` and `read_file` operations to verify APIs without guess
 
 ## Hermes Agent
 
-All 61 descriptions begin with a complete task trigger inside Hermes' 57-character skill-index
+All 62 descriptions begin with a complete task trigger inside Hermes' 57-character skill-index
 preview. Marketplace triggers require established Ultra Dynamic Sky or Ultra Dynamic Weather
 context so they do not capture native Unreal work.
 

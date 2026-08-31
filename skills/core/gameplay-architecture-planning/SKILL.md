@@ -1,15 +1,14 @@
 ---
 name: gameplay-architecture-planning
-description: Design and plan Unreal Engine gameplay systems before implementation. Turns an
-  ambiguous feature or game idea into an Unreal-native architecture with explicit ownership,
-  lifetime, Actor/Component/UObject/Subsystem choices, Game Framework placement, C++ versus
-  Blueprint boundaries, communication and replication flows, data and asset models, trade-off
-  analysis, and an ordered implementation plan. Use when brainstorming a new mechanic or system,
-  comparing architectural approaches, deciding where logic or state should live, mapping a
-  feature across gameplay classes, or preparing a safe task list for an implementation agent.
+description: >-
+  Use when planning Unreal gameplay architecture. Covers ownership, lifetime, framework placement, C++/Blueprint boundaries, communication, replication, data models, trade-offs, and implementation sequencing.
+license: UNLICENSED
 metadata:
   engine-version: "5.8"
   category: cross-cutting-meta
+  hermes:
+    tags: [unreal-engine, ue5, gameplay, architecture, planning]
+    related_skills: [gameplay-framework, actors-and-components, subsystems, data-driven-design, networking-and-replication]
 ---
 
 # Gameplay architecture planning
