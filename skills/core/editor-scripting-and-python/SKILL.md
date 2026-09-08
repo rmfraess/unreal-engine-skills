@@ -263,6 +263,7 @@ Source: `Runtime/CoreUObject/Public/UObject/ObjectMacros.h:1285`.
   `set_editor_property` for `EditAnywhere` properties.
 - **Long Python jobs block the editor UI** — wrap with `unreal.ScopedSlowTask` and yield
   `enter_progress_frame` to keep the editor responsive and allow cancellation.
+- **Treating `time.sleep()` as an Unreal frame wait** — Python normally blocks the editor/game thread, so sleeping does not advance component registration, shader/render-resource readiness, foliage rebuilds, visibility, SceneCapture work, or render-target completion. Use a verified post-tick callback, latent automation command, or other tick-driven state machine. For visual evidence after asset load/import/reimport, load `unreal-editor-python` and follow **Tick-Driven Render Verification**; missing target pixels are inconclusive, not asset failure.
 - **Forgetting to save** — call `EAS->SaveAsset()` or the Python equivalent; unsaved
   changes to assets are lost when the editor closes.
 - **Hardcoding asset paths** — use the Asset Registry to discover paths dynamically; see

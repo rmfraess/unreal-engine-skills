@@ -43,6 +43,12 @@ Unreal has a layered test ecosystem. Each layer trades world setup cost against 
 Testing is complete when the selected test is discovered, its intended headless invocation
 produces a bounded pass/fail result, and world, actor, latent, and async state are cleaned up.
 
+## Frame-dependent visual and asset tests
+
+Asset existence, successful API calls, component counts, and foliage instance counts are structural assertions—not proof that an asset rendered. Visual tests must be latent/tick-driven: allow real world/editor frames for asset render resources, component proxies, shaders, visibility/transforms, foliage trees, and SceneCapture work before reading evidence. Never use `time.sleep()` on Unreal's editor/game thread as a frame wait; it blocks the ticks being awaited.
+
+For import/reimport captures, direct-mesh previews, SceneCapture render targets, foliage/HISM validation, WPO motion, or screenshot comparisons, load `unreal-editor-python` and follow its **Tick-Driven Render Verification** procedure. Include a known-good project custom mesh, isolate the target, and assert target-colored/non-background pixels before judging the image. A capture missing the target asset is an inconclusive harness failure, not asset rejection evidence.
+
 ## Mental model
 
 Tests live outside `UObject` reflection — they are not Blueprints-visible. The

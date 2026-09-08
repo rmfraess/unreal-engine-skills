@@ -96,6 +96,10 @@ Keep the returned `TSharedPtr<FStreamableHandle>` as long as you need the asset 
 Releasing the handle removes the streamable manager's hard GC reference to the loaded asset.
 Call `Handle->ReleaseHandle()` explicitly to unload, or let the `TSharedPtr` go out of scope.
 
+### Resident is not rendered
+
+A successful synchronous load, async completion callback, valid soft pointer, or non-null `UObject` proves that the asset is resident—not that a component has registered its render proxy or that the asset entered a rendered frame. Keep load readiness, component/render readiness, and visual acceptance as separate gates. For Editor Python import/reimport previews, SceneCapture evidence, foliage/HISM validation, or screenshot-based judgment, load `unreal-editor-python` and follow **Tick-Driven Render Verification**. Do not use `time.sleep()` on the editor/game thread as a frame wait. If the target asset is absent from a capture, report the test as inconclusive until renderability is proven; never reject the asset from empty evidence.
+
 See [references/streamable-manager.md](references/streamable-manager.md) for the full async
 loading workflow, batch loading, combined handles, and progress tracking.
 

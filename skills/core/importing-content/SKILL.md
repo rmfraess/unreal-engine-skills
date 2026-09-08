@@ -42,6 +42,8 @@ Import is complete when every expected asset exists at the intended package path
 type-specific checks, and an unchanged-source reimport introduces no unintended asset or setting
 changes.
 
+When acceptance includes rendered appearance, structural import completion is only the first gate. A non-null asset, valid bounds, completed Interchange call, or saved package does not prove renderability. Run the full Editor and load `unreal-editor-python`; follow its **Tick-Driven Render Verification** procedure before visual judgment. In particular, do not assign a newly imported mesh and immediately SceneCapture/export it in the same blocking Python call, and do not use `time.sleep()` as a frame wait. Prove a known-good project custom mesh and the target mesh occupy pixels in-frame. Missing target geometry makes the test inconclusive, not a failed asset.
+
 ## Pipelines: Interchange vs legacy
 
 **Interchange** (default for FBX, glTF, GLB, OBJ, most images, audio)
