@@ -66,7 +66,8 @@ Effects applied on a submix process all audio passing through that bus:
 1. Create a `USoundEffectSubmixPreset` subclass (e.g., built-in
    `USubmixEffectReverbPreset`, `USubmixEffectEQPreset`).
 2. Drag it onto the submix in the editor, or add it via
-   `UGameplayStatics::AddSoundToMix` from code.
+   `UAudioMixerBlueprintLibrary::AddSubmixEffect(WorldContextObject, SoundSubmix, Preset)`
+   from code (`AudioMixerBlueprintLibrary.h`).
 3. Effects run in serial order in the chain.
 
 Submixes also support recording (`StartRecordingOutput`) and spectral analysis

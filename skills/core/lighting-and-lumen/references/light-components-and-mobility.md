@@ -157,6 +157,9 @@ contribution.
 
 ## Version notes
 
-- `MegaLights` (`bAllowMegaLights`, `MegaLightsShadowMethod`) was added in UE5.5 for
-  stochastic many-light evaluation; available in 5.8 but still experimental.
+- `MegaLights` (`bAllowMegaLights`, `MegaLightsShadowMethod`) enters **Production Ready**
+  status in UE 5.8. It still requires per-platform and per-scene performance validation.
+- `Lumen Lite` is **Beta** in UE 5.8: a medium-quality GI path using irradiance fields with
+  probe occlusion. It is the new default for current-generation handheld-console
+  scalability and is also supported on PC.
 - `TObjectPtr<T>` is the modern member UPROPERTY form (UE5+); raw `T*` still compiles.

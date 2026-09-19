@@ -78,9 +78,10 @@ if (S)
 }
 ```
 
-`GetSocketTransform` returns identity if the socket name is not found — always check
-with `GetSocketByName` first. Sockets defined in the Static Mesh Editor are stored on
-the `UStaticMesh` asset and are shared across all component instances.
+`GetSocketTransform` returns the component's transform in the requested space if the socket
+name is not found. Check `DoesSocketExist` or `GetSocketByName` first when a missing socket
+must be rejected. Sockets defined in the Static Mesh Editor are stored on the `UStaticMesh`
+asset and are shared across all component instances.
 
 ## Nanite settings
 
@@ -94,13 +95,16 @@ the `UStaticMesh` asset and are shared across all component instances.
 | `TrimRelativeError` | `float` | Minimum relative error at which to stop reducing |
 | `PositionPrecision` | `int32` | Step size = 2^(-PositionPrecision) cm; `MIN_int32` = auto |
 
-Since 5.7, direct member access is deprecated (`UE_DEPRECATED(5.7, ...)`). Use:
+Since 5.7, direct member access is deprecated (`UE_DEPRECATED(5.7, ...)`). In UE 5.8.2
+the settings accessors are editor-only-data APIs; use them in editor/asset-build code,
+not gameplay code:
 
 ```cpp
 FMeshNaniteSettings NS = MyMesh->GetNaniteSettings();   // line 855
 NS.bEnabled = true;
 MyMesh->SetNaniteSettings(NS);                          // line 864
-// Call PostEditChange / MarkPackageDirty to trigger rebuild in-editor.
+MyMesh->NotifyNaniteSettingsChanged();                 // calls PostEditChangeProperty
+// Save/mark the package as appropriate; derived Nanite data is built by editor/cook.
 ```
 
 Nanite meshes bypass traditional draw calls entirely. On platforms that support Nanite

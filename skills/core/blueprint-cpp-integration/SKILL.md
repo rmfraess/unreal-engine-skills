@@ -217,6 +217,8 @@ if (Target->Implements<UInteractable>())
 
 Use `Execute_<FuncName>` for any `BlueprintNativeEvent`/`BlueprintImplementableEvent` on an
 interface — it is the only path that correctly dispatches to Blueprint overrides.
+For a private `UPROPERTY` exposed to Blueprint, keep `meta=(AllowPrivateAccess="true")` on
+the property; this metadata changes UHT access validation, not C++ visibility.
 
 Full interface patterns, `TScriptInterface`, and `Cast<>` caveats:
 [references/blueprint-interfaces.md](references/blueprint-interfaces.md).

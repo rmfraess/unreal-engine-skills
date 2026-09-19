@@ -21,7 +21,7 @@ This skill covers everything UDS-side for cinematic work: Sequencer animation, M
 | Animate weather state | UDW Manual Weather State (not UDS Cloud Coverage / Fog if UDW present) |
 | Animate cloud movement deterministically | Cloud Speed = 0, keyframe `Cloud Phase` |
 | Render a movie | Project Mode = Cinematic / Offline (switch back after) |
-| Render with the Path Tracer | Enable `Adjust for Path Tracer` + keep height fog post-process approximation |
+| Render with the Path Tracer | Validate UDS 9.5 compatibility settings against the intended native/approximated fog path. |
 | Make volumetric clouds loop seamlessly | Multi-step recipe in **Cloud Movement** + **Volumetric Clouds** |
 | Trigger a lightning flash from Sequencer | UDW `Flash Lightning` via Event → Trigger track |
 
@@ -105,19 +105,13 @@ If using the Path Tracer, see the next section.
 
 ## Path Tracer
 
-The Path Tracer uses the **sky light cubemap** as a replacement for native sky rendering. This brings limitations UDS compensates for.
-
-```
-1. In UDS → Cinematics / Offline Rendering category:
-   Enable "Adjust for Path Tracer"
-
-2. In UDS → Fog Color category:
-   Leave "Render Height Fog In Path Tracer Using Post Process" enabled (default)
-   ← approximates distant height fog via post process
-   ← the path tracer otherwise has no native height fog support
-```
-
-With those on, UDS works acceptably as a background for path-traced renders.
+UDS 9.5 documents `Adjust for Path Tracer` and `Render Height Fog In Path Tracer Using Post
+Process` as its compatibility/background-rendering path. Start from the vendor recipe for
+that package version, but do not interpret it as an engine-wide lack of atmosphere or fog.
+UE 5.8.2 has native Reference Atmosphere and volumetric fog/cloud path-tracing paths.
+Compare a short MRQ render before replacing UDS's approximation: the vendor's sky material,
+custom cloud material, and post-process fog may not produce the same result as native paths.
+Avoid applying both treatments without checking for duplicate fog/lighting.
 
 ## Looping volumetric cloud movement
 
@@ -177,7 +171,7 @@ Full lightning details in `udw-particles-lightning-wind-sounds`.
 - **Cloud movement loops with a visible seam** — one of the looping recipe steps is missing (often Formation Change Speed ≠ 1, or 3D Noise Vertical Movement ≠ 0).
 - **Exposed-to-cinematics variable doesn't actually update at runtime** — not dynamically re-applied. Call `Static Properties - <Category>` every frame.
 - **Game perf is terrible after rendering** — Project Mode is still on **Cinematic / Offline**. Switch back to Game / Real-time.
-- **Path-traced render shows no height fog in the distance** — `Render Height Fog In Path Tracer Using Post Process` is off. The path tracer lacks native height fog; UDS approximates via post process when enabled.
+- **Path-traced render shows no height fog in the distance** — inspect both UDS's post-process approximation and native volumetric-fog settings; use an MRQ frame to identify which path is active.
 
 ## References & source material
 

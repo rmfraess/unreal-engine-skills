@@ -125,9 +125,11 @@ Never commit the local DDC.
 Runtime-written files: log files, config overrides (in `Saved/Config/`), autosaves, and
 packaged builds (`Saved/StagedBuilds/`). All regeneratable; never commit.
 
-The editor writes project-settings changes to `Saved/Config/...` during editing sessions
-and then copies them to `Config/Default*.ini` on save. If you quit without saving,
-`Saved/Config/` may contain changes not in `Config/`.
+`Saved/Config/` is generated/runtime configuration state and can contain local overrides;
+the exact file written by a settings UI or `SaveConfig` depends on the setting class and
+save path. Persistent team settings belong in the appropriate `Config/Default*.ini` or
+platform/config-extension file, not in `Saved/Config/`. Treat unsaved editor changes as
+local state rather than assuming every editor setting follows one copy-to-default path.
 
 ## Content paths and mount points
 

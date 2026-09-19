@@ -36,10 +36,14 @@ usable everywhere an `FGameplayTag` is expected without calling `.GetTag()`.
 
 ## Registration timing
 
-Native tags register at **static initialization time** — before `main()` runs and before
-any `UObject` exists. The tag dictionary lock (`DoneAddingNativeTags`, `GameplayTagsManager.h`:412)
-is called during engine startup after all module constructors have run. After that point,
-adding new native tags is unsafe.
+Macro-defined native tags are constructed during static initialization of their module; UE does
+not promise one universal before-`main()` ordering across all modules. The tag dictionary lock
+(`DoneAddingNativeTags`, `GameplayTagsManager.h`:412) is called during engine startup after the
+normal native-tag registration window. Macro-defined native tags still belong at file scope in
+a `.cpp`; for an intentional late registration, the public `AddNativeGameplayTag` API is
+available, but its UE 5.8 contract warns that it can invalidate `FastReplication`. Do not add
+late replicated vocabulary unless the project has chosen a compatible dictionary/replication
+strategy.
 
 Consequence: you **cannot** define a native tag inside a function body or inside a
 `UObject` constructor — the macro must be at file scope in a `.cpp` file.

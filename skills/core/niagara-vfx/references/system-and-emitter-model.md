@@ -13,13 +13,17 @@ docs.
 ```
 UNiagaraSystem  (NS_MyEffect.uasset)
  └── FNiagaraEmitterHandle[]   — one handle per emitter in the system
-      └── UNiagaraEmitter      — emitter asset (may be shared across systems)
-           └── UNiagaraScript[] — one script per stack stage
-                └── UNiagaraNodeFunctionCall[] — module graph nodes
+      ├── Standard: `UNiagaraEmitter` / `FVersionedNiagaraEmitterData`
+      │    └── `UNiagaraScript[]` — one script per stack stage
+      │         └── `UNiagaraNodeFunctionCall[]` — module graph nodes
+      └── Stateless: `UNiagaraStatelessEmitter`
+           └── Stateless module/state data; no standard `UNiagaraScript[]` requirement
 ```
 
 `UNiagaraSystem::GetEmitterHandles()` returns the handle array. Each `FNiagaraEmitterHandle`
-carries a name, enabled flag, and a versioned reference to the `UNiagaraEmitter` asset.
+carries a name, enabled flag, emitter mode, and mode-specific instance/reference. In Standard
+mode use the versioned emitter data/base; in Stateless mode use the stateless accessor and do
+not assume `GetEmitterData()` is non-null.
 `UNiagaraSystem::GetExposedParameters()` returns the `FNiagaraUserRedirectionParameterStore`
 that maps User namespace parameter names to their current values; this is what the C++
 `Set*Parameter`/`SetVariable*` calls write into.
@@ -30,7 +34,8 @@ emitter in the system.
 
 ## Stack groups and execution order
 
-Every emitter's module stack is divided into **groups** (run in this order per frame):
+System, Emitter, and Particle are the normal module stack groups. Event Handler and Simulation
+Stage are optional script usages; a renderer is an output item, not a module stack group.
 
 | Group | Stage variants | Runs | Scope |
 |---|---|---|---|
@@ -38,9 +43,9 @@ Every emitter's module stack is divided into **groups** (run in this order per f
 | Emitter Update | — | Every frame while emitter is active | Spawn rate, lifetime, burst triggers |
 | Particle Spawn | — | Once per new particle | Initialize position, color, size, velocity |
 | Particle Update | — | Every frame per alive particle | Forces, drag, color-over-life, size curves |
-| Event Handler | Generate / Listen | Conditional; same or next frame | Cross-emitter or particle-to-particle events |
-| Render | — | Every frame (render thread) | Defines how particles are drawn |
-| Simulation Stage (GPU only) | — | Multiple ordered passes | Fluid, grids, custom iterative algorithms |
+| Event Handler (`ParticleEventScript`) | Generate / Listen | Conditional; same or next frame | Cross-emitter or particle-to-particle events |
+| Simulation Stage (`ParticleSimulationStageScript`) | — | Multiple ordered passes; advanced GPU workflow | Fluid, grids, custom iterative algorithms |
+| Renderer item | Renderer properties, not a module stack group | Render path | Consumes particle/system outputs and defines drawing |
 
 Modules within a group run **top-to-bottom** in the stack. Earlier modules write to the
 parameter map; later modules can read those values.
@@ -49,6 +54,9 @@ parameter map; later modules can read those values.
 
 Niagara uses a namespace scheme so modules know what data they can read or write:
 
+Renderer bindings are renderer-item inputs consumed from simulation output; they are not a
+namespace or writable module-stack group.
+
 | Namespace | Contents | Readable by | Writable by |
 |---|---|---|---|
 | `Engine.*` | Time, delta, quality, platform | all | engine only |
@@ -56,7 +64,6 @@ Niagara uses a namespace scheme so modules know what data they can read or write
 | `System.*` | System-level variables | System group, Emitter, Particle | System group only |
 | `Emitter.*` | Emitter-level variables | Emitter, Particle groups | Emitter group only |
 | `Particle.*` | Per-particle attributes (Position, Velocity, Color, Age…) | Particle group | Particle group only |
-| `Output.*` | Renderer inputs | Render group | Particle/Render groups |
 | `Transient.*` | Temporary per-module values | same module | same module |
 
 User Parameters (your C++ interface) live in `User.*`. Modules in any group can read User
@@ -77,11 +84,11 @@ FX->SetEmitterEnable(TEXT("Sparks"), false);   // NiagaraComponent.h:78
 
 The string is the emitter's name as set in the Niagara Editor.
 
-## Lightweight Emitters (5.5+)
+## Lightweight / Stateless Emitters (5.5+)
 
-Lightweight Emitters are a stripped-down emitter type optimized for simple single-burst effects
-(impacts, hit sparks) where the full stack overhead is unnecessary. They have reduced memory and
-CPU overhead. In 5.8, Lightweight Emitters support a subset of modules; see the
+Lightweight Emitters, also called Stateless Emitters, are a stripped-down emitter mode optimized
+to reduce or eliminate tick work for supported simple effects. They are not limited to a
+single-burst use case by this description, and they support a subset of modules. In 5.8, see the
 [Niagara Lightweight Emitters](https://dev.epicgames.com/documentation/unreal-engine/niagara-lightweight-emitters)
 doc for current feature coverage.
 

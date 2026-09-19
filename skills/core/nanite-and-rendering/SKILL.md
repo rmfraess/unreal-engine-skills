@@ -82,11 +82,17 @@ void EnableNaniteOnMesh(UStaticMesh* Mesh)
 
 ### Where Nanite applies — and where it doesn't
 
-Nanite works on **opaque and masked** materials. Translucent materials fall back to the
-fallback mesh. In UE 5.8 Nanite also supports:
+Nanite's standard material path supports **opaque and masked** materials. Translucent blend
+modes are not a blanket production-support case: in UE 5.8.2 the material audit can reject
+Nanite proxy creation for an unsupported blend mode, while the Nanite shading path separately
+rejects unsupported materials. Do not promise a Nanite fallback-mesh result for every
+translucent component; validate the component's conventional/fallback render path instead.
+In UE 5.8 Nanite also supports:
 - **Skeletal meshes** (animation LODs only; no geometry LODs).
 - **Spline mesh components** — `MaxEdgeLengthFactor > 0` prevents over-simplification.
-- **Foliage**, including WPO wind animation (clamp displacement to avoid culling drift).
+- **Foliage Nanite (experimental in UE 5.8.2)**, including the voxel/curve paths used by
+  some foliage workflows. Enable the project setting only for a target-validated test;
+  clamp WPO displacement to avoid culling drift and retain a conventional fallback.
 - **Instanced static meshes** (HISM, foliage painter, landscape grass).
 - **Geometry collections** (Chaos destruction).
 
@@ -94,7 +100,9 @@ Nanite is **not** supported for:
 - **Forward rendering** or **MSAA** paths (these require per-draw-call mesh data).
 - **VR stereo rendering** (instanced stereo is not Nanite-compatible currently).
 - **Morph targets** (skinning deformation beyond a 4x3 matrix is not supported).
-- **Translucent blend mode** — the Nanite fallback mesh is rendered instead.
+- **Translucent blend mode** — standard Nanite material evaluation is unsupported; use a
+  conventional/fallback mesh path unless an explicitly enabled experimental translucency
+  path has been validated for the target.
 - **Lighting channels** and **minimum screen radius / distance culling** per-object overrides.
 
 On `UStaticMeshComponent`, `bDisallowNanite` and `bForceNaniteForMasked` let you opt
@@ -263,8 +271,9 @@ hardcode `GConsoleManager->FindTConsoleVariableDataFloat` calls in game logic.
 
 ## Gotchas
 
-- **Nanite on translucent material** — silently falls back to the fallback mesh; no error
-  in log unless you enable `r.Nanite.ShowMaskedMaterialWarnings`.
+- **Nanite on translucent material** — do not assume a silent fallback. The 5.8.2 material
+  audit can decline Nanite proxy creation for unsupported blend modes; inspect the Output Log
+  and Primitive Debugger, and do not treat `r.Nanite.AllowTranslucency` as production support.
 - **Nanite + Forward rendering** — Nanite is not supported in forward; the mesh renders
   via the fallback.
 - **`bDisallowNanite` on component** — disables Nanite for that instance even if the mesh

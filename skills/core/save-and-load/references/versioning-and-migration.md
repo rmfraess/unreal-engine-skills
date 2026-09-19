@@ -11,9 +11,22 @@ UE's tagged property serializer is tolerant of **schema additions**: a property 
 in the save but missing in the current class is silently ignored on load; a property present in
 the class but absent from the save gets its C++ default value. This makes adding fields safe.
 
-Schema **removals and renames** are not safe. The serializer matches by property name; if you
-rename `Health` to `MaxHealth`, old saves load it as 0 (the default). Without a version field
-you cannot detect and migrate old data.
+Schema **removals and renames** require an explicit compatibility decision. Keep a temporary
+`UPROPERTY` with the old serialized name for value conversion unless redirects have been
+verified in the actual loading path and cooked target. The binary tagged loader enables
+property redirects when cooked data is not required or `ArIsSaveGame` is set, and excludes
+archives loading from cooked packages (`Class.cpp:1622,1688-1698`). The stock
+`LoadGameFromMemory`/slot path does not set `ArIsSaveGame` (`GameplayStatics.cpp:2484-2485`),
+so an editor test alone does not establish packaged compatibility. A redirect for a pure
+rename can be configured as follows, subject to those gates:
+
+```ini
+[CoreRedirects]
++PropertyRedirects=(OldName="MySaveGame.Health",NewName="MySaveGame.MaxHealth")
+```
+
+Use a version migration when the value semantics change; a redirect alone only changes the
+property name mapping. Without a redirect or retained field, the old value is not found.
 
 ## Version field convention
 
@@ -31,22 +44,24 @@ public:
     UPROPERTY() float CurrentHealth = 100.f;
 
     // Deprecated fields — keep for one version cycle so old saves can migrate:
-    UPROPERTY() float Health_Deprecated = 0.f;  // was "Health" in v1
+    UPROPERTY() float Health = 0.f;  // retain the serialized v1 name for migration
+
+    void MigrateAfterLoad();
 };
 ```
 
-Override `PostLoad` to apply migrations before the rest of the game reads the data:
+Call a migration method explicitly after validating the result of generic
+`UGameplayStatics` loading, before the rest of the game reads the data. The stock memory/slot
+loader constructs and serializes the object; it does not invoke `UObject::PostLoad`:
 
 ```cpp
-void UMySaveGame::PostLoad()
+void UMySaveGame::MigrateAfterLoad()
 {
-    Super::PostLoad();
-
     if (SaveVersion < 2)
     {
         // v1 stored a single "Health" field; v2 splits into Max/Current.
         MaxHealth     = 100.f;
-        CurrentHealth = Health_Deprecated;
+        CurrentHealth = Health;
         SaveVersion   = 2;
     }
     // Add further version steps as needed:
@@ -54,8 +69,10 @@ void UMySaveGame::PostLoad()
 }
 ```
 
-Keep the `_Deprecated` field in the class (marked `UPROPERTY` so it still deserializes from the
-old save) until no supported save version uses it, then remove it with a major version bump.
+Keep the old serialized property name until no supported save version needs conversion, or
+use a redirect proven in the target loader and build. Adding `_Deprecated` to a property name
+is itself a rename; it does not recover the old value automatically. Remove the old field or
+redirect only after the supported-save window no longer includes those files.
 
 ## Backward compatibility rules
 
@@ -63,14 +80,17 @@ old save) until no supported save version uses it, then remove it with a major v
 |---|---|---|
 | Add a new `UPROPERTY` | Yes | Missing fields default to C++ initializer value |
 | Remove a `UPROPERTY` | No | Old saves carry the field; new code ignores it. No data loss, but migration is impossible after removal |
-| Rename a `UPROPERTY` | No | Looks like remove + add; old value is lost without migration |
-| Change a `UPROPERTY` type | No | Serialization will likely fail or corrupt; version-gate |
+| Rename a `UPROPERTY` | Migration or verified redirect required | Preserve the old serialized name for conversion, or test redirects in the actual cooked loader |
+| Change a `UPROPERTY` type | Migration required | The old tagged value may not be compatible with the new type; version-gate and test the actual old bytes |
 | Change a `USTRUCT` field | Treat as rename | USTRUCT fields follow the same rules as UPROPERTY |
 | Add a new slot | Yes | Existing slots are unaffected |
 
 ## ULocalPlayerSaveGame versioning
 
-`ULocalPlayerSaveGame` provides a structured version hook pattern:
+`ULocalPlayerSaveGame` provides a structured version hook pattern. Its
+`LoadOrCreateSaveGameForLocalPlayer` helpers initialize the player association and invoke
+the hooks; generic `UGameplayStatics` loading only deserializes the object and requires
+explicit initialization before relying on those hooks.
 
 ```cpp
 UCLASS()
@@ -114,6 +134,10 @@ Key `ULocalPlayerSaveGame` accessors (SaveGame.h):
 - `HandlePostLoad()` — migration hook; called after load, not after create.
 - `HandlePreSave()` / `HandlePostSave(bool)` — hooks around the save operation.
 
+`SaveGameToSlotForLocalPlayer()` and `AsyncSaveGameToSlotForLocalPlayer()` return request
+acceptance, not the platform-write result. Use `HandlePostSave(bool bSuccess)` or inspect
+`WasLastSaveSuccessful()` after completion; the generic async delegate reports `bSuccess`.
+
 ## Detecting first-run vs. corrupt save
 
 ```cpp
@@ -123,7 +147,9 @@ UMySaveGame* Loaded = Cast<UMySaveGame>(
 
 if (!Loaded)
 {
-    // Null: slot doesn't exist OR save is corrupt / class mismatch.
+    // Null: the slot was absent, the platform read failed, the data was empty, or the
+    // serialized class could not be resolved. Create a fresh save only after deciding how
+    // to preserve/report a possibly unreadable existing slot.
     // Create a fresh save:
     Loaded = Cast<UMySaveGame>(
         UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
@@ -132,7 +158,15 @@ else if (Loaded->SaveVersion > CURRENT_VERSION)
 {
     // Save is from a newer build — handle gracefully (warn, reset, or error).
 }
+else
+{
+    Loaded->MigrateAfterLoad(); // explicit: generic loading does not invoke PostLoad
+}
 ```
+
+`LoadGameFromSlot` does not provide a game-level checksum or migration-success result. Treat a
+non-null object as engine-level construction only; validate a magic/version/checksum field before
+applying state that must not be silently lost.
 
 `ISaveGameSystem::DoesSaveGameExistWithResult` returns `ESaveExistsResult::Corrupt` on some
 platforms when the file exists but is unreadable. Use this to distinguish "no save" from

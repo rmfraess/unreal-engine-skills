@@ -149,9 +149,11 @@ graph's Input node names. A mismatch produces no error and no effect. The
 parameter interface is declared in
 `Runtime/Engine/Public/Audio/SoundParameterControllerInterface.h`.
 
-MetaSounds also expose **outputs** (e.g., a float metering value). Read them
-through `UMetasoundGeneratorHandle` obtained from `UMetaSoundSource::
-GetGeneratorForAudioComponent` — available only while the sound is playing.
+MetaSounds also expose **outputs** (e.g., a float metering value). In C++,
+`UMetaSoundSource::GetGeneratorForAudioComponent` returns a
+`TWeakPtr<Metasound::FMetasoundGenerator>`; pin and validate it only while the sound
+is playing. The Blueprint `UMetasoundGeneratorHandle` is a separate wrapper for
+Blueprint-facing output access.
 
 See [references/metasound-parameters-and-builder.md](references/metasound-parameters-and-builder.md)
 for the Builder API, output watching, and runtime graph authoring.

@@ -103,7 +103,7 @@ output devices. Fields of interest for custom output devices or log output devic
 // Key accessors on FLogRecord:
 const FName&            GetCategory()   // log category name
 ELogVerbosity::Type     GetVerbosity()  // verbosity level
-const TCHAR*            GetFormat()     // format string (e.g. "Loading '{Name}'")
+const UTF8CHAR*         GetUtf8Format() // current UE 5.8 format accessor
 const FCbObject&        GetFields()     // compact-binary field object
 const ANSICHAR*         GetFile()       // source file (__FILE__)
 int32                   GetLine()       // source line (__LINE__)
@@ -111,6 +111,8 @@ int32                   GetLine()       // source line (__LINE__)
 
 `FLogRecord::FormatMessageTo(FWideStringBuilderBase&)` produces the human-readable string
 by substituting field values into the format template.
+`GetFormat()`/`SetFormat()` remain compatibility APIs but are `UE_DEPRECATED(5.8)`; use
+`GetUtf8Format()`/`SetUtf8Format()` for custom log consumers.
 
 ## Custom SerializeForLog
 

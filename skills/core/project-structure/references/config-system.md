@@ -12,8 +12,10 @@ Official docs (verified live):
 ## How the config hierarchy works
 
 For every config category (Engine, Game, Input, …) the engine merges a stack of `.ini`
-files in a fixed order, with later files overriding earlier ones. The canonical layer
-order, from `ConfigHierarchy.h` (`Engine/Source/Runtime/Core/Public/Misc/ConfigHierarchy.h`):
+files in a fixed order, with later files overriding earlier ones. The canonical layer sequence below is
+the common static sequence from `ConfigHierarchy.h`; UE 5.8 also has
+generated/custom layers and platform-extension expansions, so this abbreviated table is
+not an exhaustive list of every file that can participate:
 
 | Order | File template | Notes |
 |---|---|---|
@@ -91,9 +93,11 @@ r.Shadow.Virtual.Enable=1
 gc.MaxObjectsNotConsideredByGC=0
 ```
 
-For rendering cvars (`r.*`) the canonical section is
-`[/Script/Engine.RendererSettings]`; for streaming (`s.*`) use
-`[/Script/Engine.StreamingSettings]`.
+For most rendering cvars (`r.*`) use `[/Script/Engine.RendererSettings]`; for streaming
+(`s.*`) use `[/Script/Engine.StreamingSettings]`. UE 5.8's documented exceptions include
+`r.SupportAllShaderPermutations` in `[/Script/Engine.RendererOverrideSettings]`, `gc.*` in
+`[/Script/Engine.GarbageCollectionSettings]`, and `cook.*` in
+`[/Script/UnrealEd.CookerSettings]`.
 
 ## UPROPERTY(config) — automatic binding
 
@@ -139,9 +143,11 @@ Settings->MaxPlayers = 8;
 Settings->SaveConfig();   // writes to the appropriate Default*.ini or User*.ini
 ```
 
-`SaveConfig` is declared on `UObject`; it respects the class's config category and writes
-to the highest-priority non-read-only file in the hierarchy (typically `Default*.ini` in
-dev or `User*.ini` in shipped builds).
+`SaveConfig` is declared on `UObject`; it respects the class's resolved config filename unless
+the call supplies an explicit filename or save context. Use `TryUpdateDefaultConfigFile`,
+`UpdateGlobalUserConfigFile`, or `UpdateProjectUserConfigFile` when the intended config layer
+matters; do not infer the destination solely from whether the process is a development or
+shipped build.
 
 ## Reading config values manually (GConfig)
 
@@ -197,8 +203,9 @@ GetIni Windows@Engine:/Script/Engine.Engine bSmoothFrameRate
 
 ## Version notes
 
-- The config layer ordering is stable across UE5. The `ConfigHierarchy.h` inline array
-  `GConfigLayers[]` is the canonical source of truth and has not changed since UE5.0.
+- For UE 5.8, treat the installed `ConfigHierarchy.h`, its expansion rules, and the
+  version-matched Epic configuration documentation as the source of truth; do not assert
+  historical stability across engine branches without checking each branch.
 - `GameUserSettings.ini` is typically written to `Saved/` (not `Config/`) at runtime so
   each player's display settings persist locally. Do not commit it.
 - Enhanced Input stores bindings in `.uasset` files, not in `DefaultInput.ini`. Legacy

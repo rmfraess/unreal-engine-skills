@@ -197,7 +197,8 @@ Important:
   details to bound CI runs.
 - Use `AssertTrue` / `AssertIsValid` / `AssertEqual_Float` (the functional-test assert
   family from `AFunctionalTest`) rather than the `FAutomationTestBase` macros.
-- Register spawned actors with `AddActorToDestroyOnTestEnd` so cleanup is automatic.
+- Register spawned actors with `RegisterAutoDestroyActor(Actor)` so the functional test
+  limits their lifespan during test cleanup.
 
 See [references/functional-tests.md](references/functional-tests.md) for `PrepareTest`
 and `IsReady` patterns, Ground Truth Data, and Blueprint functional test setup.
@@ -274,9 +275,10 @@ indicates test failures when `-unattended` is set.
   out of scope before the `It` runs; capture `this` and use member variables.
 - **Test module depends on the editor** — tests that need `WITH_EDITOR` types must be
   placed in an `Editor`-category module; don't put them in `Runtime`.
-- **`AddErrorS` / `AddWarningS`** — deprecated since 5.4; use `AddError` / `AddWarning`.
-- **`TestEqualInsensitive`** — deprecated since 5.5; use `TestEqual` (strings are
-  case-insensitive by default now).
+- **Legacy assertion names** — `AddErrorS`, `AddWarningS`, and `TestEqualInsensitive`
+  are not available in the UE 5.8.2 public automation header. Use `AddError`,
+  `AddWarning`, and `TestEqual` instead; the string overloads of `TestEqual` use
+  case-insensitive comparison by default.
 
 ## Version notes
 
@@ -292,7 +294,7 @@ indicates test failures when `-unattended` is set.
 ## References & source material
 
 Engine source (UE 5.8):
-- `Runtime/Core/Public/Misc/AutomationTest.h` — `EAutomationTestFlags`:88,
+- `Engine/Source/Runtime/Core/Public/Misc/AutomationTest.h` — `EAutomationTestFlags`:88,
   `FAutomationTestBase`:1594, `RunTest`:2653, `TestEqual`:1985, `TestFalse`:2367,
   `TestNull`:2530, `TestTrue`:2603, `FAutomationSpecBase`:2899, `Describe`:2757,
   `BeforeEach`:2821, `It`:2789, `IAutomationLatentCommand`:525,

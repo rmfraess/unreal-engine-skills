@@ -142,7 +142,21 @@ Always null-check the result unless you have made the subsystem unconditionally 
 
 - `GetSubsystemChecked` (returns `TNotNull<T*>`) is available in UE 5.x; it was not present in
   UE 4. In UE 4, use the regular accessor with a manual `check()`.
-- `UWorldSubsystem::UpdateStreamingState` was deprecated in UE 5.5 and removed in 5.8;
-  use `IStreamingWorldSubsystemInterface` for streaming callbacks.
+- `UWorldSubsystem::UpdateStreamingState` is not present in UE 5.8.2. For a world subsystem
+  that needs streaming notifications, include `Streaming/StreamingWorldSubsystemInterface.h`,
+  inherit `IStreamingWorldSubsystemInterface`, and override `OnUpdateStreamingState()` (and
+  `OnFlushStreaming()` when flush notifications are required):
+
+  ```cpp
+  #include "Streaming/StreamingWorldSubsystemInterface.h"
+
+  UCLASS()
+  class UMyWorldSubsystem final
+      : public UWorldSubsystem, public IStreamingWorldSubsystemInterface
+  {
+      GENERATED_BODY()
+      void OnUpdateStreamingState() override;
+  };
+  ```
 - The `ForEachSubsystem` / `ForEachSubsystemOfClass` iteration API on
   `FSubsystemCollectionBase` was added in UE 5.x; not available in UE 4.

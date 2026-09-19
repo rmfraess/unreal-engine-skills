@@ -190,8 +190,9 @@ utility extensions, scripted validation pipelines.
 
 ## Version notes
 
-- `UWorldSubsystem::UpdateStreamingState` was deprecated in UE 5.5 and removed in 5.8.
-  Implement `IStreamingWorldSubsystemInterface` instead if streaming state callbacks are needed.
+- `UWorldSubsystem::UpdateStreamingState` is absent in UE 5.8.2. Implement
+  `IStreamingWorldSubsystemInterface::OnUpdateStreamingState()` instead; the interface is
+  declared in `Engine/Public/Streaming/StreamingWorldSubsystemInterface.h`.
 - `GetSubsystemChecked` on `UWorld` (`World.h`:4321) is new in UE 5.x; it returns
   `TNotNull<T*>` and asserts when the subsystem is absent.
 - The subsystem framework is stable across UE5; the per-type headers and class hierarchy

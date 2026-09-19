@@ -65,7 +65,7 @@ Configured via `InstancingPolicy` (`UPROPERTY(EditDefaultsOnly)`) on the ability
 |---|---|
 | `InstancedPerExecution` | Default; safest; allocates a new instance per activation. Supports Blueprint graphs, RPCs, state. Replicated instance per execution is not supported — use `InstancedPerActor` for replication. |
 | `InstancedPerActor` | One instance per actor; reuses it across activations. Supports replication (replicated properties and RPCs work). Must manually reset state between activations. |
-| `NonInstanced` | Deprecated in 5.5 (`UE_DEPRECATED_FORGAME(5.5, ...)`); avoid in 5.8. |
+| `NonInstanced` | Deprecated in 5.5 (`UE_DEPRECATED_FORGAME(5.5, ...)`) but still declared in 5.8.2; avoid it in new code. |
 
 For multiplayer abilities that need replicated variables or RPCs inside the ability, use
 `InstancedPerActor` with `ReplicationPolicy` set to replicate.
@@ -139,8 +139,12 @@ first so an optional cost GE still applies.
 
 ## Gameplay Events
 
-Abilities can be triggered by `FGameplayEventData` payloads without the normal `TryActivateAbility`
-path. Useful for animation notify-driven attacks or external system triggers:
+Abilities can be triggered by `FGameplayEventData` payloads without calling the public
+`TryActivateAbility` method directly. `UAbilitySystemComponent::HandleGameplayEvent` resolves the
+event tag and its direct parents, then `TriggerAbilityFromGameplayEvent` calls
+`InternalTryActivateAbility`, so the shared activation checks, instancing, networking, and
+prediction path still apply. The helper copies the payload and sets its `EventTag` to the dispatched
+tag. This is useful for animation-notify-driven attacks or external system triggers:
 
 ```cpp
 // Send event to actor

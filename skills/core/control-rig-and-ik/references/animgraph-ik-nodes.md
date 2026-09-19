@@ -6,6 +6,13 @@ performance guidance, and the `UIKRigComponent` goal-feeding pattern. Grounded i
 (`Engine/Plugins/Animation/IKRig/Source/IKRig/Public/` and
 `Engine/Source/Runtime/AnimGraphRuntime/`).
 
+## Control Rig node
+
+In UE 5.8.2, prefer the node's `FControlRigAssetStrongReference` asset field for new
+tooling. `FAnimNode_ControlRig::ControlRigClass_DEPRECATED` and
+`GetControlRigClass()` remain only as deprecated compatibility paths; use
+`GetControlRigAssetReference()` when reading the selected rig asset.
+
 ---
 
 ## Built-in skeletal control IK nodes

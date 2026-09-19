@@ -64,11 +64,14 @@ in the server's platform-specific ini, or condition references with `WITH_SERVER
 
 See `networking-and-replication` for replication, RPCs, and authority checks.
 
-## IoStore On-Demand (streaming content from CDN)
+## IoStore On-Demand (optional/experimental integration)
 
-The IoStore On-Demand system (`Runtime/Experimental/IoStore/OnDemand/`) enables a
-shipped game to fetch content from a CDN at runtime without requiring the full install
-upfront — the foundation for streaming installs and live-service drops.
+The IoStore On-Demand system lives under the experimental runtime source tree and is an
+optional integration, not a complete CDN/security service. In UE 5.8.2, UAT’s
+`-applyiostoreondemand` path compiles the On-Demand support and forces manifests; without that
+explicit path, `IoStoreOnDemandSettings` is initialized disabled. Validate the host groups,
+authorization model, install/mount lifecycle, failure handling, patch compatibility, and target
+platform before considering it for a shipped product.
 
 Core interface (source: `Engine/Source/Runtime/Experimental/IoStore/OnDemandCore/Public/IO/IoStoreOnDemand.h`:46/647):
 
@@ -88,13 +91,11 @@ namespace UE::IoStore
 }
 ```
 
-The on-demand system requires chunks to be staged as IoStore containers (`bUseIoStore`
-must be true) and hosted on a CDN or HTTP server. The client mounts the table of
-contents (`.utoc`) eagerly and fetches `.ucas` blocks lazily as game code triggers loads.
-
-**Configuration:** IoStore On-Demand is enabled per-platform in its INI section and
-requires the `IoStoreOnDemand` plugin. The on-demand TOC is generated during packaging
-when chunking is enabled — each chunk's `.utoc` can be hosted independently.
+The on-demand workflow requires the project’s IoStore/manifest settings and an integration that
+can provide the generated containers and request service. The installed interface exposes
+request states and container/install operations; it does not by itself establish a public-CDN
+security or delivery contract. Keep the `bUseIoStore`/manifest prerequisites explicit and test
+the actual platform and host implementation.
 
 ## Patching workflow
 
@@ -144,12 +145,11 @@ system is not sufficient or not available.
 
 ## Mount order and priority
 
-When the game mounts multiple paks at startup (base + patches + DLC), paks are sorted
-by priority (pak file name encodes the priority). A pak mounted later with higher
-priority overrides packages present in an earlier pak. The default priority ordering is:
-1. Base paks (pakchunk0, pakchunk1, …)
-2. Patch paks (pakchunk0-patch, …)
-3. DLC paks (optional paks)
+When a project mounts multiple containers at startup, the selected platform/patch/DLC
+integration defines mount order and conflict behavior. Do not infer a universal priority
+contract from filenames; validate the generated manifest and the runtime mount code for the
+target platform.
 
-Custom mount priority can be set explicitly via `FPakPlatformFile::Mount()` if your
-code mounts paks at runtime.
+For legacy pak runtime mounting, custom code may call the installed `FPakPlatformFile::Mount()`
+path; that API does not define IoStore mount semantics or replace the platform’s delivery
+manifest.

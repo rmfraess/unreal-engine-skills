@@ -12,7 +12,7 @@ Three independent flags control which assertion families are active:
 |---|---|---|
 | `DO_CHECK` | `check`, `verify`, `checkf`, `verifyf`, `checkNoEntry`, `checkNoReentry`, `checkNoRecursion`, `unimplemented` | Debug, Development, Test; NOT Shipping by default |
 | `DO_GUARD_SLOW` | `checkSlow`, `checkfSlow`, `verifySlow` | Debug only |
-| `DO_ENSURE` | `ensure`, `ensureMsgf`, `ensureAlways`, `ensureAlwaysMsgf` | Debug, Development, Test, Shipping Editor |
+| `DO_ENSURE` | `ensure`, `ensureMsgf`, `ensureAlways`, `ensureAlwaysMsgf` | Debug, Development, Test; Shipping only when `USE_ENSURES_IN_SHIPPING=1` (default 0) |
 
 When `DO_CHECK` is 0, `check(expr)` expands to `{ CA_ASSUME(expr); }` — the expression is
 **not evaluated**, but the compiler is told it is true (enables optimizer hints).
@@ -96,8 +96,9 @@ Per-call-site deduplication (`AssertionMacros.h`:404) is implemented via a `stat
 std::atomic<uint8>` (`bGEnsureHasExecuted`) keyed by a compile-time hash of `__FILE__` and
 `__LINE__`. The first failure sets it; subsequent calls short-circuit.
 
-In shipping (`DO_ENSURE=0`): the expression evaluates (no compilation out), but
-`EnsureFailed` / crash reporting is never invoked.
+In shipping (`DO_ENSURE=0`, the default): the expression evaluates, but `EnsureFailed` /
+crash reporting is never invoked. A target that sets `USE_ENSURES_IN_SHIPPING=1` enables the
+reporting path.
 
 `ensure` returns `bool` — `true` if the expression was true, `false` if it fired. This makes
 the `if (!ensure(x)) { return; }` pattern idiomatic for guarding code that follows.

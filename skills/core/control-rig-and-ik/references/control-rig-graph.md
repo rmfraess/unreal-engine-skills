@@ -141,8 +141,8 @@ one character rig. Each module is a standalone `UControlRig` (arm rig, leg rig, 
 wired together through connector rules (`RigConnectionRules.h`).
 
 Code assembling a rig programmatically can use `UModularRigController` to add, remove,
-and reconnect modules without opening the editor. The deprecated `GetRigModuleNameSpace()`
-(5.6+) is replaced by `GetRigModulePrefix()` on `UControlRig`.
+and reconnect modules without opening the editor. `GetRigModuleNameSpace()` is not present
+in UE 5.8.2; use `GetRigModulePrefix()` on `UControlRig`.
 
 ---
 

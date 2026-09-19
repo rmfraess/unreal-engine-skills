@@ -46,10 +46,11 @@ The Construction Script (`UBlueprint::SimpleConstructionScript`, `Blueprint.h`:5
 - Whenever a **property is changed** on a placed instance in the editor.
 - When the actor is **dragged** in the editor (if `bRunConstructionScriptOnDrag` is set, `Blueprint.h`:453).
 
-This makes the Construction Script the right place for procedural setup that depends on
-properties — layout-sensitive component configuration, runtime parameter setup, spawning child
-actors. It must be **idempotent** because it can run many times (each property edit triggers a
-re-run). Never rely on persistent state accumulated across multiple Construction Script runs.
+This makes the Construction Script the right place for idempotent procedural setup that depends
+on properties — layout-sensitive component configuration, construction-time parameter setup,
+and carefully managed child actors. It can run many times (each property edit may trigger a
+re-run), so clean up or replace anything it creates and never rely on persistent state accumulated
+across runs. Guard gameplay-only work and world-dependent queries for the execution context.
 
 The SCS is executed via `USimpleConstructionScript::ExecuteScriptOnActor`
 (`SimpleConstructionScript.h`:47), which instantiates component templates in the SCS tree and

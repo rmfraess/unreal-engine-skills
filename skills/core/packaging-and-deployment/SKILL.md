@@ -138,9 +138,12 @@ Both formats support compression (`bCompressed`, `PackageCompressionFormat`) and
 encryption (configured via the crypto key system, not the deprecated ini flags).
 
 **Chunking** splits content across multiple pak/IoStore containers for streaming installs,
-DLC, or patching. Each chunk maps to a numbered `.pak` / `.ucas` file (e.g.
-`pakchunk1-Windows.pak`). Chunk 0 is the base install; chunks 1+ are downloaded
-separately. Configure via `bGenerateChunks = true` and Primary Asset Rules.
+DLC, or patching. Each configured chunk is packaging metadata that may produce numbered
+container files (for example `pakchunk1-Windows.pak`); the platform/launcher/patch/DLC
+integration decides how those files are delivered and mounted. Do not infer from a chunk ID
+alone that a file is downloaded separately or that chunk 0 is always the complete base install.
+Configure chunk generation with `bGenerateChunks` and Primary Asset Rules, then generate and
+inspect the manifests required by the selected delivery path.
 
 Details: [references/pak-iostore-and-chunking.md](references/pak-iostore-and-chunking.md).
 
@@ -183,14 +186,16 @@ A **Client/Server** split (`Game` + `Server` targets built separately) is the st
 multiplayer packaging pattern; the server binary runs headless and ships without rendering
 modules. See `networking-and-replication`.
 
-## Content-on-demand / IoStore On-Demand
+## Content-on-demand / IoStore On-Demand (optional/experimental scope)
 
-The IoStore On-Demand system (`Runtime/Experimental/IoStore/OnDemand/`) allows a shipped
-game to fetch content from a CDN at runtime rather than requiring it to be installed
-upfront. The `IOnDemandIoStore` interface (`IoStoreOnDemand.h`) manages requests with
-statuses Pending / Ok / Cancelled / Error. This is the foundation for streaming installs,
-live-service content drops, and large-world on-demand streaming beyond what the base chunk
-system handles.
+UE 5.8.2 exposes the IoStore On-Demand interfaces under the experimental runtime source tree,
+but this is not a generic “ship a CDN” switch. UAT enables the path with
+`-applyiostoreondemand`, which adds `-CompileIoStoreOnDemand` and forces chunk manifests; the
+settings default to disabled when no On-Demand settings are supplied. Treat hosting,
+authentication/authorization, mount policy, failure recovery, patch compatibility, and target
+platform support as project-owned delivery infrastructure. For ordinary shipping distribution,
+use the project’s validated container/patch/DLC pipeline until an On-Demand integration has
+been tested end to end.
 
 ## Shipping vs. development (mind the gap)
 
@@ -225,10 +230,17 @@ compiles out of runtime targets. See `logging-and-assertions` for `verify` vs `c
 
 ## Version notes
 
-- **IoStore as modern default:** `bUseIoStore` defaults to `true` for new projects as of
-  UE5. Classic `.pak`-only builds still work. Console platforms often require IoStore.
-- **Zen Store** (`bUseZenStore`): introduced in UE5, off by default, used by some large
-  first-party titles to centralize cooked data.
+- **IoStore:** `bUseIoStore` is a project/platform setting; the UE 5.8.2 source does not make
+  this generic skill’s “modern” wording a universal default. Inspect the effective project
+  settings and UAT arguments. Classic `.pak` output remains a separate supported choice where
+  the target platform permits it.
+- **Zenserver cooked output store (UE 5.8):** the release notes describe Zenserver as enabled by
+  default for the new cooked-output workflow, while existing projects that disabled Zen remain
+  disabled. `GetUseZenStoreEffective()` still requires both `bUseZenStore` and `bUseIoStore`.
+- **Incremental Cooking (Beta, UE 5.8):** Zen-backed incremental cooking reduces recooking of
+  unchanged native assets, including Blueprints and World Partition tiles. Keep it separate from
+  ordinary `-iterate`/iterative cook guidance, and do not treat the Beta workflow as a clean
+  release-cook replacement.
 - **Blueprint nativization** is deprecated (removed in UE5, `UE_DEPRECATED(5.0, ...)`);
   do not rely on it.
 

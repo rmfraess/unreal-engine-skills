@@ -81,8 +81,9 @@ updates — call `MarkRenderStateDirty()` once after bulk updates to flush.
 
 ### ID-based API (5.x)
 
-Newer code should prefer the stable `FPrimitiveInstanceId`-based API to avoid
-index-shifting problems:
+UE 5.8.2 exposes a **preliminary** `FPrimitiveInstanceId` interface. Use it only for a
+runtime ISM whose ID-tracking mode is preserved; do not use this interface on HISM, and
+do not assume editor-edited ISMs retain IDs:
 
 ```cpp
 FPrimitiveInstanceId Id = ISMC->AddInstanceById(FTransform(Loc));
@@ -90,8 +91,10 @@ ISMC->UpdateInstanceTransformById(Id, NewTransform);
 ISMC->RemoveInstancesById(MakeArrayView(&Id, 1));
 ```
 
-`FPrimitiveInstanceId` is stable across `RemoveInstance` operations because removal
-no longer swaps with the last element when using the ID API.
+The ID API avoids ordinary index-shift bookkeeping for supported ISM operations, but IDs
+can still become invalid when unsupported mutations or editor changes lose tracking.
+Check `ISMC->IsValidId(Id)` before using a retained ID and fall back to an index lookup or
+rebuild the mapping when the component's ID mode is not valid.
 
 ## Per-instance custom data
 
@@ -100,8 +103,8 @@ graph via the `PerInstanceCustomData` material node. This allows varying color, 
 state, or any scalar per-instance without spawning separate material instances.
 
 ```cpp
-// Set the custom data float count (must be done before adding instances):
-ISMC->NumCustomDataFloats = 4;   // 4 floats per instance
+// Set the custom data float count before adding instances:
+ISMC->SetNumCustomDataFloats(4); // when the count changes: resizes the buffer and resets values
 
 // After adding an instance, set its custom data:
 ISMC->SetCustomDataValue(
@@ -172,7 +175,8 @@ use the tree-rebuild cost as a budget item.
 - `AddInstanceWorldSpace(Transform)` is deprecated since 5.0; use
   `AddInstance(Transform, /*bWorldSpace=*/true)` instead.
 - Per-instance LOD (previously HISM-only) was added to ISM in UE 5.3.
-- The `FPrimitiveInstanceId` API was added in UE 5.x for stable instance references.
+- The `FPrimitiveInstanceId` API is preliminary in UE 5.8.2 and has ISM-only/editor-ID
+  tracking limitations; validate retained IDs before use.
 
 ## See also
 

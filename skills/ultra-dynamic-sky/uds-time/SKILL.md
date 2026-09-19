@@ -81,13 +81,7 @@ Two clock widgets in the widget designer palette under **Ultra Dynamic Sky Widge
 
 ## Event dispatchers
 
-Bind events from your blueprints. Pattern:
-
-```
-UDS = GetUltraDynamicSky()
-UDS.OnSunrise.AddDynamic(this, &MyActor::OnSunrise)
-// Or in Blueprint: Bind to Sunrise → Custom Event
-```
+Bind events from your Blueprints. In Blueprint, obtain and validate the actor with `Get Ultra Dynamic Sky`, then use `Bind to Sunrise` / `Bind to Sunset` and matching custom events. Inspect the installed Blueprint's dispatcher signatures before writing native bindings; display names do not establish a C++ `OnSunrise` member or `GetUltraDynamicSky()` function.
 
 | Dispatcher | When it fires | Output |
 | --- | --- | --- |

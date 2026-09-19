@@ -87,9 +87,12 @@ DECLARE_CYCLE_STAT(TEXT("Step B"), STAT_MySystem_StepB, STATGROUP_MySystem);
 
 For stats shared across files (declare in header, define in one `.cpp`):
 
+`Stats.h` has no `DECLARE_STATS_GROUP_EXTERN`; keep the type-only `DECLARE_STATS_GROUP`
+in the header and use `DECLARE_CYCLE_STAT_EXTERN`/`DEFINE_STAT` for each cross-file stat.
+
 ```cpp
 // MySystem.h
-DECLARE_STATS_GROUP_EXTERN(TEXT("My System"), STATGROUP_MySystem, STATCAT_Advanced, MYGAME_API);
+DECLARE_STATS_GROUP(TEXT("My System"), STATGROUP_MySystem, STATCAT_Advanced);
 DECLARE_CYCLE_STAT_EXTERN(TEXT("Step A"), STAT_MySystem_StepA, STATGROUP_MySystem, MYGAME_API);
 
 // MySystem.cpp

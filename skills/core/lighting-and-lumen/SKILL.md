@@ -87,8 +87,9 @@ Reflection Method: **Lumen**. Enabling Lumen automatically enables Generate Mesh
 Distance Fields (required for software ray tracing) and disables precomputed lightmaps.
 
 **Two tracing modes:**
-- **Software Ray Tracing** — traces against Signed Distance Fields; works on all
-  DX11+ hardware; requires `Generate Mesh Distance Fields` in project settings.
+- **Software Ray Tracing** — traces against Signed Distance Fields; in UE 5.8's Lumen
+  path it requires hardware supporting Shader Model 6, not arbitrary DX11 hardware, and
+  requires `Generate Mesh Distance Fields` in project settings.
 - **Hardware Ray Tracing (HRT)** — uses the GPU BVH; higher quality reflections and
   hit-lighting; enabled in Project Settings → Rendering → Hardware Ray Tracing.
 
@@ -228,8 +229,13 @@ On `ULocalLightComponent`:
 
 - Lumen is the default GI system for new UE5 projects; existing UE4 projects converted
   to UE5 do not automatically enable it (avoids breaking baked workflows).
-- MegaLights (`bAllowMegaLights` on `ULightComponent`, line 171) is a UE5.5+ feature
-  for stochastic many-light rendering; present in 5.8 but still experimental.
+- MegaLights (`bAllowMegaLights` / `MegaLightsShadowMethod` on `ULightComponent`) enters
+  **Production Ready** status in UE 5.8. It still needs per-platform and per-scene
+  performance measurement; use its opt-in property and project/Post Process settings
+  deliberately.
+- Lumen Lite is **Beta**: a medium-quality GI path using Lumen irradiance fields with probe
+  occlusion. It is the new default for current-generation handheld-console scalability and
+  is also supported on PC; validate target-specific lighting and performance before shipping.
 - VSMs replaced the legacy Cascaded Shadow Map default for PC/console in UE5; mobile
   platforms still use traditional shadow maps.
 

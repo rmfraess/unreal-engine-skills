@@ -63,7 +63,9 @@ This dependency disappears entirely if `Color Mode = Simplified Color` — Simpl
 
 ### Path Tracer distance fog
 
-`Render Height Fog In Path Tracer Using Post Process` (in Fog Color category, on by default). Lets the path tracer approximate distant height fog via post process — the path tracer otherwise lacks native height fog support. See `uds-cinematics-rendering`.
+UDS 9.5 offers `Render Height Fog In Path Tracer Using Post Process` as a distant-fog
+approximation. UE 5.8.2 also supports native volumetric fog; use `uds-cinematics-rendering`
+to choose and verify the intended path rather than assuming the engine has no fog support.
 
 ## Volumetric Fog
 

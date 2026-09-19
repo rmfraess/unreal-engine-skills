@@ -199,8 +199,10 @@ FVector2D Axis2D  = Value.Get<FVector2D>();   // Axis2D
 FVector   Axis3D  = Value.Get<FVector>();     // Axis3D
 ```
 
-Reading the wrong type silently returns zero (e.g. `Get<bool>()` on an Axis2D action returns
-`false`). The correct type is whatever `EInputActionValueType` the action asset declares.
+`Get<T>()` is a component conversion, not a runtime `ValueType` assertion. It does not reject a
+mismatch: `Get<bool>()` tests whether any stored component is non-zero, and vector getters read
+the corresponding components even when the action asset declares another type. Match the getter
+to the action's `EInputActionValueType`, or inspect `Value.GetValueType()` before converting.
 
 ## Trigger events — choosing the right one
 
@@ -240,8 +242,10 @@ At runtime, Enhanced Input accumulates all active mappings for an action per fra
   any key can reach an action.
 - **Adding context before local player exists** → `GetLocalPlayer()` returns null; always add
   from `PawnClientRestart`/`BeginPlay` (after possession), not the constructor.
-- **Value type mismatch** → `Get<FVector2D>()` on a Boolean action yields `(0, 0)`; align the
-  handler type with the action asset's `ValueType`.
+- **Value type mismatch** → getters do not validate `ValueType`: `Get<FVector2D>()` reads X/Y
+  even on a Boolean value, while `Get<bool>()` tests whether any stored component is non-zero.
+  Align the handler type with the action asset's `ValueType`, or inspect `GetValueType()` before
+  a generic conversion.
 - **Legacy bind calls on UEnhancedInputComponent** → `BindAxis`/`BindAction(FName, ...)` are
   deleted (compile error) unless `ENHANCED_INPUT_ALLOW_LEGACY_BINDING=1` in Build.cs.
 - **Action fires on context add when key is held** → default `FModifyContextOptions`

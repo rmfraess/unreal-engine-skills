@@ -42,7 +42,8 @@ Modules to add to your `.Build.cs`:
 "LevelSequence", "MovieScene", "CinematicCamera"
 ```
 
-For Movie Render Queue also add `"MovieRenderPipelineCore"` (and enable the plugin).
+For Movie Render Queue also add `"MovieRenderPipelineCore"` and enable the
+`MovieRenderPipeline` project plugin.
 
 ## Playing a sequence from C++
 
@@ -183,8 +184,12 @@ For offline renders (trailers, pre-rendered cutscenes), use the **Movie Render P
 plugin rather than the editor's legacy "Render Movie" button. It supports multi-sample anti-
 aliasing accumulation, warmup frames, EXR / PNG / ProRes output, and render passes.
 
-The queue is managed via editor subsystem (`MoviePipelineQueueSubsystem`) or Python/Blueprint
-scripting; runtime rendering in a packaged build uses `UMoviePipeline` directly.
+The queue is managed via the editor-only `MoviePipelineQueueSubsystem` or editor Python/Blueprint
+scripting. For packaged runtime rendering, enable the **MovieRenderPipeline** project plugin
+and package the runtime modules (`MovieRenderPipelineCore` and, when the selected passes require
+them, `MovieRenderPipelineRenderPasses`); do not link `MovieRenderPipelineEditor` or use the
+editor-only queue subsystem from a Runtime module. Treat packaged rendering as a separate
+runtime path and validate it in the target configuration.
 
 Plugin headers live in:
 `Engine/Plugins/MovieScene/MovieRenderPipeline/Source/MovieRenderPipelineCore/Public/`

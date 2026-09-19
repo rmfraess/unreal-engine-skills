@@ -62,7 +62,7 @@ but their source and invalidation path must be explicit.
 | Caller needs a capability across unrelated classes | Unreal interface | Casting through a long class list |
 | One local source, one or many observers | Native/dynamic delegate or Event Dispatcher | Polling every frame |
 | Blueprint needs to subscribe | Dynamic multicast delegate with `BlueprintAssignable` | A C++-only delegate Blueprint cannot see |
-| Decoupled local feature broadcast by tag | Gameplay Message Subsystem when already adopted | Introducing it for a single direct relationship |
+| Decoupled local feature broadcast by tag | An existing project message bus or an explicitly selected plugin | Assuming UE 5.8 provides a stable `UGameplayMessageSubsystem`, or introducing a bus for one direct relationship |
 | Client asks authority to perform an action | Server RPC on an owned replicated object | Client mutating authoritative state |
 | Server communicates transient owner-specific result | Client RPC when a property is not the right model | Multicasting private data to everyone |
 | Clients need durable shared state | Replicated property, RepNotify, or replicated subobject | RPC-only state that late joiners miss |
@@ -70,6 +70,11 @@ but their source and invalidation path must be explicit.
 
 Document event order and teardown. A good communication map answers what happens if the receiver
 does not yet exist, the asset is still loading, the sender is destroyed, or a client joins late.
+“Gameplay Messages” is not a stable built-in API name to use in a UE 5.8.2 plan. The installed
+engine’s `AsyncMessageSystem` plugin is **Experimental**, disabled by default, and exposes
+`FAsyncGameplayMessageSystem`; select and validate that plugin explicitly before making it an
+architecture dependency. Otherwise name the project’s actual bus or use a direct/interface/
+delegate boundary.
 
 ## C++ and Blueprint boundary
 

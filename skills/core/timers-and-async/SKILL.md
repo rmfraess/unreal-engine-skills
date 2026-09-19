@@ -83,8 +83,11 @@ Keep `FTimerHandle` as a member so you can cancel or query the timer later. Call
 ### Next-tick scheduling
 
 ```cpp
-// Defer one frame — no handle returned; cannot be cancelled:
-GetWorldTimerManager().SetTimerForNextTick(this, &AMyActor::AfterSpawn);
+// Defer one frame. UE 5.8.2 returns a handle, so it can be cleared before it fires.
+FTimerHandle NextTickHandle =
+    GetWorldTimerManager().SetTimerForNextTick(this, &AMyActor::AfterSpawn);
+// Cancel from the game thread if the actor may be torn down first:
+GetWorldTimerManager().ClearTimer(NextTickHandle);
 ```
 
 ### Querying and cancelling
@@ -119,11 +122,12 @@ level unload, PIE end) — see `actors-and-components`.
 
 ### How timers interact with game time
 
-Timers advance on **world time**, so they automatically respect `WorldSettings` time
-dilation, pausing (`SetPause`), and slow-motion. They do **not** fire more than once per
-game frame even if the accumulated delta exceeds the rate (modulo `bMaxOncePerFrame` on
-`FTimerData`). The game-thread-only note in the engine docs is accurate: `FTimerManager`
-is not thread-safe; never set or clear timers from a background thread.
+Timers advance from the world timer manager's tick delta, so global/world time dilation and
+world pausing affect them. An actor's `CustomTimeDilation` changes that actor's tick delta; it
+does not automatically change the shared world timer's cadence. A looping timer can fire more
+than once during one world tick when it is overdue; set `FTimerManagerTimerParameters::bMaxOncePerFrame`
+to `true` when catch-up calls are not wanted. `FTimerManager` is game-thread-only; never set or
+clear timers from a background thread.
 
 Full reference: [references/timer-manager.md](references/timer-manager.md).
 
@@ -357,8 +361,10 @@ subclass `UBlueprintAsyncActionBase` instead of implementing a raw `FPendingLate
   is in flight; use `TWeakObjectPtr` and re-validate on the game thread.
 - **Timer rate `<= 0`** — silently treated as `ClearTimer`; guard against accidental
   zero rates when computing a dynamic interval.
-- **`SetTimerForNextTick` has no handle** — it cannot be cancelled; do not call it if the
-  actor might be destroyed before the next frame.
+- **`SetTimerForNextTick` still has a lifetime window** — UE 5.8.2 returns an
+  `FTimerHandle`, so clear that handle from the game thread when cancellation is needed.
+  UObject-bound delegates are invalidated with their object; raw-pointer lambdas still need
+  explicit lifetime-safe cleanup.
 - **Blocking the game thread on a future** — calling `TFuture::Get()` or `FTask::Wait()`
   from the game thread stalls rendering; only block from worker/background threads or a
   known safe point (e.g. level loading).

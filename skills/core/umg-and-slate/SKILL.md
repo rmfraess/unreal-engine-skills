@@ -45,9 +45,9 @@ Declare in `UserWidget.h`:1582-1586.
 | Callback | When | Put here |
 |---|---|---|
 | `NativeOnInitialized()` | Once, after the widget object is constructed and the widget tree is built — before it is ever shown. | One-time setup that does not need a world (register non-world delegates, cache sub-widget refs). |
-| `NativePreConstruct()` | Every time the Widget Blueprint CDO is compiled or the designer refreshes. | Design-time preview work only. |
-| `NativeConstruct()` | Widget is added to the viewport / displayed — analogous to `BeginPlay`. | Bind `OnClicked`, start timers, fetch game state. |
-| `NativeDestruct()` | Widget is removed from the viewport. | Clean up delegates/timers. |
+| `NativePreConstruct()` | Runs in the designer and at runtime; runtime `OnWidgetRebuilt` calls it before `NativeConstruct`, after Slate widgets exist. | Cosmetic setup using locally owned data; use `IsDesignTime()` to distinguish preview behavior. |
+| `NativeConstruct()` | After the underlying Slate widget is constructed; may repeat on the same UObject. | Bind `OnClicked`, start timers, fetch game state. |
+| `NativeDestruct()` | When the underlying Slate widget is torn down; not UObject destruction. | Clean up delegates/timers. |
 | `NativeTick(Geometry, DeltaTime)` | Per frame — only if tick is needed. | Per-frame updates (prefer push-based updates instead). |
 
 `UUserWidget` has `meta=(DisableNativeTick)` on its `UCLASS` by default; override
@@ -188,8 +188,9 @@ void AMyPlayerController::HideHUD()
 
 - `CreateWidget` is a templated free function (`UserWidget.h`:1819); it accepts a `UWorld*`,
   `APlayerController*`, `UGameInstance*`, `UWidget*`, or `UWidgetTree*` as owner.
-- Hold widget pointers in a `UPROPERTY()` — without it the GC destroys the widget even if it
-  is displayed (`memory-and-gc`).
+- Keep a `UPROPERTY()` reference when your UObject must retain a widget independently of its
+  presentation. A live `SObjectWidget` also participates in GC; absence of your own property
+  does not mean an attached widget is immediately collected. `RemoveFromParent` is not destruction.
 - `RemoveFromViewport` is deprecated since 5.1; use `RemoveFromParent()` instead.
 
 ## Data binding & update strategy
@@ -232,8 +233,9 @@ The rules agents most often need — deep dive with engine citations in
 ## Input, focus, and input mode
 
 - Override `NativeOnKeyDown`, `NativeOnMouseButtonDown`, etc. for per-widget input handling.
-- For menus: switch input mode on the `PlayerController` via
-  `SetInputModeUIOnly`/`SetInputModeGameAndUI`/`SetInputModeGameOnly` and toggle the cursor.
+- For menus, call `APlayerController::SetInputMode` with an `FInputModeUIOnly`,
+  `FInputModeGameAndUI`, or `FInputModeGameOnly` value; configure cursor visibility separately.
+  Blueprint input-mode helpers belong to `UWidgetBlueprintLibrary`.
 - For gamepad/multiplatform menus, see CommonUI below — plain UMG focus is painful to
   manage manually across platforms.
 
@@ -321,8 +323,7 @@ For game UI, stay in UMG/CommonUI — Slate skips `UPROPERTY`/GC and needs more 
 - **`BindWidget` name mismatch** — the C++ variable name must match the Blueprint widget name
   exactly; a mismatch is a compiler/load error. Use `BindWidgetOptional` if the widget may be
   absent. (`Widget.h`:69-74).
-- **Widget not in a `UPROPERTY`** — the GC destroys it even if still displayed; always hold
-  in a `UPROPERTY()` member.
+
 - **`RemoveFromViewport` deprecated** (5.1+) — use `RemoveFromParent()`.
 - **Calling `SetVisibility` every frame** — it's surprisingly expensive (can invalidate
   layout); only call on actual state change. Prefer `Collapsed` over `Hidden`, and

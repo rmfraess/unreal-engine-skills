@@ -60,7 +60,9 @@ Shared by all paths, run by `ULevel::RouteActorInitialize` / `PostActorConstruct
 3. `AActor::PostInitializeComponents` — after all components are initialized; components exist and
    are registered, so this is the safe place to wire components to each other.
 
-Then `BeginPlay` runs on the actor, which in turn drives `BeginPlay` on its components.
+In the base actor route, `AActor::BeginPlay()` calls `BeginPlay()` on each registered component
+before it dispatches the actor's Blueprint `ReceiveBeginPlay()` event. Call `Super::BeginPlay()`
+first in an actor override when that ordering is required.
 
 ## Callback responsibilities (cheat sheet)
 

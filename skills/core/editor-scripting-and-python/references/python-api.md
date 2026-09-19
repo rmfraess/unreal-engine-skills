@@ -31,7 +31,9 @@ It runs in isolated mode by default — `PYTHONPATH`/`PYTHONHOME` are ignored; o
 | `FVector` | `unreal.Vector` | Strip `F` prefix |
 | `TArray<AActor*>` | Python list (transparent) | Auto-converted to/from `unreal.Array` |
 | `TMap<K,V>` | Python dict (transparent) | Auto-converted |
-| `FString` / `FName` / `FText` | `str` | Transparent bidirectional |
+| `FString` | `str` | Native string mapping |
+| `FName` | `unreal.Name` | Python may coerce compatible strings for inputs |
+| `FText` | `unreal.Text` | Python may coerce compatible strings for inputs; preserve text semantics |
 
 Override the generated Python name with `meta = (ScriptName = "my_name")`
 (`ObjectMacros.h:1285`).

@@ -60,9 +60,12 @@ the renderable, collidable unit of terrain.
 Landscape dimensions are not arbitrary. Each component contains `NumSubsections × NumSubsections`
 sections, each `SubsectionSizeQuads` quads wide. Total landscape quads in one axis is
 `NumComponents × ComponentSizeQuads`. The corresponding heightmap vertex count is
-`(NumComponents × ComponentSizeQuads) + 1`. Common valid size: 8129 × 8129 vertices
-(32 × 32 components, 4 sections/component, 63 quads/section). Heights are stored as 16-bit
-values mapping to ±256 m at default Z scale 100.
+`(NumComponents × ComponentSizeQuads) + 1`. For example, 32 × 32 components with 4 total
+sections/component arranged 2 × 2 (`NumSubsections = 2` per axis) and 63 quads/section
+produce 4033 × 4033 vertices (`32 × 2 × 63 + 1`). The also-common 8129 × 8129 size
+uses 32 × 32 components with the same 4 total sections/component arranged 2 × 2, but
+127 quads/section (`32 × 2 × 127 + 1`). Heights are stored as 16-bit values mapping to
+±256 m at default Z scale 100.
 
 ### Material layers and `ULandscapeLayerInfoObject`
 
@@ -71,8 +74,8 @@ Each paintable weight layer requires a `ULandscapeLayerInfoObject` data asset
 material. Layer weights are stored per-component in weightmap textures.
 
 ```cpp
-// Reading landscape layer weight at runtime (C++ — editor or runtime with proper setup):
-// ULandscapeInfo::GetLayerWeightAtLocation is the key query path.
+// Resolved paint weights: ULandscapeComponent::GetLayerWeightAtLocation.
+// Runtime queries need available CPU data; see references/landscape.md.
 // ULandscapeLayerInfoObject holds PhysicalMaterial and layer blend settings.
 ```
 
@@ -88,9 +91,10 @@ and optionally spawn static meshes along their length as decoration or road surf
 ### Nanite landscape
 
 Set `bEnableNanite = true` on the `ALandscapeProxy` to render the landscape as a Nanite
-mesh on supported platforms. The engine generates and maintains a `ULandscapeNaniteComponent`
-alongside the traditional LOD components. LOD settings under `NaniteLODIndex` control the
-source LOD used for Nanite mesh generation (default 0). See `nanite-and-rendering`.
+mesh on supported platforms. The engine stores generated Nanite components in the proxy's
+`NaniteComponents` array alongside the traditional LOD components; the legacy singular
+`NaniteComponent` property is deprecated. `NaniteLODIndex` controls the source LOD used for
+Nanite mesh generation (default 0). See `nanite-and-rendering`.
 
 ## Foliage (instanced placement)
 

@@ -143,7 +143,7 @@ the CRC comparison misses the change (e.g. floating-point-equal values that diff
 
 ```cpp
 // In the category constructor:
-BindKeyPress(EKeys::Q, FGameplayDebuggerInputModifier::Shift,
+BindKeyPress(FName(TEXT("Q")), FGameplayDebuggerInputModifier::Shift,
              this, &FMySystemCategory::OnKeyPressed,
              EGameplayDebuggerInputMode::Local);
 ```

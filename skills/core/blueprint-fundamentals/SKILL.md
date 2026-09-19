@@ -200,11 +200,16 @@ harder to debug, and slower. Move complex logic to C++ and expose a clean surfac
 - **Cast nodes create hard references** — `Cast To BP_Foo` loads `BP_Foo` into memory when the
   casting Blueprint loads. Prefer interfaces or C++ base types for loose coupling. See
   `asset-management` for soft-reference patterns.
-- **Tick left on by default** — Blueprint actors have `bCanEverTick = true` by default (unlike
-  C++ actors where you opt in). Disable it in Class Defaults for actors that don't need per-frame
-  work.
-- **Construction Script runs in editor** — world queries, spawning, and gameplay calls don't work
-  there. Only use idempotent setup (set component properties, adjust scale, assign materials).
+- **Tick is opt-in** — `AActor::PrimaryActorTick.bCanEverTick` defaults to `false` in UE 5.8.2.
+  A non-empty Blueprint `Event Tick` can cause the Kismet compiler to enable ticking for a
+  Blueprint based directly on `AActor`; native parent classes and project settings can change
+  the eligibility. Remove unused Event Tick graphs and disable ticking for actors that do not
+  need per-frame work.
+- **Construction Script runs in editor and at construction time** — it may run in an editor
+  preview world as well as during spawn. Keep setup idempotent; guard or avoid gameplay-only
+  side effects, and clean up anything the script creates before a rerun. World queries and
+  construction-time child spawning are valid only when their world/context and editor behavior
+  are explicitly handled.
 - **Uncompiled Blueprint warning in PIE** — the generated class is stale; changes to graphs since
   last compile are not reflected at runtime. Always compile before testing.
 

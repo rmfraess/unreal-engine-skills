@@ -175,7 +175,13 @@ To make Interaction components respond to surfaces other than landscape actors:
 
 ### Virtual Shadow Maps
 
-Set the landscape's **Shadow Cache Invalidation Behavior** to **Rigid** — keeps the WPO and Pixel Depth Offset used for snow depth from constantly invalidating shadows.
+The vendor suggests Rigid Shadow Cache Invalidation Behavior for DLWE landscapes to
+reduce repeated WPO/PDO invalidation. Rigid suppresses material-driven shadow refreshes;
+compare changing snow/trails and their shadows before accepting the tradeoff. Keep Auto
+when changing displacement needs accurate shadows. In UE 5.8, also profile the narrower
+Nanite tessellation shadow switches `r.Shadow.Virtual.Nanite.AllowTessellationDirectional`
+and `r.Shadow.Virtual.Nanite.AllowTessellationLocal`; disabling one reduces tessellated
+shadow detail for that light class, not DLWE's visible surface displacement.
 
 ### Applying trail effect to underlying landscape layers
 
@@ -258,7 +264,7 @@ For custom material logic to react to UDW:
 
 | Material node | Output |
 | --- | --- |
-| **Sample UDW Material State** | Material snow coverage, material dust coverage, material wetness. Also applies WOV + Weather Mask effects (like the weather effect functions do by default). |
+| **Sample UDW Material State** | Material snow coverage, dust coverage, and wetness after Weather Override Volumes and Weather Mask effects. Weather Override Volumes are not the distance-field Weather Occlusion Volume. |
 | **Sample UDW Season** | 0–1 per season (total = 1) |
 | **Sample UDW Wind** | Direction + intensity values/vectors |
 
@@ -335,7 +341,7 @@ co-located.
 - **Snow on a moving object goes the wrong direction** — Local Space / For Skeletal Mesh is on (correctly), but the **Material Snow Dust Reorient** component isn't added. Add it as a child of the mesh and register the dynamic material instance.
 - **DLWE trails don't appear** — landscape needs World Static simple collision blocking Visibility (queries enabled). Or DLWE Interaction component is too small. Or `Control Point Location Source` is far from camera.
 - **DLWE on a non-landscape mesh ignored** — phys material missing from the **Physical Materials which Enable DLWE Interactions on Non-Landscapes** array.
-- **Snow depth invalidates virtual shadow maps every frame** — set landscape's **Shadow Cache Invalidation Behavior** to **Rigid**.
+- **Snow depth invalidates virtual shadow maps every frame** — see the Rigid-versus-Auto tradeoff above; profile changing snow/trails and their shadows before choosing.
 - **Glass Window Rain Drips wrong on a moving glass surface** — UVs default to world space. Replace via the `UVs` input.
 - **Foliage Wind Movement: Small Movement does nothing** — Small Movement requires a mask input. Plug one in.
 - **Rainbow never appears** — cloud coverage is too high (camera not exposed to sunlight); or sun too high; or neither rain nor fog is contributing.

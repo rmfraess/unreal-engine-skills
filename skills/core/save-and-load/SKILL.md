@@ -163,8 +163,10 @@ full multi-actor pattern, spawn/restore loop, and gotchas.
 
 `ULocalPlayerSaveGame` (also in `SaveGame.h`) extends `USaveGame` with built-in versioning,
 `HandlePostLoad`/`HandlePreSave`/`HandlePostSave` hooks, and synchronous/async helpers tied to a
-specific `ULocalPlayer`. It is the recommended base for per-user saves when your game supports
-multiple local players or needs structured versioning:
+specific `ULocalPlayer`. Use its `LoadOrCreateSaveGameForLocalPlayer` helpers when you want the
+association, initialization, reset, and migration hooks applied automatically. A generic
+`UGameplayStatics::LoadGameFromSlot` call only returns the deserialized object; it does not call
+`InitializeSaveGame` or `HandlePostLoad` for you.
 
 ```cpp
 // Sync load-or-create for a specific player controller
@@ -178,29 +180,42 @@ ULocalPlayerSaveGame::AsyncLoadOrCreateSaveGameForLocalPlayer(
     FOnLocalPlayerSaveGameLoaded::CreateUObject(this, &AMyHUD::OnPlayerSaveLoaded));
 ```
 
+For saving a `ULocalPlayerSaveGame`, `SaveGameToSlotForLocalPlayer()` and
+`AsyncSaveGameToSlotForLocalPlayer()` return whether the request was accepted, not the final
+platform-write result. Override `HandlePostSave(bool bSuccess)` (or the Blueprint
+`OnPostSave` event), or inspect `WasLastSaveSuccessful()` after completion. The generic
+`AsyncSaveGameToSlot` delegate reports its final `bSuccess` value directly.
+
 Declared in `Runtime/Engine/Classes/GameFramework/SaveGame.h`:47-226.
 
 ## Versioning & migration
 
 - Add `UPROPERTY() int32 SaveVersion = 1;` from day one. Increment when the schema changes.
 - Adding a `UPROPERTY` is backward-compatible (missing fields load as their C++ default).
-- Renaming or removing a field is a **breaking change** — handle it in load logic:
+- Renaming or removing a field requires an explicit compatibility decision. Retain the old
+  serialized property name for value conversion unless redirects have been verified in the
+  actual loading path and cooked target. The stock slot loader does not set `ArIsSaveGame`;
+  an editor-only redirect test does not prove packaged compatibility. Type changes require
+  a version-gated migration and tests. After generic `UGameplayStatics` loading, validate
+  the returned object and explicitly call your migration method before applying state;
+  this path does not invoke `UObject::PostLoad`:
 
 ```cpp
-void UMySaveGame::PostLoad()
+void UMySaveGame::MigrateAfterLoad()
 {
-    Super::PostLoad();
     if (SaveVersion < 2)
     {
-        // e.g. migrate OldField → NewField
-        NewField = OldField_Deprecated;
+        // Retain UPROPERTY OldField under its original serialized name.
+        NewField = OldField;
         SaveVersion = 2;
     }
 }
 ```
 
 - For `ULocalPlayerSaveGame`, override `GetLatestDataVersion()` and do fixup in `HandlePostLoad`.
-- Always null-check the loaded object — a corrupt or mismatched save returns `nullptr`.
+- Always null-check the loaded object — missing, empty, unreadable, or unknown-class data can
+  return `nullptr`. A non-null object means the engine constructed the class; validate your
+  `SaveVersion` and any game-level magic/checksum before applying high-value state.
 
 ## What to save (design)
 
@@ -224,7 +239,9 @@ void UMySaveGame::PostLoad()
 - **No version field** — painful migrations; add one at project start.
 - **Cast without null-check after `LoadGameFromSlot`** — crashes on missing or corrupt saves.
 - **`DoesSaveGameExist` not checked** before load — not strictly required (load returns null on
-  missing), but checking first lets you distinguish "no save" from "corrupt save".
+  missing), but it can avoid an expected read failure. Do not infer full payload integrity from
+  existence or from a non-null `USaveGame*`; use a game-level schema/integrity check when the
+  distinction matters.
 - **Mismatched slot name / UserIndex** — save and load must use the exact same pair.
 - **`UPROPERTY(Transient)` fields** — explicitly excluded from all serialization; use this for
   cache/derived data you recompute on load.

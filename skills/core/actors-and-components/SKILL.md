@@ -60,8 +60,10 @@ The canonical order for a typical gameplay actor:
    script). Runs in editor and on spawn; keep it idempotent.
 3. `PreInitializeComponents` → per-component `InitializeComponent` → `PostInitializeComponents` —
    components exist & are registered; safe to wire them together.
-4. **`BeginPlay`** — gameplay starts. Do gameplay init here (spawning, timers, delegate bindings),
-   **not** in the constructor.
+4. **`BeginPlay`** — gameplay starts. In the normal `Super::BeginPlay()` path,
+   `AActor::BeginPlay()` starts registered component `BeginPlay()` calls before the actor's
+   `ReceiveBeginPlay()` event. Call `Super::BeginPlay()` first in overrides, then do gameplay
+   init (spawning, timers, delegate bindings), **not** in the constructor.
 5. `Tick(DeltaSeconds)` — per-frame, only if ticking is enabled (see [Ticking](#ticking)).
 6. **`EndPlay(Reason)`** — leaving play (destroyed, level change, PIE end, app shutdown);
    clean up timers/delegates here.

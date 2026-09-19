@@ -16,6 +16,7 @@ See [../SKILL.md](../SKILL.md) for usage patterns and gotchas.
 | `InterchangeFactoryNodes` | `Engine/Plugins/Interchange/Runtime/Source/FactoryNodes/` | All factory node types: `UInterchangeStaticMeshFactoryNode`, `UInterchangeSkeletalMeshFactoryNode`, `UInterchangeTextureFactoryNode`, etc. |
 | `InterchangeDispatcher` | `Engine/Plugins/Interchange/Runtime/Source/Dispatcher/` | Out-of-process worker for FBX SDK parsing: `UE::Interchange::FInterchangeDispatcher` |
 | `InterchangeEditor` | `Engine/Plugins/Interchange/Editor/Source/InterchangeEditor/` | Editor-side pipeline dialog, preview window |
+| `InterchangeOpenUSDImport` | `Engine/Plugins/Interchange/Extensions/OpenUSD/Source/Import/` | Optional experimental `UInterchangeUSDTranslator`, `UInterchangeUsdPipeline` for USD asset/scene import |
 
 ## Data flow in detail
 

@@ -65,6 +65,9 @@ public:
 
 private:
     UPROPERTY() TObjectPtr<class ACharacter> OwnerCharacter;
+    FVector CachedVelocity = FVector::ZeroVector;
+    FRotator CachedActorRotation = FRotator::ZeroRotator;
+    bool bCachedIsFalling = false;
 };
 ```
 
@@ -86,24 +89,33 @@ void UMyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
     Super::NativeUpdateAnimation(DeltaSeconds);
     // Keep lightweight — prefer NativeThreadSafeUpdateAnimation for heavy logic
     if (!OwnerCharacter) { OwnerCharacter = Cast<ACharacter>(TryGetPawnOwner()); }
+    if (OwnerCharacter)
+    {
+        CachedVelocity = OwnerCharacter->GetVelocity();
+        CachedActorRotation = OwnerCharacter->GetActorRotation();
+        if (const UCharacterMovementComponent* Movement = OwnerCharacter->GetCharacterMovement())
+        {
+            bCachedIsFalling = Movement->IsFalling();
+        }
+    }
 }
 
 void UMyAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 {
     Super::NativeThreadSafeUpdateAnimation(DeltaSeconds);
-    if (!OwnerCharacter) { return; }
-    const FVector Vel = OwnerCharacter->GetVelocity();
-    Speed     = Vel.Size2D();
-    bIsFalling = OwnerCharacter->GetCharacterMovement()->IsFalling();
-    Direction = UKismetAnimationLibrary::CalculateDirection(Vel, OwnerCharacter->GetActorRotation());
+    Speed = CachedVelocity.Size2D();
+    bIsFalling = bCachedIsFalling;
+    Direction = UKismetAnimationLibrary::CalculateDirection(CachedVelocity, CachedActorRotation);
 }
 ```
 
 Key rules:
 - `NativeInitializeAnimation` — cache owner/movement references; runs once on game thread.
 - `NativeUpdateAnimation` — game-thread update; keep minimal; call `Super` first.
-- `NativeThreadSafeUpdateAnimation` — worker-thread update; no `UWorld` queries, no spawning,
-  no non-thread-safe engine calls. This is where to put heavy per-frame computation.
+- `NativeThreadSafeUpdateAnimation` — worker-thread update; consume only value snapshots prepared
+  on the game thread (or data marshalled through an `FAnimInstanceProxy`). Do not dereference
+  the owner actor, query `UWorld`, spawn, or call other non-thread-safe engine APIs here.
+  This is where to put heavy pure computation over those snapshots.
 - Assign variables used by the AnimGraph as `UPROPERTY(BlueprintReadOnly)` — the AnimGraph
   nodes read them by name. `BlueprintThreadSafe` meta is needed if accessed in thread-safe
   graph functions.
@@ -273,7 +285,7 @@ The linked AnimBP class must implement the same `UAnimLayerInterface` interface 
 ## References & source material
 
 Engine source (UE 5.8):
-- `Runtime/Engine/Classes/Animation/AnimInstance.h` — `UAnimInstance`:358,
+- `Engine/Source/Runtime/Engine/Classes/Animation/AnimInstance.h` — `UAnimInstance`:358,
   `NativeInitializeAnimation`:1436, `NativeUpdateAnimation`:1439,
   `NativeThreadSafeUpdateAnimation`:1442, `NativePostEvaluateAnimation`:1444,
   `NativeBeginPlay`:1457, `Montage_Play`:626, `Montage_Stop`:639,

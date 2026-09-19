@@ -114,16 +114,17 @@ This eliminates the pattern of `StartupModule` manually managing service lifetim
 ```cpp
 bool UMySubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
-    // Only on servers and standalone:
     if (!Super::ShouldCreateSubsystem(Outer)) { return false; }
-    return !IsRunningDedicatedServer() || UKismetSystemLibrary::IsServer(/*World*/nullptr);
+    // This policy means “not on a dedicated server”; it still creates on clients/listen servers.
+    return !IsRunningDedicatedServer();
 }
 ```
 
 `ShouldCreateSubsystem` is called on the CDO with the **outer object** (the owning
 `UGameInstance`, `UWorld`, etc.) as the argument. You can inspect the outer to make decisions,
 but you cannot call `GetSubsystem` on it during this call — other subsystems may not yet be
-created.
+created. Keep the predicate cheap and make the server/client policy explicit; do not use a
+null world-context object as a substitute for a valid server check.
 
 ## Version notes
 

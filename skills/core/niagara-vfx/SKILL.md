@@ -31,13 +31,15 @@ in C++ is: spawn a system, attach it, set its User Parameters, and manage its li
 | Level | Asset type | Runtime type | Role |
 |---|---|---|---|
 | System | `UNiagaraSystem` | `FNiagaraSystemInstance` (internal) | Top-level container; one per "effect" (e.g. `NS_Explosion`) |
-| Emitter | `UNiagaraEmitter` | `FNiagaraEmitterInstance` (internal) | One particle behavior set (sparks, smoke, decal); several per system |
+| Emitter | `UNiagaraEmitter` in Standard mode or `UNiagaraStatelessEmitter` in Stateless mode | mode-specific runtime representation | One particle behavior set; several handles can belong to a system |
 | Module | script asset | compiled HLSL | Single behavior (Add Velocity, Curl Noise, Sphere Location) |
 | Parameter | `FNiagaraVariable` | `FNiagaraParameterStore` | Typed data (float, vector, bool, actor, DI) flowing through the stack |
 
-Execution flows top-to-bottom within each **stack group**: Emitter Spawn → Emitter Update →
-Particle Spawn → Particle Update → Event Handlers → Render. Each stage carries a **namespace**
-(System, Emitter, Particle, User, Engine) that controls read/write access.
+Execution is organized around System, Emitter, and Particle stack groups. Each has Spawn and
+Update stages; Event Handler and Simulation Stage usages are optional advanced stages. Renderers
+are renderer-property items that consume simulation output after the relevant simulation work;
+they are not a general writable module stack group. Each module stage uses namespaces
+(System, Emitter, Particle, User, Engine) to control read/write access.
 
 **User Parameters** live in the User namespace and are the interface between C++ and the effect.
 Expose a parameter in the Niagara Editor, then set it at runtime.
@@ -138,16 +140,16 @@ garbage collected (`memory-and-gc`).
 
 | Feature | CPU emitters | GPU emitters |
 |---|---|---|
-| Max particle count | ~tens of thousands | millions |
+| Scale | CPU capacity varies with modules, data interfaces, collisions, and target frame budget | GPUs can handle very large counts, but capacity varies with shader work, renderer, memory, and platform |
 | Gameplay read-back | yes (position queries, events) | not supported |
-| Collision | depth-buffer, distance-field, ray-trace (5.7), or none | distance-field/scene-depth only |
+| Collision | CPU Collision Query/world geometry traces, or none; do not treat GPU scene queries as CPU traces | distance-field/scene-depth paths; `Async Gpu Trace` is GPU-only and hardware-ray-tracing collision is Experimental |
 | Per-particle callbacks | yes | no |
-| Game-thread cost | scales with count | near-zero on game thread |
+| Game-thread cost | CPU simulation/query work scales with count; measure it | no direct per-particle game-thread readback, but dispatch/render/GPU work still costs time |
 
-Choose **CPU** when gameplay logic needs to read particle data or react to collisions. Choose
-**GPU** for massive counts (explosions, rain, ambient particles) where gameplay read-back is
-not required. Each emitter in a system chooses independently; a system can mix CPU and GPU
-emitters.
+Choose **CPU** when gameplay logic needs supported particle data/events or CPU collision behavior.
+Choose **GPU** when the workload benefits from GPU simulation and does not require direct
+per-particle game-thread read-back. Treat “massive” as a measured project/platform budget, not
+a fixed count; each emitter still chooses independently and systems can mix CPU and GPU emitters.
 
 ## Data Interfaces
 
@@ -156,7 +158,8 @@ let emitters sample external data:
 
 - **Skeletal Mesh DI** — emit from surface triangles, bones, or sockets; sample bone positions.
 - **Static Mesh DI** — emit from static geometry; environment scatter.
-- **Collision Query DI** — distance-field or ray-traced collision per-particle.
+- **Collision Query DI** — CPU geometry queries and GPU scene-data paths; choose a simulation target
+  and supported feature path for the effect.
 - **Curve DI** — sample a float/vector/color curve by time or particle age.
 - **Spline DI** — distribute particles along a `USplineComponent`.
 - **Texture DI** — sample a 2D texture for position/color masks.
@@ -215,8 +218,8 @@ for rare or once-per-level effects.
 - `SetNiagaraVariable*` (string overloads) deprecated since 5.3; use `SetVariable*` (FName).
 - `GetSystemInstance()` deprecated since 5.0; use `GetSystemInstanceController()`.
 - `NiagaraDataChannel` (cross-system communication) introduced in 5.3, expanded in 5.4/5.5.
-- Lightweight Emitters (reduced overhead for simple effects) are in active development; see
-  the Niagara Lightweight Emitters doc for current status.
+- Lightweight Emitters are also called Stateless Emitters; see the UE 5.8 documentation for
+  the supported module subset and current feature coverage.
 
 ## References & source material
 

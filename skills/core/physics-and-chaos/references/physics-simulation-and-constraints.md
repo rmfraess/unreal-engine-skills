@@ -69,21 +69,24 @@ force/impulse — engine divides by mass internally, so the motion is mass-indep
 
 ## Chaos solver and sub-stepping
 
-Chaos runs as a discrete solver with a fixed-size substep. Configure in Project Settings →
-Physics → Simulation:
+Chaos runs as a discrete solver with a fixed-size substep. Configure in Project Settings → Physics → Framerate/Simulation:
 
-- **Use Async Scene** — runs physics on a separate thread; reduces hitching but adds one
-  frame of latency to physics results.
-- **Max Physics Delta Time** — clamp the delta given to physics to avoid explosion during
-  hitching (default 0.1 s).
-- **Substepping** — subdivides large deltas into smaller steps for stability. Enable
-  `bSubstepping`, set `MaxSubstepDeltaTime` and `MaxSubsteps`.
+- **Tick Physics Async** (`bTickPhysicsAsync`) — ticks physics on an async thread. UE 5.8.2
+  marks this experimental; measure latency and thread interactions in the project.
+- **Async Fixed Time Step Size** (`AsyncFixedTimeStepSize`) — the step size when async
+  physics is enabled.
+- **Substepping** (`bSubstepping`) and async substepping (`bSubsteppingAsync`) — subdivide
+  simulation time; `MaxSubstepDeltaTime` and `MaxSubsteps` bound the synchronous substeps.
+- **Max Physics Delta Time** — clamps the physics delta during hitching.
 
 Sub-stepping is important for stiff constraints and high-speed objects. `AddForce` is applied
 each substep; `AddImpulse` is applied once per game frame regardless of substep count.
 
-For per-substep game code, override `UActorComponent::AsyncPhysicsTickComponent` (UE5+) —
-it runs on the physics thread each substep and is safe to call physics APIs from.
+For per-step component code, enable async physics ticking and override
+`UActorComponent::AsyncPhysicsTickComponent`. In UE 5.8.2 the callback executes on the game
+thread and forces a full physics/game-thread synchronization; it is not a free physics-thread
+callback. Keep the body of the callback short and thread assumptions explicit, then profile
+the project’s actual async configuration.
 
 ## UPhysicsConstraintComponent
 
@@ -171,7 +174,9 @@ GetMesh()->SetAllBodiesBelowSimulatePhysics(TEXT("pelvis"), true);
 ```
 
 For partial ragdolls, `SetAllBodiesBelowSimulatePhysics` simulates bones from the named
-bone down the hierarchy while the rest blend with animation.
+bone down the hierarchy while the rest blend with animation. `UPhysicalAnimationComponent`
+is marked **Experimental** by the UE 5.8.2 class declaration; test animation handoff,
+networking, save/load, and teardown behavior before using it as a production dependency.
 
 ## Physical materials and surface types
 
@@ -190,6 +195,11 @@ if (Hit.PhysMaterial.IsValid())
     // Switch on Surface to play footstep SFX, spawn particles, etc.
 }
 ```
+
+For an explicit trace or query, set `FCollisionQueryParams::bReturnPhysicalMaterial = true`
+on the query that produced `Hit`; for a component movement sweep, enable
+`UPrimitiveComponent::bReturnMaterialOnMove` (`PrimitiveComponent.h:453`). Otherwise a valid
+hit may carry no material. Keep the `IsValid()` check because the weak pointer can still be null.
 
 Surface types are defined in Project Settings → Physics → Physical Surface. They are stable
 integers (not names) — safe to switch-case on in performance-sensitive code.

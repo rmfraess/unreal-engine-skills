@@ -12,9 +12,9 @@ doc.
 |---|---|---|---|
 | `stat memory` | Subsystem totals | Minimal | Development+ |
 | `memreport -full` | Pool/asset breakdown, snapshot | Low | Development+ |
-| `stat llm` / `stat llmfull` | Per-LLM-tag totals | Low (with `-llm`) | Development+ |
-| Insights MemTag | Per-tag per-frame graph | Low | Development+ |
-| Insights MemAlloc | Every alloc + callstack | High | Development only |
+| `stat llm` / `stat llmfull` | Per-LLM-tag totals | Low (with `-llm`) | Non-Shipping when LLM is compiled in |
+| Insights MemTag | Per-tag per-frame graph | Low | Target/config dependent; requires compiled LLM and memory-tag tracing |
+| Insights MemAlloc | Every alloc + callstack | High | Non-Shipping when memory tracing is compiled; packaged captures should use Development |
 
 Start with `stat memory` to find which subsystem is large, then use memreport for a
 full snapshot, LLM for tagged attribution, and MemAlloc for callstack-level investigation.
@@ -86,8 +86,9 @@ tagged memory over time; each LLM tag appears as a separate graph track.
 
 ### Setup
 
-Development build only for `memalloc` (callstacks). `memtag` works in any build with
-`-llm`.
+`memalloc` requires a non-Shipping build with memory tracing compiled in; Epic's packaged
+Memory Insights workflow uses Development. `memtag` also requires compiled LLM/memory-tag
+tracing support; `-llm` enables the runtime tracker but does not change compile-time support.
 
 ```
 YourGame.exe -trace=memalloc,memtag,callstack,module -llm -tracehost=127.0.0.1
@@ -151,8 +152,9 @@ Sort the result table by **Size** descending to find the largest offenders.
   (line 19 of `LowLevelMemTracker.h`). Do not define it directly.
 - `LLM_ENABLED_ON_PLATFORM` macro is deprecated in 5.7; use `PLATFORM_SUPPORTS_LLM`
   instead (line 14 of `LowLevelMemTracker.h`).
-- `LLM_ALLOW_ASSETS_TAGS` is deprecated in 5.8 — per-asset tagging is always available
-  when `ENABLE_LOW_LEVEL_MEM_TRACKER` is 1.
+- `LLM_ALLOW_ASSETS_TAGS`, `LLM_ALLOW_UOBJECTCLASSES_TAGS`, `LLM_ALLOW_STATS`, and
+`LLM_ENABLED_STAT_TAGS` are deprecated in 5.8; do not define them. The corresponding tag
+features are available when `ENABLE_LOW_LEVEL_MEM_TRACKER` is 1.
 - Memory Insights Android callstack support was added in 5.4 and is available in 5.8.
 - MemAlloc + Module channels must be active from process start (command-line only);
   they cannot be toggled on at runtime via the Trace widget.

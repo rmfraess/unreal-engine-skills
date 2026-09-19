@@ -54,7 +54,7 @@ protected:
             ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
         TestChar = GetWorld()->SpawnActor<AMyCharacter>(
             CharacterClass, FVector::ZeroVector, FRotator::ZeroRotator, Params);
-        AddActorToDestroyOnTestEnd(TestChar);   // auto-cleanup
+        RegisterAutoDestroyActor(TestChar);   // auto-cleanup
     }
 
     virtual bool IsReady_Implementation() override
@@ -73,8 +73,9 @@ protected:
 };
 ```
 
-- `AddActorToDestroyOnTestEnd(Actor)` (registered via `AutoDestroyActors` property
-  in the base class) ensures spawned actors are removed after the test.
+- `RegisterAutoDestroyActor(Actor)` (registered via `AutoDestroyActors` property
+  in the base class) ensures spawned actors are removed after the test. This is
+  `AFunctionalTest::RegisterAutoDestroyActor` in UE 5.8.2.
 - `LogStep(ELogVerbosity::Log, Message)` writes to `LogFunctionalTest` and is
   collected in the test report.
 - Use `AssertTrue` / `AssertFalse` / `AssertIsValid` / `AssertEqual_Float` (the
@@ -133,7 +134,7 @@ for functional tests to appear in the Automation tab.
 - `FinishTest`:678 — `(EFunctionalTestResult, FString)`.
 - `AddError`:659 — non-fatal error record.
 - `TimeLimit` / `PreparationTimeLimit`:358–362 — timeout properties.
-- `AutoDestroyActors`:391 — list managed by `AddActorToDestroyOnTestEnd`.
+- `AutoDestroyActors`:391 — list managed by `RegisterAutoDestroyActor`:731–734.
 - `EFunctionalTestResult`:195 — `Default`, `Invalid`, `Error`, `Running`, `Failed`,
   `Succeeded`.
 

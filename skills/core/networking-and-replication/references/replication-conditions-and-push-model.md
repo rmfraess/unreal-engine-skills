@@ -114,8 +114,11 @@ In `DefaultEngine.ini`:
 net.IsPushModelEnabled=1
 ```
 
-Or enable `WITH_PUSH_MODEL` in your `Build.cs` target; check `PushModelMacros.h` for the
-preprocessor guard.
+`WITH_PUSH_MODEL` is a compile-time engine/target macro; do not try to set it in a module
+`Build.cs`. If the target configuration exposes `bWithPushModel`, set that in the target rules
+(`Target.cs`) and regenerate project files; otherwise treat the generated target's macro value
+as authoritative. This compile-time support is separate from the runtime
+`net.IsPushModelEnabled=1` setting above.
 
 ### Opt-in per property
 
@@ -158,11 +161,15 @@ Defined in `PushModel.h`:466. Best for scalar types; avoid for large structs (me
 
 ## Iris replication system (UE 5.8)
 
-Iris remains beta and opt-in in 5.8 (`net.Iris.UseIrisReplication`, default off). It coexists
-with the existing `DOREPLIFETIME` + RPC model:
+Epic's UE 5.8 release notes call Iris production-ready for licensees. The public documentation
+and the installed UE 5.8.2 source still make it an opt-in choice
+(`net.Iris.UseIrisReplication`, default `0`), so this generic skill must not imply that every
+project or distribution should enable it automatically. It coexists with the existing
+`DOREPLIFETIME` + RPC model:
 - Existing `DOREPLIFETIME*` macros, `OnRep_X` callbacks, and RPCs continue to work.
-- `OnReplicationStarted` is deprecated since 5.7; override `OnReplicationStartedForIris` instead
-  (`Actor.h`:3478).
+- `BeginReplication` and `EndReplication` are deprecated since 5.7; use
+  `OnReplicationStartedForIris` and `OnStopReplicationForIris` instead
+  (`Actor.h`:3476-3500).
 - Push Model with Iris: use `DOREPLIFETIME_WITH_PARAMS_FAST` + `bIsPushBased = true`. Iris
   provides the `FIrisMarkPropertyDirty` delegate hook for internal coordination
   (`PushModel.h`:414).

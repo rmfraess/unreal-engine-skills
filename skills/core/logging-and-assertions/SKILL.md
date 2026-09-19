@@ -220,7 +220,7 @@ Engine source (UE 5.8, under `Engine/Source/Runtime/Core/Public/`):
 - `Logging/LogCategory.h` — `FLogCategoryBase`:21, `FLogCategory<>` template:86,
   `IsSuppressed`:45, `SetVerbosity`:59.
 - `Logging/StructuredLog.h` — `UE_LOGFMT`:46, `UE_LOGFMT_EX`:64, `UE_LOG_CONTEXT`:143,
-  `FLogRecord`:181, `SerializeForLog`:297.
+  `FLogRecord`:181, `GetUtf8Format`:203, `SerializeForLog`:297.
 - `Misc/AssertionMacros.h` — `check`:229, `verify`:226, `checkf`:259, `verifyf`:256,
   `checkSlow`:333, `checkNoEntry`:283, `ensure`:461, `ensureMsgf`:462, `ensureAlways`:463,
   `ensureAlwaysMsgf`:464, `FDebug`:68, `LowLevelFatalError`:591.

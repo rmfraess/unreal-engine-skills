@@ -23,10 +23,13 @@ Common recommended setup (32 × 32 components, 4 sections/component, 63 quads/se
 - Total quads = 32 × 126 = 4032
 - Heightmap size = **4033 × 4033 vertices**
 
-Key rule: each section must be a power-of-two number of quads (63 = 64 − 1 for 2×2
-subsections; 127 = 128 − 1 for single-section components) so LOD mipmaps fit cleanly.
-The engine targets ≤ 1024 components for performance (one render-thread CPU cost per
-component, one draw call per section).
+Key rule: each component uses the same `NumSubsections` count on both axes, and
+`SubsectionSizeQuads + 1` must be a power-of-two vertex dimension. Therefore 63 and 127
+are both valid section-quad values, and either can be used with a 1 × 1 or 2 × 2 subsection
+layout (for example, 63 quads gives 63 or 126 component quads; 127 gives 127 or 254).
+Choose the subsection layout separately from the section-quad value. The engine targets
+≤ 1024 components for performance (one render-thread CPU cost per component, one draw call
+per section).
 
 Height precision: 16-bit values map to ±256 m at `Z Scale = 100`. Import formats: 16-bit
 grayscale PNG, `.r8`, `.r16`, or `.raw` with companion JSON (width/height/bpp).
@@ -103,7 +106,8 @@ the `ShouldPartitionSpline()` method on the spline actor controls this.
 ## Nanite landscape
 
 Enable with `bEnableNanite = true` on the proxy. The engine:
-1. Generates a `ULandscapeNaniteComponent` (`LandscapeNaniteComponent.h`) at the LOD
+1. Generates/maintains entries in `ALandscapeProxy::NaniteComponents`
+   (`LandscapeProxy.h`; the singular `NaniteComponent` property is deprecated) at the LOD
    specified by `NaniteLODIndex` (usually 0 for highest detail).
 2. Renders the landscape as a Nanite virtualized mesh on supported hardware.
 3. Falls back to standard LOD rendering on non-Nanite hardware.
@@ -129,9 +133,12 @@ if (ALandscapeProxy* Proxy = Cast<ALandscapeProxy>(LandscapeActor))
     {
         // Height query requires landscape coord conversion:
         FVector LandscapePos = Proxy->LandscapeActorToWorld().InverseTransformPosition(WorldLoc);
-        // Layer weight sampling requires ULandscapeInfo::GetLayerWeightAtLocation
-        // (available in editor; limited at runtime without cook-time bake).
-        float Weight = Info->GetLayerWeightAtLocation(WorldLoc, LayerInfoObj);
+        // ULandscapeInfo has no GetLayerWeightAtLocation in UE 5.8.2. In an editor
+        // inspection, resolve the containing ULandscapeComponent (for example through
+        // Info->XYtoComponentMap) and call its API instead:
+        // float Weight = Component->GetLayerWeightAtLocation(WorldLoc, LayerInfoObj);
+        // XYtoComponentMap is editor-only; for runtime gameplay, bake the needed layer
+        // data or use a supported runtime query such as landscape collision/physical material.
     }
 }
 ```

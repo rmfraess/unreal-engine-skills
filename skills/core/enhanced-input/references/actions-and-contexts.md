@@ -32,6 +32,11 @@ EInputActionValueType::Axis3D   → FVector
 Source: `InputActionValue.h`:10–20. The underlying storage in `FInputActionValue` is always
 `FVector` with unused components zeroed.
 
+`Get<T>()` does not validate `ValueType`; the UE 5.8.2 specializations convert the stored
+components (`Get<bool>()` uses `IsNonZero()`, while vector getters return the stored X/Y/Z
+components). Treat the action asset's `ValueType` as the contract and use `GetValueType()` when
+a generic handler must distinguish types.
+
 ### Accumulation
 
 When multiple key mappings in the active contexts point to the same action, Enhanced Input

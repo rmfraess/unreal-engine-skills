@@ -32,7 +32,14 @@ UDS replaces Unreal's stock sky/lighting stack with one actor and four cross-cut
 
 ## Adding UDS to a level
 
-Before dragging the actor in, remove from the level:
+Confirm the installed UDS package version separately from the Unreal version. This guidance
+targets UDS 9.5; an engine-version tag is not proof of vendor compatibility. Read the package
+change log when either version differs. Work on a copied map or a recoverable source-control
+checkpoint. Identify which existing sky/light actors UDS replaces and preserve any external
+light actors intentionally referenced by the UDS configuration before removing duplicates.
+
+Before dragging the actor in, remove these replaced stock actors, except external lights
+intentionally referenced by UDS:
 
 - Directional Lights
 - Sky Light

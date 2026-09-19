@@ -128,9 +128,8 @@ The function has an **Alpha** input (0–1): how much this preset is currently a
 
 To trigger a weather change at runtime (instantly or over a duration):
 
-```
-UDW.ChangeWeather(targetPreset, transitionLengthSeconds)
-```
+Call the Blueprint function Change Weather on the UDW reference with the target preset and
+transition duration; leaving the preset input empty selects Manual Weather State.
 
 The new global state stays applied indefinitely, until another change is called for.
 
@@ -169,13 +168,10 @@ Each weather state value has an override toggle and a manual value pair in this 
 
 ## Weather event dispatchers
 
-Bind events from your blueprints. Pattern:
-
-```
-UDW = GetUltraDynamicWeather()
-UDW.OnStartedRaining.AddDynamic(this, &MyActor::OnRainStart)
-// Or in Blueprint: Bind to Started Raining → Custom Event
-```
+From a valid UDW actor reference in Blueprint, bind a matching custom event to the
+documented `Started Raining` dispatcher (or another listed dispatcher). Inspect its
+installed signature before connecting parameters. `OnStartedRaining.AddDynamic(...)`
+is not a verified native member API for this Blueprint asset.
 
 | Dispatcher | Fires when |
 | --- | --- |
@@ -204,11 +200,9 @@ Features:
 
 ### One-off exposure query without a component
 
-```
-UDW.TestActorForWeatherExposure(actor) → rain, wind, snow, dust (each 0-1)
-// Floats combine weather intensity with actor exposure.
-// 1.0 = fully exposed to that effect at max intensity.
-```
+For a one-off sample, call the Blueprint function Test Actor for Weather Exposure on UDW with
+the actor reference. Its rain, wind, snow, and dust floats combine intensity and exposure; 1
+means fully exposed at maximum intensity.
 
 ## Sequencer
 
@@ -231,13 +225,16 @@ Result: updates only need to go over the wire when a state-source change starts.
 
 - **`Cloud Coverage` / `Fog` on UDS ignored** — UDW is in the scene; it owns those values. Set on UDW's weather state instead.
 - **`Change Weather` doesn't appear to transition** — `transitionLengthSeconds` was 0 (instant change). Pass a duration for a smooth transition.
-- **Setting `Weather` to a preset has no effect at runtime** — preset assignment is editor-time. Use `ChangeWeather(preset, duration)` from blueprint to switch at runtime.
+- **Setting `Weather` to a preset has no effect at runtime** — preset assignment is editor-time. Call the Blueprint `Change Weather` function with the preset and transition duration.
 - **Material wetness/snow doesn't match keyframes in Sequencer** — `Simulate Changing Material State Over Time` is on. Disable it for direct keyframe playback.
 - **Manual Rain value ignored** — `Manual Rain Override` is off. Override toggles must be enabled for per-value manual values to apply.
-- **Weather display name shows "Manual Weather"** — no preset is selected; UDW falls back to Manual Weather State. Set the `Weather` variable or call `ChangeWeather(preset, ...)`.
+- **Weather display name shows "Manual Weather"** — no preset is selected; UDW falls back to Manual Weather State. Select a preset in the editor or call the Blueprint `Change Weather` function at runtime.
 - **Per-actor wetness in materials not working** — the material's `Use Local Parameters` pin isn't set, or the dynamic material instance wasn't added to the Actor Weather Status component's Material Effects array.
 - **Started Raining / Started Snowing fires at the wrong threshold** — adjust thresholds in the **Event Dispatchers** category on UDW.
-- **Random Weather Variation overriding `ChangeWeather`** — call `ChangeToRandomWeatherVariation()` to return control, or disable Random Weather Variation in its category.
+- **Weather does not stay at the manually selected preset** — Change Weather is documented
+  to switch from random variation to a static preset. Check for another caller, local
+  volume/storm, or manual value override before changing modes. Call Change to Random
+  Weather Variation only when intentionally handing control back to random variation.
 
 ## References & source material
 

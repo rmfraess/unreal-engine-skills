@@ -88,8 +88,10 @@ replication for that connection.
 
 ## WithValidation
 
-Mandatory for all Server RPCs whose parameters come from untrusted client input. The validate
-function has the same signature as the RPC but returns `bool`:
+For a Server RPC that accepts untrusted client input, use `WithValidation` when the explicit
+pre-dispatch hook is useful. The validation function has the same signature as the RPC but
+returns `bool`; still perform authoritative authorization and state checks in
+`_Implementation`:
 
 ```cpp
 bool AMyPawn::ServerSpendAmmo_Validate(int32 Amount)
@@ -99,8 +101,10 @@ bool AMyPawn::ServerSpendAmmo_Validate(int32 Amount)
 }
 ```
 
-If `WithValidation` is omitted on a Server RPC, UHT generates a default `_Validate` that always
-returns true (a security gap for production titles).
+If `WithValidation` is omitted, UE 5.8.2 UHT does not require or dispatch a `_Validate` function;
+the generated thunk performs the validation call only when the function has the
+`EFunctionFlags::NetValidate` flag. Omission therefore does not create a safety check—validate
+untrusted input in `_Implementation`, or declare `WithValidation` and implement `_Validate`.
 
 ## Parameter types for RPCs
 

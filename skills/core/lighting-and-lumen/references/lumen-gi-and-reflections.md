@@ -36,7 +36,8 @@ To disable static lighting interference:
 
 ### Software Ray Tracing (SRT)
 - Traces against per-mesh Signed Distance Fields (SDFs) and the Global Distance Field.
-- Supported on any DX11/DX12 GPU (no RT hardware required).
+- Supported on hardware that supports Shader Model 6 (SM6); dedicated RT hardware is not
+  required, but legacy DX11 support must not be assumed.
 - SDF quality depends on mesh import settings; complex meshes may need increased
   `Distance Field Resolution Scale` on the Static Mesh.
 - Two sub-modes: **Detail Tracing** (per-SDF, highest quality) and

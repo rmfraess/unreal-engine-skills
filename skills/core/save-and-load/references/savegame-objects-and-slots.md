@@ -10,9 +10,11 @@ naming conventions, and the `UAsyncActionHandleSaveGame` Blueprint async node. G
 
 When you call `SaveGameToSlot`, the chain is:
 
-1. `UGameplayStatics::SaveGameToSlot` (GameplayStatics.h:1167) serializes the `USaveGame` object
-   into a `TArray<uint8>` using tagged property serialization (FObjectAndNameAsStringProxyArchive
-   is **not** used here — all non-transient UPROPERTYs are written).
+1. `UGameplayStatics::SaveGameToSlot` (GameplayStatics.h:1167) delegates to
+   `SaveGameToMemory`, which writes the save header and serializes the `USaveGame` object into a
+   `TArray<uint8>` through `FObjectAndNameAsStringProxyArchive`. The proxy converts object
+   references and names to string forms; with the normal slot path the serializer writes all
+   non-transient `UPROPERTY`s, not only properties marked `SaveGame`.
 2. The byte array is handed to `ISaveGameSystem::SaveGame` (SaveGameSystem.h:52).
 3. On PC, `FGenericSaveGameSystem` writes it to
    `<Project>/Saved/SaveGames/<SlotName>.sav` (SaveGameSystem.h:151-154).

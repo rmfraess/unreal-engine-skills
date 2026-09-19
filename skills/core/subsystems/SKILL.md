@@ -201,6 +201,10 @@ caching, and UI logic. See `networking-and-replication` and `gameplay-framework`
 - **No world access in GameInstance/Engine Initialize** — `GetWorld()` on a
   `UGameInstanceSubsystem` returns null during `Initialize`; use a `UWorldSubsystem` or defer
   world-dependent work to `OnWorldBeginPlay` (world subsystems) or a timer.
+- **Streaming callbacks in UE 5.8.2** — `UWorldSubsystem::UpdateStreamingState` is absent.
+  For streaming notifications, implement `IStreamingWorldSubsystemInterface` and override
+  `OnUpdateStreamingState()` (and `OnFlushStreaming()` when needed); include
+  `Streaming/StreamingWorldSubsystemInterface.h`.
 - **Wrong scope** — session-persistent data in a `UWorldSubsystem` is wiped on level change;
   per-level data in a `UGameInstanceSubsystem` accumulates across travels.
 - **`ShouldCreateSubsystem` returns false, but caller doesn't null-check** — `GetSubsystem<T>`

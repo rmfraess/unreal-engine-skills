@@ -41,9 +41,11 @@ of simple actions, plain components may be simpler.
    to your `.uproject`).
 2. Add `"GameplayAbilities"`, `"GameplayTags"`, `"GameplayTasks"` to your module's `Build.cs`
    `PublicDependencyModuleNames` (see `module-and-build-system`).
-3. Call `UAbilitySystemGlobals::Get().InitGlobalData()` exactly once at startup — typically in
-   `UAssetManager::StartInitialLoading` or your game module's startup function. This is required
-   for target data and montage prediction; omitting it causes silent failures.
+3. Do not add a mandatory manual `InitGlobalData()` startup call for UE 5.8.2. The
+   GameplayAbilities module lazily creates its configured globals singleton on the first
+   `UAbilitySystemGlobals::Get()`/`GetAbilitySystemGlobals()` request and calls `InitGlobalData()`
+   itself. An explicit call is idempotent but redundant; keep the configured globals class and
+   Gameplay Abilities settings valid.
 
 ## Core pieces
 
@@ -286,15 +288,20 @@ Cue handlers are `UGameplayCueNotify_Static` (one-shot, `OnExecute`) or
 
 ## Gotchas
 
-- **`InitGlobalData()` not called** — montage and target-data prediction break silently.
+- **Invalid AbilitySystemGlobals configuration** — the module cannot create the configured globals
+  singleton. UE 5.8.2 performs the global-data initialization lazily; an extra manual
+  `InitGlobalData()` call is not a prerequisite.
 - **Writing attribute fields directly** at runtime — bypasses replication, prediction, and
   aggregation. Always go through Gameplay Effects.
 - **ASC on Pawn for a respawning multiplayer player** — state resets on death; put it on
   `APlayerState`.
 - **Missing module deps** (`GameplayAbilities`/`GameplayTags`/`GameplayTasks`) — link errors.
 - **`EndAbility` not called** — the ability stays "active" forever, blocking further uses.
-- **`NonInstanced` removed in 5.5** — `UE_DEPRECATED_FORGAME(5.5, ...)` in 5.8; use
-  `InstancedPerActor` as the default.
+- **`NonInstanced` policy deprecated, not removed** — UE 5.8.2 still declares the enum but marks
+  it `UE_DEPRECATED_FORGAME(5.5)`. Unless the compatibility CVar
+  `AbilitySystem.Fix.AllowNonInstancedAbilities` is enabled, `GetInstancingPolicy()` treats it as
+  `InstancedPerActor`. Use `InstancedPerActor` for persistent state/RPC or replicated ability
+  state; use `InstancedPerExecution` for independent concurrent executions.
 - **Wrong replication mode** — `Mixed` required for player-owned ASCs in multiplayer;
   `Minimal`-mode ASCs won't replicate GE data to simulated proxies.
 - **Cue tags not prefixed `GameplayCue.`** — the manager won't find or route them.
@@ -319,6 +326,11 @@ Cue handlers are `UGameplayCueNotify_Static` (one-shot, `OnExecute`) or
   monolithic GE data still works but new functionality is via `UGameplayEffectComponent` subclasses.
 - `GetAbilitySystemComponentFromActorInfo_Checked()` deprecated in 5.5; use
   `GetAbilitySystemComponentFromActorInfo_Ensured()`.
+- `FActiveGameplayEffectHandle(int32)` is deprecated in 5.8. Use `GenerateNewHandle(OwningASC)`
+  for a valid custom handle or `GetInstantExecutedHandle()` for an already-executed Instant GE;
+  do not use the deprecated `ResetGlobalHandleMap()`/`RemoveFromGlobalMap()` helpers. The instant
+  sentinel's `GetOwningAbilitySystemComponent()` is undefined, and a removed active effect returns
+  no owning ASC.
 
 ## References & source material
 
@@ -340,6 +352,8 @@ Engine source (UE 5.8, `Engine/Plugins/Runtime/GameplayAbilities/Source/Gameplay
   (Instant/Infinite/HasDuration), `EGameplayEffectVersion`:95 (Modular53).
 - `AbilitySystemInterface.h` — `IAbilitySystemInterface::GetAbilitySystemComponent()`:30.
 - `AbilitySystemGlobals.h` — `UAbilitySystemGlobals::InitGlobalData()`:69.
+- `ActiveGameplayEffectHandle.h` — `FActiveGameplayEffectHandle`:17, `GenerateNewHandle`:38,
+  `GetInstantExecutedHandle`:48, `GetOwningAbilitySystemComponent`:64.
 - `Abilities/Tasks/AbilityTask.h` — `UAbilityTask`:90, `NewAbilityTask<T>`:136.
 - `GameplayCueNotify_Static.h` — `UGameplayCueNotify_Static`:19.
 - `GameplayCueNotify_Actor.h` — `AGameplayCueNotify_Actor` (actor-spawning cue notify):20.

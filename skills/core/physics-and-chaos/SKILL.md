@@ -45,8 +45,10 @@ Every `UPrimitiveComponent` has three collision controls:
    - `PhysicsOnly` — rigid-body sim only; traces don't hit it.
    - `QueryAndPhysics` — both. Default for most simulated objects.
 
-**Block** requires *both* sides to set `ECR_Block` for the other's object type. For **overlap**
-events, both sides need `ECR_Overlap` response *and* `bGenerateOverlapEvents = true`.
+**Block** is the result when both sides resolve to `ECR_Block`. For **overlap** events, at
+least one side must resolve to `ECR_Overlap`, neither side may resolve to `ECR_Ignore`, and
+both components must have `bGenerateOverlapEvents = true`. A common trigger setup is to set
+the trigger's response to `ECR_Overlap` and leave the other component's response at `ECR_Block`.
 
 ```cpp
 // Set up a trigger sphere: query-only, ignore everything except pawns.
@@ -162,7 +164,8 @@ defines per-bone bodies and constraints for a `USkeletalMeshComponent`:
 ```cpp
 GetMesh()->SetSimulatePhysics(true);                    // whole-body ragdoll
 GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
-// For blended / partial ragdoll, use UPhysicalAnimationComponent.
+// For blended / partial ragdoll, UPhysicalAnimationComponent is available but marked
+// Experimental in UE 5.8.2; validate the project’s target platforms and recovery path.
 ```
 
 ## Physics constraints
@@ -191,8 +194,18 @@ both `UStaticMesh` and `UPrimitiveComponent`. Key fields: `Friction`, `StaticFri
 `Restitution`, `Density`, `SurfaceType` (`EPhysicalSurface`). Assign via the mesh asset or
 at runtime with `GetBodyInstance()->PhysMaterialOverride`.
 
-Read `SurfaceType` from a hit to drive effects (footstep sounds, particle emitters):
-`Hit.PhysMaterial.Get()->SurfaceType`.
+Read `SurfaceType` from a hit to drive effects (footstep sounds, particle emitters). For an
+explicit trace or query, set `FCollisionQueryParams::bReturnPhysicalMaterial = true`; for a
+component movement sweep, enable `UPrimitiveComponent::bReturnMaterialOnMove`. In either case,
+check the weak pointer before reading it:
+
+```cpp
+if (Hit.PhysMaterial.IsValid())
+{
+    const EPhysicalSurface Surface = Hit.PhysMaterial.Get()->SurfaceType;
+    // Select footstep/SFX behavior from Surface.
+}
+```
 
 ## Collision complexity
 
@@ -206,9 +219,10 @@ on the component. Use `FCollisionQueryParams::bTraceComplex = true` to query com
 
 ## Gotchas
 
-- **Overlap never fires** — both components need `ECR_Overlap` response to each other's
-  object type *and* `bGenerateOverlapEvents = true` on both. One side being `ECR_Block` still
-  generates an overlap if the other is `ECR_Overlap`, but only one fires.
+- **Overlap never fires** — neither component may ignore the other's object type, at least one
+  side must resolve to `ECR_Overlap`, and `bGenerateOverlapEvents = true` must be enabled on
+  both. The engine combines responses with the minimum response; `ECR_Overlap` plus
+  `ECR_Block` therefore resolves to overlap.
 - **Hit event never fires** — enable `Simulation Generates Hit Events` (`bNotifyRigidBodyCollision`
   on `FBodyInstance`); physics sim must also be enabled.
 - **Trace misses everything** — check `ECollisionEnabled` on targets; `NoCollision` or
@@ -228,9 +242,12 @@ on the component. Use `FCollisionQueryParams::bTraceComplex = true` to query com
 ## Version notes
 
 Chaos replaced PhysX as the default physics engine in UE5. The Chaos solver runs
-deterministic substeps controlled by `UPhysicsSettings::AsyncFixed` (Project Settings →
-Physics → Simulation → Use Async Scene). `FBodyInstance` is stable across UE5; solver
-internals differ from PhysX but the `UPrimitiveComponent` API is unchanged.
+substeps and can be configured through `UPhysicsSettings::bSubstepping`,
+`bSubsteppingAsync`, `bTickPhysicsAsync`, `AsyncFixedTimeStepSize`, `MaxSubstepDeltaTime`,
+and `MaxSubsteps`. UE 5.8.2 marks async physics and substepping as experimental; do not
+call the result universally deterministic or use the old `UPhysicsSettings::AsyncFixed`
+name. `FBodyInstance` and the common `UPrimitiveComponent` query/simulation APIs remain
+available, but solver and async-thread behavior still needs project validation.
 
 ## References & source material
 

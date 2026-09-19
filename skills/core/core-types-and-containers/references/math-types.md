@@ -89,7 +89,7 @@ and is the right type for composing / interpolating rotations.
 FQuat Q = Actor->GetActorQuat();
 FQuat LocalRot = FQuat(FVector::UpVector, FMath::DegreesToRadians(45.0)); // axis-angle
 
-// Composition (apply LocalRot then Q)
+// Composition (right first, then left: apply LocalRot then Q)
 FQuat Combined = Q * LocalRot;
 
 // Spherical interpolation — for smooth rotation blending
@@ -102,8 +102,9 @@ FQuat FromEuler = FQuat::MakeFromEuler(FVector(Pitch, Yaw, Roll)); // MakeFromEu
 if ((Q | Target) < 0.0) { Q = -Q; }  // ensure shortest-path Slerp
 ```
 
-**UE quaternion convention:** `Q * V` rotates vector V by quaternion Q. Composition is
-left-to-right: `A * B` applies A first, then B.
+**UE quaternion convention:** `Q * V` rotates vector V by quaternion Q. Quaternion
+composition is right-to-left: `A * B` produces a rotation that applies `B` first, then `A`.
+This is opposite to the composition order documented for `FTransform`.
 
 ---
 

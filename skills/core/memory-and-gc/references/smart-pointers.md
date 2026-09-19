@@ -18,9 +18,9 @@ address, causing a crash. For UObjects, use `UPROPERTY` / `TWeakObjectPtr` / `TS
 | Type | Nullable? | Ownership | Thread-safe by default? |
 |---|---|---|---|
 | `TUniquePtr<T>` | yes | sole, exclusive | N/A (no sharing) |
-| `TSharedPtr<T>` | yes | shared (ref-counted) | no (`ESPMode::Fast`) |
-| `TSharedRef<T>` | **no** (never null) | shared (ref-counted) | no (`ESPMode::Fast`) |
-| `TWeakPtr<T>` | yes | non-owning observer | no |
+| `TSharedPtr<T>` | yes | shared (ref-counted) | yes by default (`ESPMode::ThreadSafe`) |
+| `TSharedRef<T>` | **no** (never null) | shared (ref-counted) | yes by default (`ESPMode::ThreadSafe`) |
+| `TWeakPtr<T>` | yes | non-owning observer | yes by default (`ESPMode::ThreadSafe`) |
 
 Declared at `Runtime/Core/Public/Templates/SharedPointer.h` and
 `Runtime/Core/Public/Templates/UniquePtr.h`.
@@ -106,8 +106,9 @@ reference controller is not yet initialized at that point and the call will asse
 
 ## Thread safety
 
-By default, `TSharedPtr`/`TSharedRef`/`TWeakPtr` are **not** thread-safe (uses `ESPMode::Fast`,
-a non-atomic ref-count). For cross-thread sharing, use the thread-safe mode:
+By default, `TSharedPtr`/`TSharedRef`/`TWeakPtr` use `ESPMode::ThreadSafe` in UE 5.8.2.
+For a demonstrably single-threaded hot path, opt into `ESPMode::NotThreadSafe` explicitly;
+otherwise keep the default:
 
 ```cpp
 TSharedPtr<FWorkItem, ESPMode::ThreadSafe> WorkItem = MakeShared<FWorkItem, ESPMode::ThreadSafe>();

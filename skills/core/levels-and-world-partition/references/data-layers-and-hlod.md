@@ -110,8 +110,11 @@ merged or instanced into a proxy:
 | Simplified mesh | Lower-poly version | organic shapes, terrain detail |
 | Custom | `UHLODBuilder` subclass | project-specific pipelines |
 
-HLOD proxies live in the *always-loaded* part of the world and are swapped out by the
-actual actors when the corresponding cell activates.
+HLOD objects are associated with the runtime cell they represent and are shown/hidden with
+that cell; they are not a universal always-loaded substitute for unloaded source actors.
+The runtime subsystem exposes `GetHLODObjectsForCell`, `OnCellShown`, and `OnCellHidden`.
+Validate the generated HLOD cell's runtime hash and streaming range when diagnosing HLOD
+residency or memory, rather than assuming every HLOD proxy is always resident.
 
 **Assignment**: set the `HLOD Layer` property on each actor's *World Partition* section
 in Details. Level Instances propagate the HLOD layer to their interior actors.

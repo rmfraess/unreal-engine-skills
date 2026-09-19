@@ -139,12 +139,12 @@ delete the `FRunnableThread` while it is still running — use `Kill(true)` firs
 
 ## Single-threaded mode
 
-On platforms where `FPlatformProcess::SupportsMultithreading()` returns `false` (some
-consoles, single-threaded cooking), `FRunnableThread::Create` returns `nullptr`. The
-engine will still call `Init`, `Run`, and `Exit` on the game thread when
-`FRunnableThread::Tick` is driven (via `FSingleThreadRunnable`). Override
-`GetSingleThreadInterface()` on your `FRunnable` if you need single-thread fallback
-behavior (verified: `Runnable.h`:69).
+On platforms where `FPlatformProcess::SupportsMultithreading()` returns `false`, do not assume
+that a null `FRunnableThread::Create` result runs the `FRunnable` lifecycle automatically.
+`FRunnable::GetSingleThreadInterface()` returns `nullptr` by default, and UE 5.8.2 states that
+such a runnable is not ticked in single-threaded mode. Implement and return a valid
+`FSingleThreadRunnable` when that fallback is required, or handle the null thread by running a
+separate synchronous path / skipping the service.
 
 ## Communicating results back to the game thread
 

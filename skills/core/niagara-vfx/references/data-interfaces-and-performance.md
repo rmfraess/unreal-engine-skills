@@ -43,10 +43,10 @@ a `UNiagaraFunctionLibrary` helper.
 
 | DI | CPU/GPU | Mechanism |
 |---|---|---|
-| Collision Query | CPU | Per-particle line/capsule trace against `UWorld::LineTrace*` |
-| GPU Collision (Distance Field) | GPU | Distance-field scene query; no gameplay call-back |
-| GPU Collision (Depth Buffer) | GPU | Screen-space depth reprojection; view-dependent |
-| HWRT Collision | GPU (5.3+) | Hardware ray-tracing; most accurate; requires DXR |
+| Collision Query | CPU and GPU paths | CPU VM geometry queries; GPU shader path uses the scene data required by the DI |
+| Async Gpu Trace | GPU only | Latent GPU scene traces; the provider can require a ray-tracing scene |
+| GPU Collision (Distance Field/Depth Buffer) | GPU | Distance-field or screen-space depth collision; view/platform dependent |
+| HWRT Collision | GPU, Experimental | Hardware ray-tracing collision; requires a supported DXR configuration |
 
 ### Utility
 
@@ -88,21 +88,34 @@ direct component coupling. One system writes particle data to a named channel; a
 reads from it in the same or next frame.
 
 ```cpp
-// Access a Data Channel from C++ (typically via UNiagaraDataChannelFunctionLibrary):
+// Access a Data Channel from C++ with the UE 5.8 access-context API:
 #include "NiagaraDataChannelFunctionLibrary.h"
+#include "NiagaraDataChannelAccessContext.h"
+
+FNDCAccessContextInst AccessContext;
+AccessContext.Init(TNDCAccessContextType(FNDCAccessContext::StaticStruct()));
+FNDCAccessContext& Context = AccessContext.GetChecked<FNDCAccessContext>();
+Context.Location = GetActorLocation(); // world-space location in this AActor example
+Context.bOverrideLocation = true;
 
 // Begin a write of one element to a channel asset; fill fields via the returned writer:
-UNiagaraDataChannelWriter* Writer = UNiagaraDataChannelFunctionLibrary::WriteToNiagaraDataChannel(
-    this,
-    ExplosionsChannel,                      // UNiagaraDataChannelAsset*
-    FNiagaraDataChannelSearchParameters(),  // locates where the data lands in the world
-    /*Count*/ 1,
-    /*bVisibleToGame*/ true, /*bVisibleToCPU*/ true, /*bVisibleToGPU*/ true,
-    TEXT("MyGame"));
+UNiagaraDataChannelWriter* Writer =
+    UNiagaraDataChannelLibrary::WriteToNiagaraDataChannel_WithContext(
+        this,
+        ExplosionsChannel,                  // UNiagaraDataChannelAsset*
+        AccessContext,
+        /*Count*/ 1,
+        /*bVisibleToBlueprint*/ true,
+        /*bVisibleToNiagaraCPU*/ true,
+        /*bVisibleToNiagaraGPU*/ true,
+        TEXT("MyGame"));
 ```
 
-Data Channels are primarily a gameplay-to-Niagara bus. For cross-system communication within
-the same world, they replace the older approach of reading actor positions via DIs.
+Data Channels facilitate communication between game code and Niagara, or between Niagara
+systems, and can combine work into a shared simulation. They are not a blanket replacement for
+Data Interfaces: use a DI when a system samples an external object/source, and use a Data Channel
+when decoupled publishers/readers need shared data. Prefer the access-context API above for new
+UE 5.8 code; the SearchParameters overload is retained for legacy compatibility.
 
 ## CPU vs GPU: detailed trade-offs
 
@@ -113,7 +126,8 @@ the same world, they replace the older approach of reading actor positions via D
   listen for Niagara events, trigger Blueprint callbacks.
 - Collision uses `UWorld::LineTrace*`, which respects full physics (complex collision,
   procedural meshes, destructibles).
-- Scales to ~tens of thousands of particles before game-thread cost becomes significant.
+- There is no engine-wide particle-count cutoff; measure the selected modules, data interfaces,
+  collision path, and target frame budget with `stat Niagara`/the Niagara Debugger.
 - Use `stat Niagara` → `NiagaraGameThread_*` counters to measure.
 
 ### GPU emitter
@@ -121,8 +135,10 @@ the same world, they replace the older approach of reading actor positions via D
 - Simulates on the render thread as a compute shader via the `FNiagaraGpuComputeDispatchInterface`.
 - Game thread has no direct access to per-GPU-particle data; there is no per-particle event
   callback from GPU emitters to gameplay.
-- Collision is limited to distance-field, depth-buffer, or HWRT (5.3+). No complex-mesh traces.
-- Supports millions of particles; the only game-thread overhead is the dispatch call.
+- Can use GPU-supported distance-field/depth-buffer paths or the separate async GPU trace path;
+  do not promise CPU-style complex-mesh traces or gameplay callbacks from GPU particles.
+- Can support very large particle counts on suitable hardware, but dispatch, render-thread/GPU,
+  memory, and renderer costs still apply; do not treat GPU simulation as zero total cost.
 - Use `stat Niagara` → `NiagaraRenderThread_*` and Unreal Insights GPU track.
 
 ### Mixed systems
@@ -166,8 +182,10 @@ provides:
 
 ## Common performance mistakes
 
-- **CPU emitter with thousands of particles** — VectorVM scales but each batch is a
-  game-thread synchronization point. Profile with `stat Niagara`; switch to GPU at ~10k+.
+- **CPU emitter with a measured budget overrun** — VectorVM and data-interface work scale with
+  the selected workload. Profile with `stat Niagara`/the Niagara Debugger and move work to GPU
+  only when the target platform and feature set support that trade-off; there is no universal
+  `~10k` switch point.
 - **Many distinct system instances** — each instance has per-tick overhead independent of
   particle count. Pool small-burst effects with `ENCPoolMethod::AutoRelease`.
 - **Unbound skeletal mesh DI** — if the DI's mesh reference is null, the emitter may spawn

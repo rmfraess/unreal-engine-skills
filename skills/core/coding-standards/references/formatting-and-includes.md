@@ -245,3 +245,6 @@ Engine source paths verified in UE 5.8:
 - `Runtime/CoreUObject/Public/UObject/Object.h`:106, 129 — `COREUOBJECT_API` export macro.
 - `Runtime/Engine/Classes/GameFramework/Actor.h`:288, 306 — `ENGINE_API` on constructor and virtual.
 - `Runtime/Core/Public/Windows/WindowsPlatform.h`:209–210 — `DLLEXPORT`/`DLLIMPORT` definition.
+- `Runtime/Core/Public/Misc/AssertionMacros.h`:175–177, 221–230 — `check` expressions
+  are build-gated and are only evaluated when enabled; use `verify` when an expression must
+  always be evaluated.

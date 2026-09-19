@@ -72,7 +72,13 @@ breakdown of all Interchange classes, module locations, and the factory six-step
 | Skeletal mesh + animation | FBX, glTF, GLB | FBX (legacy) |
 | Texture | PNG, TGA, JPEG, EXR, HDR, DDS, IES, PSD, BMP | — |
 | Audio | WAV, AIF/AIFF, FLAC, OGG, OPUS, MP3 | — |
-| Scene / level import | FBX, glTF, GLB, MaterialX | FBX scene legacy |
+| Scene / level import | FBX, glTF, GLB, MaterialX, USD* | FBX scene legacy |
+
+`*` The installed `InterchangeOpenUSD` plugin is optional, disabled by default, and marked
+experimental. When enabled, its USD translator is a `Default`-loading runtime module, but
+USD level import is separately disabled by default
+(`Interchange.FeatureFlags.Import.USD.ToLevel`), so enable and validate that path explicitly
+rather than treating USD scene import as a universally enabled built-in translator.
 
 FBX imports through Interchange by default in 5.8; revert to the legacy importer with the
 console variable `Interchange.FeatureFlags.Import.FBX 0` (and `.ToLevel 0` for scene import).
@@ -267,6 +273,11 @@ Engine > Interchange** or pass it via `FImportAssetParameters::OverridePipelines
   handled assets; legacy paths still produce `UFbxAssetImportData` etc.
 - `UInterchangeFbxTranslatorSettings::bUseUfbxParser` (still experimental in 5.8) enables the
   ufbx SDK instead of the Autodesk FBX SDK — useful for open-source builds.
+- UE 5.8 adds/extends OpenUSD Interchange asset import. `UInterchangeUSDTranslator` and
+  `UInterchangeUsdPipeline` are supplied by the optional experimental `InterchangeOpenUSD`
+  plugin; asset import is the supported path, while level import and USD Pregen remain
+  experimental. The 5.8.1 and 5.8.2 hotfix notes include USD/MaterialX fixes; re-test those
+  workflows on the pinned hotfix rather than inferring parity from the editor UI.
 
 ## References & source material
 

@@ -174,9 +174,10 @@ Applied as `UPROPERTY(meta=(Key="Value"))`:
 | `Atomic` | Serialized as a single unit; partial serialization is not allowed. |
 | `NoExport` | Header parsed for metadata only; no generated code emitted. |
 
-`USTRUCT` structs are **not** garbage-collected. A `UPROPERTY` inside a struct enables
-serialization and editor exposure but does not constitute GC ownership. Struct lifetimes follow
-their containing UObject or stack frame.
+`USTRUCT` structs are **not** garbage-collected as objects. A `UPROPERTY` inside a struct enables
+serialization/editor exposure, and reflected UObject references in that struct are included in
+GC traversal when the containing struct is itself reachable. Struct lifetime still follows its
+containing UObject or stack frame; it is not an independent GC root.
 
 ## UENUM
 

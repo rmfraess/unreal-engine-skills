@@ -246,6 +246,12 @@ Key rules:
   simulated proxies.
 - `ReplicatedMovementMode` (`Character.h:703`) replicates the enum to simulated
   proxies so they can transition physics locally.
+- **UE 5.8 movement-base migration:** movement-base APIs that take
+  `UPrimitiveComponent*` are deprecated. For CMC extensions and code handling
+  `FBasedMovementInfo`, use `FMovementBaseInterfaceData` and its
+  `PhysicsObjectOwner`/`IPhysicsBodyInstanceOwner` path. A primitive component can
+  still seed the new struct, but do not add new code against the deprecated overloads.
+  See `ACharacter::OnRep_ReplicatedBasedMovement()` for Epic's conversion pattern.
 
 See [references/networked-movement.md](references/networked-movement.md) for the
 full prediction loop, custom move flags, and RPC flow.

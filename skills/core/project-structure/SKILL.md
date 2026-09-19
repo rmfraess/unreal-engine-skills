@@ -129,11 +129,12 @@ Every C++ project needs exactly one **primary game module**. It is declared with
 // Source/MyGame/Private/MyGameModule.cpp
 #include "Modules/ModuleManager.h"
 
-IMPLEMENT_PRIMARY_GAME_MODULE(FDefaultModuleImpl, MyGame, "MyGame");
+IMPLEMENT_PRIMARY_GAME_MODULE(FDefaultGameModuleImpl, MyGame, "MyGame");
 ```
 
 - Macro defined at `Runtime/Core/Public/Modules/ModuleManager.h:1100`.
-- Use `FDefaultModuleImpl` unless you need `StartupModule`/`ShutdownModule` hooks.
+- Use `FDefaultGameModuleImpl` for an empty primary gameplay module; use a custom
+  `IModuleInterface` subclass when you need `StartupModule`/`ShutdownModule` hooks.
 - All additional modules in the project use `IMPLEMENT_MODULE` (not the primary variant).
 
 Full primary-module mechanics, Target.cs anatomy, and plugin descriptor fields:

@@ -197,8 +197,10 @@ public:
 Key differences between `USTRUCT` and `UCLASS`:
 - `UScriptStruct` (the runtime descriptor for USTRUCT) derives from `UStruct`, not `UClass`.
   Struct instances are **value types** — no GC, no CDO, no `NewObject`.
-- `UPROPERTY` inside a struct still enables serialization and editor exposure; it does not imply
-  GC ownership (there is nothing for the GC to track in a value type).
+- `UPROPERTY` inside a struct still enables serialization and editor exposure. The struct itself
+  is a value and is not a GC object, but reflected UObject references inside it are traversed
+  when the containing struct/member is reachable through the UObject property graph; those
+  nested references still need `UPROPERTY`.
 - Prefer `USTRUCT` for lightweight data bags (stats, configs, hit results). Use `UCLASS` when you
   need GC lifetime, Blueprint subclassing, or per-instance identity.
 

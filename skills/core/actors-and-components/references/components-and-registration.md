@@ -98,9 +98,12 @@ drive it manually from the owning actor. See `timers-and-async` for event/timer 
   sub-sequence (before `BeginPlay`) — **only if** the component sets
   `bWantsInitializeComponent = true` (`:340`) in its constructor. Use it for self-contained setup
   that must exist before any actor's `BeginPlay`.
-- `UActorComponent::BeginPlay` (`:936`) runs when gameplay starts, after the owning actor's
-  `BeginPlay`. Bind delegates and start gameplay interactions here. The mirror cleanup is
-  `EndPlay` (`:949`); `UninitializeComponent` (`:955`) mirrors `InitializeComponent`.
+- `UActorComponent::BeginPlay` (`:936`) runs when gameplay starts; the base
+  `AActor::BeginPlay()` calls it on each registered component before the actor's
+  `ReceiveBeginPlay()` event. Bind delegates and start component gameplay interactions here.
+  Call `Super::BeginPlay()` first in an actor override when component setup must precede actor
+  code. The mirror cleanup is `EndPlay` (`:949`); `UninitializeComponent` (`:955`) mirrors
+  `InitializeComponent`.
 
 Practical rule: bind delegates in `BeginPlay` and react via the observer pattern, so you don't have
 to reason about init order across components.

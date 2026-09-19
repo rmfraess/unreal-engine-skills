@@ -104,20 +104,20 @@ a UI-aware input mode and the widget has focus. Three mutually exclusive input m
 
 | Function | Mouse cursor | Game input | UI input |
 |---|---|---|---|
-| `SetInputModeUIOnly(FInputModeUIOnly)` | Locked to widget | None | Full |
-| `SetInputModeGameAndUI(FInputModeGameAndUI)` | Optional lock | Yes | Yes |
-| `SetInputModeGameOnly(FInputModeGameOnly)` | Hidden | Full | None |
+| `SetInputMode(FInputModeUIOnly)` | Configure separately; lock behavior is configurable | None | Full |
+| `SetInputMode(FInputModeGameAndUI)` | Configure separately; lock behavior is configurable | Yes | Yes |
+| `SetInputMode(FInputModeGameOnly)` | Configure separately; lock behavior is configurable | Full | None |
 
 ```cpp
 // Show a pause menu:
 FInputModeUIOnly Mode;
 Mode.SetWidgetToFocus(PauseMenu->TakeWidget());  // TakeWidget() gets the SWidget
 Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-PlayerController->SetInputModeUIOnly(Mode);
+PlayerController->SetInputMode(Mode);
 PlayerController->SetShowMouseCursor(true);
 
 // Close the menu:
-PlayerController->SetInputModeGameOnly();
+PlayerController->SetInputMode(FInputModeGameOnly{});
 PlayerController->SetShowMouseCursor(false);
 ```
 
@@ -148,8 +148,9 @@ PlayerController->bEnableClickEvents = true;
 PlayerController->bEnableMouseOverEvents = true;
 ```
 
-Avoid directly setting these booleans in production — prefer the `SetInputMode*` structs
-which manage them atomically.
+Set the input mode with `APlayerController::SetInputMode` and configure cursor visibility
+and actor/component click/hover events separately. Input-mode structs do not atomically
+configure those flags.
 
 ## Gotchas
 

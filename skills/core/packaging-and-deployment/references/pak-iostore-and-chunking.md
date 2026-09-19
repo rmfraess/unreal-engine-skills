@@ -49,10 +49,12 @@ Effective only when `bUseIoStore` is also true (`GetUseZenStoreEffective()` in t
 Chunking splits a project's content into numbered containers for independent distribution.
 Each chunk produces one `pakchunkN-[Platform].pak` / `.utoc`/`.ucas` triplet.
 
-**Chunk 0** is the base install — always present, always downloaded. Everything not
-assigned to a higher chunk falls into chunk 0 by default.
+**Chunk 0** is the default/catch-all chunk for assets without another assignment in the
+documented Asset Manager model. Whether it is always present or how other chunks are installed
+is determined by the platform and delivery integration, not by the chunk ID alone.
 
-**Chunks 1+** are downloaded separately (streaming install, DLC, patch, on-demand).
+**Chunks 1+** are separate packaging outputs that can be delivered through streaming install,
+DLC, patch, or on-demand systems after their manifests and mount/download policy are configured.
 
 Key settings in `UProjectPackagingSettings`:
 - `bGenerateChunks` (`ProjectPackagingSettings.h`:265) — enables chunk generation.
@@ -139,5 +141,6 @@ After packaging, output lands in:
 - Pak files: `Saved/StagedBuilds/[Platform]/[ProjectName]/Content/Paks/`
 - Archived build (if `-archive`): wherever `-archivedirectory` points.
 
-Pak filenames follow the pattern `pakchunk[N]-[Platform][_s#].pak` where `_s#` suffix
-indicates a split chunk (when `MaxChunkSize` is hit).
+Generated names and split suffixes are implementation/output conventions, not a universal
+runtime mount-priority contract; inspect the staged manifest/container output for the target
+platform and delivery system.

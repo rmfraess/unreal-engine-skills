@@ -124,6 +124,10 @@ Each entry is a `FPluginReferenceDescriptor` (`PluginReferenceDescriptor.h`:26):
 ]
 ```
 
+For a version-pinned dependency, serialize the integer as `"Version"`; the C++ member is
+`RequestedVersion`. For a GameFeaturePlugin dependency that should activate with its parent,
+also set `"Activate": true`.
+
 **Engine vs project plugins:**
 - Engine plugins live under the engine's `Engine/Plugins/`. Available to all projects.
 - Project plugins live under the project's `Plugins/`. Local to that project.
@@ -226,8 +230,12 @@ For code-level dependencies between modules inside or across plugins, list the m
 - **bExplicitlyLoaded** — plugins with this flag set in the descriptor do not load
   automatically. They must be mounted via `IPluginManager::MountExplicitlyLoadedPlugin`
   (`IPluginManager.h`:556).
-- **Config files not packaged** — plugin config files are not automatically packaged; copy
-  them to the project's `Config/` folder before distribution.
+- **Plugin distribution vs cooked staging** — `BuildPlugin`'s default filter does not include
+  arbitrary `Config/*.ini`. If a distributable plugin needs an ini, add an explicit rule in
+  `Config/FilterPlugin.ini` (or make the setting project-owned). For a staged plugin in a
+  cooked project target, `CopyBuildToStagingDirectory.Automation.cs:1923-1949` stages the
+  plugin's `Config/*.ini` files as UFS; do not copy them to the project `Config/` merely to
+  make cooked output include them.
 
 ## References & source material
 

@@ -72,7 +72,7 @@ public class MyGame : ModuleRules
 {
     public MyGame(ReadOnlyTargetRules Target) : base(Target)
     {
-        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;  // required for IWYU compliance
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;  // modern UE PCH mode; IWYU is configured separately
 
         // Types from these modules appear in THIS module's PUBLIC headers → Public
         PublicDependencyModuleNames.AddRange(new string[]
@@ -100,8 +100,10 @@ Key rules:
   If only in `.cpp`/private headers, prefer **private**.
 - The module name is the folder name containing the `Build.cs` (or the engine module's name).
 - Find which engine module owns a class by locating its header; see `navigating-engine-source`.
-- `PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs` enables IWYU-safe precompiled headers.
-  Each `.cpp` must include its matching `.h` first, and no monolithic headers (`Engine.h`).
+- `PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs` is the normal modern PCH choice. IWYU
+  enforcement is separately controlled by target-level `TargetRules.bEnforceIWYU` and the
+  module's `IWYUSupport`; each `.cpp` should include its matching `.h` first and avoid
+  monolithic headers such as `Engine.h`.
 
 See [references/build-cs-reference.md](references/build-cs-reference.md) for the full property
 list, advanced options, and third-party library integration.
@@ -201,7 +203,8 @@ See [references/module-cpp-and-phases.md](references/module-cpp-and-phases.md) f
 | `RuntimeNoCommandlet` | runtime targets, except commandlets |
 | `Editor` | editor only — stripped from packaged games |
 | `EditorNoCommandlet` | editor only, not in commandlets |
-| `Developer` / `DeveloperTool` | builds with developer tools enabled |
+| `Developer` | **Deprecated/ambiguous**; UE 5.8.2 accepts it for editor/program targets, including editor modes. Use `UncookedOnly` for uncooked editor/program modules, or `DeveloperTool` when `bBuildDeveloperTools` should control inclusion. |
+| `DeveloperTool` | any target where `bBuildDeveloperTools` is enabled |
 | `ServerOnly` / `ClientOnly` | server-only or client-only targets |
 | `UncookedOnly` | uncooked builds only |
 | `Program` | standalone programs |

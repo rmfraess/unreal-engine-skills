@@ -47,6 +47,8 @@ when the object is collected, the GC zeroes the serial number and future `.Get()
 calls return null / false automatically.
 
 Declared at `Runtime/CoreUObject/Public/UObject/WeakObjectPtr.h`.
+The explicit stale-key functions are in `Runtime/Core/Public/UObject/WeakObjectPtrTemplates.h`:398-434;
+`TObjectKey<T>` is declared in `Runtime/CoreUObject/Public/UObject/ObjectKey.h`.
 
 ```cpp
 TWeakObjectPtr<AActor> CachedTarget;
@@ -69,7 +71,23 @@ if (Pinned)
 **not** keep the target alive (weak semantics are preserved). Omitting `UPROPERTY` is fine for
 transient runtime caches.
 
-`TWeakObjectPtr` cannot be used as a `TMap` key or `TSet` element; use `TObjectKey<T>` for that.
+`TWeakObjectPtr` supplies a hash, but its ordinary equality treats any two pointers that
+currently return `nullptr` as equal. Do not retain stale weak pointers as default `TMap`/`TSet`
+keys: that equality can collapse distinct object identities (and stale keys can violate the
+container's key assumptions). If stale keys must remain, opt into the engine's explicit
+index/serial key functions:
+
+```cpp
+using FActorCache = TMap<
+    TWeakObjectPtr<AActor>, FValue, FDefaultSetAllocator,
+    TWeakObjectPtrMapKeyFuncs<TWeakObjectPtr<AActor>, FValue>>;
+using FActorSet = TSet<
+    TWeakObjectPtr<AActor>, TWeakObjectPtrSetKeyFuncs<TWeakObjectPtr<AActor>>>;
+```
+
+Those `TWeakObjectPtrMapKeyFuncs` / `TWeakObjectPtrSetKeyFuncs` use
+`HasSameIndexAndSerialNumber` to preserve identity for stale entries. Prefer `TObjectKey<T>`
+for a stable object-identity key when weak invalidation semantics are not required.
 
 ## TSoftObjectPtr\<T\>
 

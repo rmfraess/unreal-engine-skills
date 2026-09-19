@@ -119,9 +119,11 @@ HelmMesh->SetLeaderPoseComponent(BodyMesh);
 GlovesMesh->SetLeaderPoseComponent(BodyMesh);
 ```
 
-The follower components contribute their sections to the same draw call set as the
-leader, significantly reducing rendering cost compared to independent animation
-evaluation. All followers must share the same `USkeleton` as the leader.
+The follower components receive shared component-space bone transforms and a tick dependency,
+so they avoid independent animation/pose evaluation. Followers remain separate components and
+can still submit their own material sections and render work; no draw-call reduction is
+guaranteed. All followers must share a compatible `USkeleton` and should be profiled with
+their actual section/material setup.
 
 See `animation-system` for AnimBP, blend spaces, and animation montages.
 
@@ -144,16 +146,18 @@ that frame. Do not read bone transforms from async or physics threads without
 
 ## Nanite skeletal mesh (UE 5.8)
 
-In 5.8, Nanite for skeletal meshes is production-ready (since 5.7). Enabling it gives:
-- One GPU draw call for the entire character (vs. one per material section).
-- Virtual Shadow Map support.
-- Animation LODs (not geometry LODs — bones/sections can be stripped per LOD).
+UE 5.8.2 contains a Nanite skinned-mesh render path on platforms and projects that pass
+the engine's Nanite gates. It can use Virtual Shadow Maps and still obey animation LOD
+settings; it does **not** guarantee one GPU draw call for an entire character.
 
-Enable via the Skeletal Mesh Editor's Nanite Settings panel, or in C++ using the same
-`GetNaniteSettings()` / `SetNaniteSettings()` accessors as static meshes.
+Enable it in the Skeletal Mesh Editor or in editor/asset-build code with
+`GetNaniteSettings()` / `SetNaniteSettings()`, followed by
+`NotifyNaniteSettingsChanged()`. These accessors are not gameplay-runtime controls.
 
-Limitations: Morph targets are not supported with Nanite on skeletal meshes. Cloth
-simulation output is still rendered via the traditional path when cloth is enabled.
+Limitations: the 5.8.2 Nanite skinned update receives morph-target inputs but does not
+consume them when initializing its dynamic data. Explicitly disallow Nanite when morph
+deformation is required. Cloth, materials, platform support, and fallback behavior remain
+project-dependent and must be tested rather than inferred from the presence of Nanite data.
 
 ## Version notes
 

@@ -192,13 +192,13 @@ next draw.
 ## Per-primitive custom data (alternative to MID for instanced meshes)
 
 For `UInstancedStaticMeshComponent` and `UHierarchicalInstancedStaticMeshComponent`,
-creating one MID per instance is prohibitively expensive. Instead, the material
-can use `GetCustomPrimitiveData` or read per-instance float data stored via
-`SetCustomPrimitiveDataFloat`:
+creating one MID per instance is prohibitively expensive. Instead, configure
+`NumCustomDataFloats` and write per-instance data with `SetCustomDataValue` or
+`SetCustomData`; the material reads it with the `PerInstanceCustomData` expression.
 
 ```cpp
-// Store 4 floats per instance at index 0:
-ISMComp->SetCustomPrimitiveDataFloat(InstanceIndex, 0, MyValue);
+// Configure NumCustomDataFloats >= 1 on the ISM/HISM, then set slot 0 for one instance:
+ISMComp->SetCustomDataValue(InstanceIndex, 0, MyValue);
 ```
 
 In the material graph, a `PerInstanceCustomData` node reads these values.

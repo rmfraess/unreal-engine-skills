@@ -49,6 +49,10 @@ Set via `DefaultGame.ini`:
 `DirectoriesToAlwaysCook` and `DirectoriesToNeverCook` in `UProjectPackagingSettings`
 apply the same logic at directory granularity without touching the Asset Manager rules.
 
+For CI that must fail on cooker warnings, enable `bTreatWarningsAsErrorsOnCook` in
+`[/Script/UnrealEd.ProjectPackagingSettings]`. UE 5.8.2's cooker reads that setting and sets
+`GWarn->TreatWarningsAsErrors`; do not use an undocumented `-warningsaserrors` BuildCookRun flag.
+
 ## Build configuration details
 
 `UnrealTargetConfiguration` (source: `UEBuildTarget.cs`:1147) maps to compiler flags
@@ -126,8 +130,14 @@ the source packages and their cook inputs.
 
 Iterative cook is appropriate for rapid iteration during development. For CI/release
 builds, always do a full (non-iterative) cook from a clean Saved/Cooked directory to
-guarantee a deterministic output. A stale cooked package with the same hash as the
-source but a different runtime dependency can silently produce a broken build.
+guarantee a deterministic output. A stale cooked package with the same hash as the source
+but a different runtime dependency can silently produce a broken build.
+
+UE 5.8 also documents **Incremental Cooking (Beta)** backed by Zenserver. It is a distinct
+Zen-backed iteration workflow, not a new guarantee that `-iterate` is safe for release builds.
+Use it for development iteration only until the project has verified its determinism, CI
+lifecycle, and clean-release process; inspect the effective `bUseZenStore`/`bUseIoStore`
+configuration because existing projects can retain Zen disabled.
 
 ## Cook commandlet flags (selected)
 
@@ -141,8 +151,7 @@ Used via `UnrealEditor-cmd.exe [project] -run=cook -targetplatform=[Platform] ..
 | `-map=MapName` | Cook only specified map(s) |
 | `-unversioned` | Omit package version — smaller patches, fragile across engine updates |
 | `-compressed` | Compress cooked packages |
-| `-warningsaserrors` | Fail the cook on any warning (good for CI) |
 | `-cookall` | Cook every asset in Content/ regardless of references |
-| `-skipeditorcontent` | Exclude editor-only content directories |
+| `-SkipCookingEditorContent` | Exclude editor-only content directories |
 | `-ddc=DerivedDataBackendGraph` | Override the DDC backend graph |
 | `-numcookerstospin=N` | Multi-process cook (see Multi-Process Cooking doc) |

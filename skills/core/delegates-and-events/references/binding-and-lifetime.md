@@ -95,8 +95,8 @@ bind time (use `TSharedPtr` or `TWeakObjectPtr` for reference semantics).
 ## `FDelegateHandle` patterns
 
 ```cpp
-// Store in a UPROPERTY or member (not a local) so it survives past the binding scope
-UPROPERTY()                          // not needed for FDelegateHandle but shows intent
+// Store as an ordinary member (not a local) so it survives past the binding scope.
+// FDelegateHandle is a native handle; do not mark it UPROPERTY.
 FDelegateHandle ScoreHandle;
 
 // Binding

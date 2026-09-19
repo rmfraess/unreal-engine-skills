@@ -13,7 +13,7 @@ doc.
 |---|---|---|---|
 | Named scope in Insights timeline (lowest overhead) | `TRACE_CPUPROFILER_EVENT_SCOPE` | Insights cpu channel | No |
 | Named scope + `stat MyGroup` HUD overlay | `SCOPE_CYCLE_COUNTER` | Insights + stat overlay | No |
-| Per-frame CSV column for automation tests | `CSV_SCOPED_TIMING_STAT` | CSV file | Yes (Test) |
+| Per-frame CSV column for automation tests | `CSV_SCOPED_TIMING_STAT` | CSV file | When `CSV_PROFILER` is enabled (including any explicitly enabled Shipping/Test target) |
 | Quick temporary profiling, no prior declaration | `QUICK_SCOPE_CYCLE_COUNTER` | stat Quick | No |
 
 Prefer `TRACE_CPUPROFILER_EVENT_SCOPE` for high-frequency code paths (it skips the stat
@@ -139,8 +139,9 @@ Defined at `Stats.h:235`.
 
 Header: `ProfilingDebugging/CsvProfiler.h`
 
-Available in Shipping and Test builds when `CSV_PROFILER` is enabled. Records per-frame
-timing columns to a `.csv` file; ideal for automated performance regression baselines.
+Available in any target where `CSV_PROFILER` is enabled and `CSV_PROFILER_MINIMAL` is false;
+do not assume a project's Shipping or Test target enables it. Records per-frame timing
+columns to a `.csv` file; ideal for automated performance regression baselines.
 
 ```cpp
 #include "ProfilingDebugging/CsvProfiler.h"

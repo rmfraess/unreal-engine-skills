@@ -13,8 +13,8 @@ Official docs (verified live):
 ## The .uproject schema (`FProjectDescriptor`)
 
 A `.uproject` file is JSON that the engine deserialises into `FProjectDescriptor`
-(`Runtime/Projects/Public/ProjectDescriptor.h`). Every top-level JSON key maps to a
-field on the struct:
+(`Runtime/Projects/Public/ProjectDescriptor.h`). Use the serialized JSON names below;
+they are not always identical to the C++ member names:
 
 | JSON key | C++ field | Purpose |
 |---|---|---|
@@ -23,9 +23,10 @@ field on the struct:
 | `Modules` | `TArray<FModuleDescriptor> Modules` | C++ modules the project owns. |
 | `Plugins` | `TArray<FPluginReferenceDescriptor> Plugins` | Engine/project plugins to enable or disable. |
 | `TargetPlatforms` | `TArray<FName> TargetPlatforms` | Platforms the project targets (used by the launcher). |
-| `bIsEnterpriseProject` | `bool bIsEnterpriseProject` | Enables enterprise features. |
-| `bDisableEnginePluginsByDefault` | `bool bDisableEnginePluginsByDefault` | Opt all engine plugins out by default. |
+| `Enterprise` | `bool bIsEnterpriseProject` | Enables enterprise features. |
+| `DisableEnginePluginsByDefault` | `bool bDisableEnginePluginsByDefault` | Opt all engine plugins out by default. |
 | `AdditionalPluginDirectories` | private `TArray<FString>` | Extra directories to scan for plugins. |
+| `AdditionalRootDirectories` | private `TArray<FString>` | Extra directories to scan for modules; read/written by editor builds. |
 
 ### EngineAssociation values
 
@@ -60,7 +61,12 @@ configuration that appears under `"Modules"` in the `.uproject` or `"Modules"` i
 | `Type` | `EHostType::Type` | `"Type"` | When/where the module is compiled in. |
 | `LoadingPhase` | `ELoadingPhase::Type` | `"LoadingPhase"` | When during startup the module is loaded. Omitting defaults to `Default`. |
 | `PlatformAllowList` / `PlatformDenyList` | `TArray<FString>` | `"PlatformAllowList"` etc. | Restrict compilation to specific platforms. |
-| `TargetAllowList` / `TargetDenyList` | `TArray<EBuildTargetType>` | `"IncludelistTargets"` etc. | Game/Editor/Server/Client/Program. |
+| `TargetAllowList` / `TargetDenyList` | `TArray<EBuildTargetType>` | `"TargetAllowList"` / `"TargetDenyList"` | Game/Editor/Server/Client/Program; `WhitelistTargets`/`BlacklistTargets` are deprecated fallbacks. |
+| `TargetConfigurationAllowList` / `TargetConfigurationDenyList` | `TArray<EBuildConfiguration>` | matching JSON names | Restrict Development/Debug/Test/Shipping-style configurations. |
+| `ProgramAllowList` / `ProgramDenyList` | `TArray<FString>` | matching JSON names | Restrict named program targets. |
+| `GameTargetAllowList` / `GameTargetDenyList` | `TArray<FString>` | matching JSON names | Restrict named game targets. |
+| `PlatformArchitectureAllowList` / `PlatformArchitectureDenyList` | `TMap<FString,TArray<FString>>` | matching JSON names | Restrict platform/architecture pairs such as `Win64:x64`. |
+| `HasExplicitPlatforms` | `bool` | `"HasExplicitPlatforms"` | Treat an empty platform allow-list as no platforms when platform extensions add the explicit set. |
 
 ### `EHostType::Type` — common values
 
@@ -98,7 +104,7 @@ calling `IMPLEMENT_PRIMARY_GAME_MODULE` in its `.cpp` implementation file.
 // MyGame/Source/MyGame/Private/MyGameModule.cpp
 #include "Modules/ModuleManager.h"
 
-IMPLEMENT_PRIMARY_GAME_MODULE(FDefaultModuleImpl, MyGame, "MyGame");
+IMPLEMENT_PRIMARY_GAME_MODULE(FDefaultGameModuleImpl, MyGame, "MyGame");
 ```
 
 - The macro is defined at `Runtime/Core/Public/Modules/ModuleManager.h:1100–1136`.
@@ -135,11 +141,13 @@ module (or at minimum the same `MyGame` module). UBT discovers Target files in `
 ## Plugin references in .uproject
 
 Under `"Plugins"`, each entry is an `FPluginReferenceDescriptor`
-(`Runtime/Projects/Public/PluginReferenceDescriptor.h`). The most-used fields:
+(`Runtime/Projects/Public/PluginReferenceDescriptor.h`). The plugin's engine/project
+classification comes from discovery location; there is no `Type` selector in this
+reference object. The most-used fields are:
 
 ```json
 { "Name": "EnhancedInput", "Enabled": true }
-{ "Name": "MyProjectPlugin", "Enabled": true, "Type": "Project" }
+{ "Name": "MyProjectPlugin", "Enabled": true }
 { "Name": "ModelingToolsEditorMode", "Enabled": false }
 ```
 

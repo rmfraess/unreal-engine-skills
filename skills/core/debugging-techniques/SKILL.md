@@ -97,14 +97,20 @@ DrawDebugDirectionalArrow(GetWorld(), Tail, Head, /*ArrowSize=*/20.f,
 
 Key parameters shared by most functions:
 - `bPersistentLines` — if `true`, stays until `FlushPersistentDebugLines` is called.
-- `LifeTime` — seconds the shape is visible; `-1` means one frame; `0.f` on most shapes
-  means "use duration", which defaults to one frame from the game's perspective.
+- `LifeTime` — with `bPersistentLines=false` and `<= 0`, the helper selects the transient
+  World/Foreground batcher and stores its `DefaultLifeTime`, but the game/editor viewport
+  flushes those batchers after the draw. Treat this as a transient per-draw visualization, not
+  a guaranteed 1-second display. A positive `LifeTime` selects a persistent batcher and gives
+  the entry a timed lifetime; `bPersistentLines=true` uses the persistent path until flushed.
 - `DepthPriority` — higher priority draws on top; use `SDPG_Foreground` (1) to prevent
   geometry from occluding the shape.
 - `Thickness` — line thickness in screen pixels for wire shapes.
 
-All functions are guarded by `#if ENABLE_DRAW_DEBUG` (which evaluates to false in Shipping),
-so they are automatically stripped from release builds — no manual `#if` guards needed.
+The declarations are guarded by `#if ENABLE_DRAW_DEBUG` (normally false in Shipping/Test).
+Guard call sites with `#if ENABLE_DRAW_DEBUG` or keep them in a debug-only module; the
+header's disabled branch intentionally does not provide callable DrawDebug declarations.
+`GEngine->AddOnScreenDebugMessage` is a separate API: it remains declared, but its message
+storage/drawing implementation is disabled in Shipping/Test.
 
 Source: `Runtime/Engine/Public/DrawDebugHelpers.h` — `DrawDebugLine`:22, `DrawDebugPoint`:24,
 `DrawDebugSphere`:45, `DrawDebugBox`:28, `DrawDebugCapsule`:57, `DrawDebugString`:52,
@@ -323,8 +329,9 @@ Full stat commands, cvar authoring, and `displayall`:
 
 ## Gotchas
 
-- **`DrawDebug*` and `GEngine->AddOnScreenDebugMessage` in Shipping** — both are stripped.
-  They are dev tools; never rely on them for gameplay feedback.
+- **`DrawDebug*` in Shipping/Test** — the declarations can be absent when
+  `ENABLE_DRAW_DEBUG` is false; guard the call site. `AddOnScreenDebugMessage` is callable but
+  has no visible debug output in Shipping/Test. Neither is gameplay feedback.
 - **Live Coding after structural changes** — silent staleness or immediate crash; do a full
   hot-reload restart instead.
 - **`UE_LOG` spam every tick** instead of the Visual Logger — produces GBs of output; use
@@ -337,9 +344,11 @@ Full stat commands, cvar authoring, and `displayall`:
   module is excluded; always guard category code.
 - **`DrawDebugString` with a non-null `TestBaseActor`** — the string position is relative to
   that actor, which can be confusing if the actor moves; pass `nullptr` for absolute positions.
-- **`LifeTime = -1.f`** — in `DrawDebugLine`/`DrawDebugSphere`, `-1.f` means "use the default
-  duration" (one frame), NOT "persist forever". Use `bPersistentLines = true` for persistence,
-  then call `FlushPersistentDebugLines` to clear.
+- **`LifeTime <= 0.f`** — for nonpersistent `DrawDebugLine`/`DrawDebugSphere`, this uses the
+  transient World/Foreground batcher; the viewport/editor flushes it after drawing, so the
+  stored default lifetime is not a visible-lifetime guarantee. Use a positive duration for an
+  explicit timed window. Use `bPersistentLines = true` for persistence, then call
+  `FlushPersistentDebugLines` to clear.
 
 ## References & source material
 

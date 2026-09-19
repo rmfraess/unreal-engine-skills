@@ -33,15 +33,14 @@ Headers: `MovieRenderPipelineCore/Public/MoviePipelineQueue.h`,
 
 ## Plugin and module setup
 
-Enable the **Movie Render Queue** plugin in the `.uproject` plugins section.
+Enable the **MovieRenderPipeline** project plugin in the `.uproject` plugins section.
 
 ```
-// .Build.cs
-PublicDependencyModuleNames.AddRange(new string[]
-{
-    "MovieRenderPipelineCore",
-    "MovieRenderPipelineEditor",  // editor-only scripts only
-});
+// Runtime module .Build.cs
+PublicDependencyModuleNames.Add("MovieRenderPipelineCore");
+
+// Editor module only:
+// PrivateDependencyModuleNames.Add("MovieRenderPipelineEditor");
 ```
 
 ## Editor-side scripting (Blueprint / Python)
@@ -73,13 +72,16 @@ See the official [Python Scripting in Sequencer](https://dev.epicgames.com/docum
 From UE 5.0+ MRQ can run inside a packaged build, letting players or production pipelines
 trigger renders on end-user machines. Required steps:
 
-1. Enable **Movie Render Queue Runtime** (`MovieRenderPipelineRenderPasses`) in the plugin
-   list with "Loaded by default" and "Enabled in packaged game".
-2. Use `UMoviePipelineInProcessExecutor` (not the editor executor).
-3. Create a `UMoviePipelineQueue` asset at runtime via `NewObject<UMoviePipelineQueue>`.
-4. Call `UMoviePipeline::Initialize` and drive it via the executor.
+1. Enable the **MovieRenderPipeline** project plugin. Its runtime modules are
+   `MovieRenderPipelineCore` and `MovieRenderPipelineRenderPasses`; the editor module is
+   `MovieRenderPipelineEditor` and must stay editor-only.
+2. Keep `MoviePipelineQueueSubsystem`, `MoviePipelinePIEExecutor`, and
+   `MovieRenderPipelineEditor` out of packaged-game code. Build a runtime path around the
+   `UMoviePipeline`/runtime queue APIs and the pass modules required by the chosen output.
+3. Package the plugin and selected render-pass classes in the target, then validate the exact
+   cooked target; plugin enablement alone does not prove every output format or pass is present.
 
-Official doc: [Movie Render Queue in Runtime Builds](https://dev.epicgames.com/documentation/unreal-engine/movie-render-queue-in-runtime-in-unreal-engine).
+Official doc: [Movie Render Queue in Runtime Builds](https://dev.epicgames.com/documentation/unreal-engine/movie-render-queue-in-runtime-in-unreal-engine?application_version=5.8).
 
 ## Render settings
 
@@ -101,7 +103,9 @@ UMoviePipelinePrimaryConfig* Config = NewObject<UMoviePipelinePrimaryConfig>();
 Config->AddSetting(NewObject<UMoviePipelineAntiAliasingSetting>(Config));
 UMoviePipelineOutputSetting* OutSetting =
     Config->FindOrAddSettingByClass<UMoviePipelineOutputSetting>();
-OutSetting->OutputDirectory.Path = TEXT("/Game/Renders/");
+// OutputDirectory is a filesystem path. Use MRQ's project-dir token or an absolute path;
+// `/Game/...` is an asset path, not a render-output directory.
+OutSetting->OutputDirectory.Path = TEXT("{project_dir}/Saved/MovieRenders/");
 ```
 
 ## Movie Render Graph (MRG)

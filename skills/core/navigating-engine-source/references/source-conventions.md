@@ -1,7 +1,7 @@
 # Source conventions and naming
 
 Deep-dive companion to [../SKILL.md](../SKILL.md). Grounded in UE 5.8 at
-`<UE_ENGINE_ROOT>/Engine/Source` (Build.version: 5.8.1).
+`<UE_ENGINE_ROOT>/Engine/Source` (Build.version: UE 5.8.2, changelist 56702186).
 
 Covers naming prefixes, the Public/Private/Classes folder convention, how
 `*.generated.h` fits in, and Include What You Use (IWYU) rules.
@@ -10,8 +10,9 @@ Covers naming prefixes, the Public/Private/Classes folder convention, how
 
 ## Naming prefixes as navigation hints
 
-UE enforces type-name prefixes through UHT. Knowing the prefix tells you what
-kind of type you have and where to look:
+UHT validates Unreal prefixes for reflected declarations. For navigation, use the prefix
+as a strong hint for both reflected and ordinary engine types, but do not treat it as a
+universal C++ rule:
 
 | Prefix | Type | Example | Location pattern |
 |---|---|---|---|
@@ -24,8 +25,10 @@ kind of type you have and where to look:
 | `G` | Global variable | `GWorld`, `GEngine` | Runtime module globals |
 | `s_` or `S` | (rare) singleton statics | — | — |
 
-Prefix violations are a compile error under UHT — the tool will reject a
-`UCLASS` whose name does not start with `A` or `U`, a `USTRUCT` without `F`, etc.
+A reflected class with an invalid computed Unreal prefix is rejected by UHT. Reflected
+structs can use `F` or a configured `T` prefix, and UHT has special/deprecated/Verse cases;
+inspect the declaration and UHT validation for the type instead of assuming every
+`USTRUCT` must begin with `F`.
 
 ---
 
@@ -132,7 +135,7 @@ Key rules:
 
 | Mistake | Symptom | Fix |
 |---|---|---|
-| Class prefix wrong (`class MyActor` instead of `AMy...`) | UHT error: "type does not comply with naming convention" | Rename; A for actors, U for UObjects, F for structs |
+| Reflected class/struct prefix wrong | UHT validation error for the computed Unreal prefix | Check the reflected type kind and UHT exceptions; use A/U for ordinary classes and F/T as applicable for structs |
 | `*.generated.h` not last include | Compiler: redefinition or mysterious macro errors | Move it to the last `#include` |
 | `GENERATED_BODY()` not first in class | UHT parse error | Put it immediately after `{` |
 | Including `Engine.h` monolith | Build warning; pulls in enormous dependency | Include only specific headers you need |

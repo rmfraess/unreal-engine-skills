@@ -30,8 +30,11 @@ extensible, designer-editable taxonomy.
 
 - A tag is a dot-separated hierarchy: `Ability.Attack.Melee` is a **child** of `Ability.Attack`.
 - Tags are **interned** — comparison is a fast `FName` equality check, not a string compare.
-- Tags are registered once (at module load for native; at ini/DataTable load for config)
-  before gameplay begins. You cannot create arbitrary runtime tags.
+- `RequestGameplayTag` only looks up the registered dictionary; it does not create an arbitrary
+  tag. Native/module code can explicitly call `UGameplayTagsManager::AddNativeGameplayTag` after
+  initial startup, but late additions can invalidate `FastReplication` and should not be used to
+  grow replicated gameplay vocabulary during play. Treat project/config/DataTable tags as a
+  startup-loaded dictionary and register macro-defined native tags at file scope in a `.cpp`.
 - `FGameplayTagContainer` stores a **set** of tags an actor currently has; it also
   caches parent tags for fast hierarchy-aware queries.
 - `FGameplayTagQuery` encodes a logical expression (any/all/none of a tag set, composed
@@ -217,8 +220,10 @@ and show custom editor widgets in Details panels.
 - **`HasAll` on empty container returns `true`** — intended (vacuous truth), but
   surprising; guard with `!Container.IsEmpty()` when needed.
 - **Forgot `"GameplayTags"` in Build.cs** → unresolved external symbols.
-- **Registering native tags too late** — `UE_DEFINE_GAMEPLAY_TAG` registers at module
-  startup; never define inside a function or after the tag table is locked.
+- **Registering native tags too late** — `UE_DEFINE_GAMEPLAY_TAG` belongs at file scope in a
+  `.cpp`; `AddNativeGameplayTag` is an explicit late-registration API but can invalidate
+  `FastReplication`. Do not grow replicated tag vocabulary during play without a compatible
+  dictionary/replication strategy.
 - **Comparing `Tag.ToString()`** instead of the tag struct — always compare
   `FGameplayTag` values directly or use matching functions.
 - **`UE_DEFINE_GAMEPLAY_TAG` in a header** — the static_assert in the macro rejects

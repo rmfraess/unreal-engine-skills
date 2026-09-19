@@ -43,7 +43,7 @@ In the console (PIE or standalone game):
 | `stat unit` | Frame / Game / Draw / GPU / RHIT split — the first command to run |
 | `stat fps` | Raw frame rate |
 | `stat game` | Game-thread breakdown by system |
-| `stat gpu` | GPU pass costs (requires `-trace=gpu` or GPU channel) |
+| `stat gpu` | GPU statistics for the current frame (platform/RHI support applies); a separate `-trace=gpu`/`Gpu` channel is required for the Insights GPU track |
 | `stat scenerendering` | Draw-call counts, visible sections, render overhead |
 | `stat memory` | Per-subsystem memory counters |
 | `stat streaming` | Streaming texture and asset memory |
@@ -83,7 +83,7 @@ Channels of interest:
 | `cpu` | Named CPU timers (`TRACE_CPUPROFILER_EVENT_SCOPE`, `SCOPE_CYCLE_COUNTER`) |
 | `gpu` | Named GPU pass timers |
 | `frame` | Game/render frame markers |
-| `memalloc` | Every allocation + callstack (heavy — Development build only) |
+| `memalloc` | Every allocation + callstack (heavy; non-Shipping only when memory tracing is compiled; packaged capture should use a Development build) |
 | `memtag` | LLM tag snapshots per frame (lighter) |
 | `bookmark` | `TRACE_BOOKMARK` markers |
 | `stats` | Stats-system counters |
@@ -171,8 +171,10 @@ Scope variants (all in `CpuProfilerTrace.h:453`):
 
 ## Instrumentation — CSV profiler
 
-`CSV_SCOPED_TIMING_STAT` records per-frame timings to a CSV file, usable in Shipping and
-Test builds. Useful for automated performance regression tests.
+`CSV_SCOPED_TIMING_STAT` records per-frame timings to a CSV file when `CSV_PROFILER` is
+enabled and `CSV_PROFILER_MINIMAL` is false. A target may enable it outside the default
+configuration policy; verify the target before promising Shipping/Test output. It is useful
+for automated performance regression tests.
 
 ```cpp
 #include "ProfilingDebugging/CsvProfiler.h"
@@ -201,8 +203,9 @@ UObject counts, asset memory, texture streaming, etc.
 
 ### LLM (Low Level Memory Tracker)
 
-LLM instruments every allocation with a tag. Enable with `-llm` on the command line; view
-with `stat llm`, `stat llmfull`, or via Insights MemTag channel.
+When compiled in, LLM instruments allocations with tags. `-llm` enables the runtime tracker;
+it cannot add LLM support to a target where `ENABLE_LOW_LEVEL_MEM_TRACKER` or memory-tag
+tracing was compiled out. View with `stat llm`, `stat llmfull`, or the Insights MemTag channel.
 
 LLM tags are defined in `LowLevelMemTracker.h`
 (`Runtime/Core/Public/HAL/LowLevelMemTracker.h`). Tags relevant to games: `UObject`,
@@ -254,7 +257,8 @@ overdraw, post-process stack, screen percentage, too many dynamic lights.
   time and can obscure the real hotspot.
 - **Stats stripped in Shipping** — `STATS` is 0 in Shipping; use
   `TRACE_CPUPROFILER_EVENT_SCOPE` (disabled by `CPUPROFILERTRACE_ENABLED`) or
-  `CSV_SCOPED_TIMING_STAT` (available in Test/Shipping) for production-visible metrics.
+  `CSV_SCOPED_TIMING_STAT` only when the target enables `CSV_PROFILER` and disables
+  `CSV_PROFILER_MINIMAL`; do not promise production-visible metrics from a default target.
 
 ## Version notes
 

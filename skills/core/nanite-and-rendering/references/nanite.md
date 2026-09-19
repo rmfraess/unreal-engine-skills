@@ -92,7 +92,8 @@ It is used for:
 - **Ray-tracing passes** — by default, RT uses the fallback. Enable experimental native
   RT Nanite with `r.RayTracing.Nanite.Mode 1`.
 - **Forward rendering contexts** — Nanite is incompatible with forward shading.
-- **Translucent materials** — Nanite cannot shade transparency; the fallback renders it.
+- **Translucent materials** — standard Nanite material evaluation rejects unsupported blend
+  modes; use the conventional/fallback path only when it is built and selected for the target.
 
 Fallback quality is controlled by `FallbackPercentTriangles` (triangle budget) and
 `FallbackRelativeError` (error-based simplification). For ray-tracing fidelity, lower
@@ -134,10 +135,11 @@ On `UStaticMeshComponent` (`StaticMeshComponent.h`):
 ## Common diagnostics
 
 - **`stat Nanite`** — shows cluster counts, visible triangles, rasterizer pass breakdown.
-- **`r.Nanite.ShowMaskedMaterialWarnings 1`** — logs meshes falling back due to material
-  issues.
-- **`r.Nanite.Validate 1`** — enables additional GPU-side validation (development builds).
-- **Primitive Debugger** (editor) — shows per-primitive Nanite status and fallback reason.
+- **`r.Nanite.Visualize <mode>`** — use the editor Nanite visualization modes (for example
+  `Triangles`, `Clusters`, or `Primitives`) to confirm which content is using the Nanite path.
+- **Output Log and Primitive Debugger** — use the engine's material-audit warnings and the
+  editor's per-primitive status/fallback reason; do not rely on undocumented or absent
+  `r.Nanite.ShowMaskedMaterialWarnings`/`r.Nanite.Validate` commands.
 - Missing root data in a cooked build: check DDC availability; Nanite root pages must be
   cooked into the package for the target platform.
 
@@ -148,8 +150,11 @@ On `UStaticMeshComponent` (`StaticMeshComponent.h`):
 - **Spline mesh Nanite**: fully supported in 5.8 (landscape splines, blueprint splines).
   Set `MaxEdgeLengthFactor` for significantly curved splines to prevent simplification
   artifacts near the deformation apex.
-- **Foliage Nanite**: uses voxelization and WPO animation. Foliage with small WPO offsets
-  is fine without `MaxEdgeLengthFactor`; large-scale wind requires it.
+- **Foliage Nanite (experimental in UE 5.8.2)**: `URendererSettings::bEnableNaniteFoliage`
+  (`r.Nanite.Foliage`) is explicitly marked experimental and requires an editor restart.
+  The 5.8.2 hotfix fixed Nanite Voxel Foliage failures on some platforms, so validate the
+  exact target, WPO amplitude, and fallback before shipping; large-scale wind may require
+  `MaxEdgeLengthFactor`.
 - **Nanite tessellation**: experimental in 5.5–5.6, production-track in 5.7;
   `r.Nanite.Tessellation` defaults to 1 (on) in 5.8.
 - **`UE_DEPRECATED(5.7)` on `UStaticMesh::NaniteSettings`** direct field access: always

@@ -184,7 +184,10 @@ This mechanism keeps the original source path if the user cancels a reimport mid
 Interchange supports runtime import in packaged builds; the legacy FBX importer is
 editor-only. To enable runtime Interchange:
 
-1. Enable the **Interchange Framework** and **Interchange Editor** plugins.
+1. Enable the **Interchange Framework** runtime plugin and the translator/factory plugins
+   required by the formats you will import. Enable **Interchange Editor** only for editor
+   import/reimport tooling; its modules are editor-only and are not a packaged-runtime
+   prerequisite.
 2. Add `/Engine/Plugins/Interchange/Runtime/Content` to
    **Project Settings > Packaging > Additional Asset Directories to Cook**.
 3. Use `UInterchangeManager::ImportAssetAsync` (not `ImportAsset`, which requires the

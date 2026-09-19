@@ -38,6 +38,9 @@ All `SetTimer` overloads resolve to `InternalSetTimer`, which accepts an
 | `FTimerDynamicDelegate const&` | dynamic (Blueprint-callable) delegate |
 | `TFunction<void()>&&` | lambda / callable — stored as `FTimerFunction` |
 
+`SetTimerForNextTick` also returns an `FTimerHandle` in UE 5.8.2. Store and clear that handle
+when a one-frame deferral must be cancelled before execution.
+
 The object-method form (`UserClass*` + `MethodPtr`) uses `CreateUObject` internally. When
 the bound `UObject` is destroyed the engine zeroes the delegate's object pointer, so the
 timer becomes "invalid" and will not fire (verified: official Gameplay Timers doc, "Timers
@@ -61,15 +64,17 @@ Params.FirstDelay       = 1.f;    // first fire delay; -1 uses the rate
 GetWorldTimerManager().SetTimer(Handle, this, &AMyActor::OnTick, 0.5f, Params);
 ```
 
-`bMaxOncePerFrame` prevents the timer from firing multiple times in a single large frame
-(relevant for timers with very short rates under hitched frames).
+By default, an overdue looping timer can execute its delegate multiple times in one large
+world tick to catch up. `bMaxOncePerFrame` prevents those extra same-frame catch-up calls,
+which is relevant for short rates under hitched frames.
 
 ## Time dilation and pausing
 
 Timers run on `FTimerManager::InternalTime`, which advances by `DeltaTime` as supplied by
-`UWorld::Tick`. Because `UWorld::Tick` already applies time dilation when computing
-`DeltaTime`, timers automatically slow down / speed up with global or per-actor time
-dilation — no extra code needed.
+`UWorld::Tick`. Because the timer manager consumes the world tick delta, timers follow global/world time
+dilation and world pause. Actor `CustomTimeDilation` is applied to the actor's tick and does
+not automatically rescale the shared world timer manager; model actor-specific timing in an
+actor tick or with an explicit rate if that is required.
 
 Calling `UGameplayStatics::SetGamePaused(true)` stops world ticking; `DeltaTime` becomes
 zero and timers effectively freeze. The `PauseTimer`/`UnPauseTimer` API lets you freeze an

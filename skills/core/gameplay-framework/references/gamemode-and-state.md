@@ -69,8 +69,10 @@ member (`GameModeBase.h`:334) — note that `DispatchPostLogin` was deprecated i
 
 ## Match-state machine (AGameMode only)
 
-`AGameMode` adds a replicated `FName MatchState` (`GameMode.h`:69) and a state machine that
-drives it. Valid states are constants in the `MatchState` namespace (`GameMode.h`:16–27):
+`AGameMode` adds a transient, server-side `FName MatchState` (`GameMode.h`:67–69) and a state
+machine that drives it. `AGameState` mirrors the value in its replicated
+`MatchState` property (`GameState.h`:33–35) and calls `OnRep_MatchState` on clients. Valid states
+are constants in the `MatchState` namespace (`GameMode.h`:16–27):
 
 | State | Meaning |
 |---|---|

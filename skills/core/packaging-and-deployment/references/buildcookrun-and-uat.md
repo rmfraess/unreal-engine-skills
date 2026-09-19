@@ -63,11 +63,10 @@ A typical CI packaging command uses `-build -cook -stage -pak -archive` and omit
 | `-allmaps` | Cook all maps discovered in the project |
 | `-map=<map>` | Cook only specified maps (repeatable) |
 | `-iterate` | Iterative cook — skip unchanged packages |
-| `-skipeditorcontent` | Skip `Editor/` content directories during cook |
+| `-SkipCookingEditorContent` | Skip editor content during cook |
 | `-cookall` | Cook every package in the Content/ directory |
 | `-compressed` | Compress cooked packages |
 | `-unversioned` | Remove version data from packages (smaller patches, fragile) |
-| `-warningsaserrors` | Treat cook warnings as errors (CI recommendation) |
 | `-ddc=<graph>` | Override DDC backend graph (e.g. a shared DDC network path) |
 | `-numcookerstospin=<N>` | Spin up N additional cook-worker processes |
 
@@ -78,8 +77,8 @@ A typical CI packaging command uses `-build -cook -stage -pak -archive` and omit
 | `-pak` | Wrap cooked content in `.pak` files |
 | `-iostore` | Use IoStore (`.utoc` / `.ucas`) container format |
 | `-makebinaryconfig` | Bake config into a binary file for faster startup |
-| `-generatechunks` | Split content into numbered chunks |
-| `-nochunks` | Override: disable chunking even if Project Settings enables it |
+| `-manifests` | Generate streaming-install manifests while cooking configured chunks |
+| `-createchunkinstall` | Generate streaming-install data from manifests; requires `-stage` and `-manifests` |
 | `-encrypt` | Apply encryption (key config comes from `CryptoKeys.json`) |
 
 ### Staging and archiving
@@ -116,8 +115,7 @@ Engine\Build\BatchFiles\RunUAT.bat BuildCookRun ^
   -pak ^
   -iostore ^
   -archive ^
-  -archivedirectory=D:\Builds\MyGame_Win64_Shipping ^
-  -warningsaserrors
+  -archivedirectory=D:\Builds\MyGame_Win64_Shipping
 ```
 
 ## Skipping the build stage in CI

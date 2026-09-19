@@ -2,7 +2,8 @@
 
 Deep-dive companion to [../SKILL.md](../SKILL.md). Grounded in UE 5.8 at
 `<UE_ENGINE_ROOT>/Engine/Source` (version confirmed via
-`Engine\Build\Build.version`: MajorVersion 5, MinorVersion 8, PatchVersion 1).
+`Engine\Build\Build.version`: MajorVersion 5, MinorVersion 8, PatchVersion 2,
+Changelist 56702186).
 
 This reference lists the most frequently needed modules, what they own, and
 where their headers live. Use it to resolve "which module do I add to Build.cs?"

@@ -100,8 +100,9 @@ Other key Runtime modules:
 
 ## Naming prefixes as navigation hints
 
-UHT enforces naming conventions — knowing the prefix tells you what type you have
-and roughly where to look:
+For UHT-parsed reflected declarations, the Unreal prefix is both a naming convention and
+part of UHT validation. It is a navigation hint for ordinary C++ too, but ordinary
+non-reflected types are not thereby compile-time UHT errors:
 
 | Prefix | Kind | Examples |
 |---|---|---|
@@ -113,7 +114,9 @@ and roughly where to look:
 | `I` | Interface | `IGameplayTaskOwnerInterface` |
 | `G` | Global variable | `GWorld`, `GEngine` |
 
-Prefixes are enforced by UHT — a mismatch is a compile error.
+For reflected classes, UHT reports an invalid Unreal prefix during validation. Reflected
+structs can use the configured `T` or `F` prefix, and special/deprecated/Verse cases have
+their own handling; check the actual declaration rather than applying one prefix blindly.
 
 ## The *_API macro tells you the module
 
@@ -265,7 +268,8 @@ class/function names are stable.)
 ## References & source material
 
 Engine source (UE 5.8, under the verified `<UE_ENGINE_ROOT>/Engine/`):
-- Version file: `Build\Build.version` (5.8.1, changelist 56057345).
+- Version file: `Build\Build.version` (UE 5.8.2, changelist 56702186,
+  compatible changelist 55116800, branch `++UE5+Release-5.8`).
 - Primary source root: `Engine\Source\` → `Runtime\`, `Editor\`, `Developer\`,
   `Programs\`, `ThirdParty\`.
 - Plugin root: `Engine\Plugins\` → `AI\`, `Animation\`, `EnhancedInput\`, `FX\`,

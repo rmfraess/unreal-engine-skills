@@ -88,7 +88,7 @@ Label->SetText(FText::FromString(TEXT("Health")));
 UHorizontalBoxSlot* Slot = Cast<UHorizontalBoxSlot>(HBox->AddChild(Label));
 if (Slot)
 {
-    Slot->SetSize(FSlateChildSize(ESlateSizeRule::Fill, 1.f));
+    Slot->SetSize(FSlateChildSize(ESlateSizeRule::Fill)); // default fill weight is 1
     Slot->SetPadding(FMargin(4.f));
 }
 ```

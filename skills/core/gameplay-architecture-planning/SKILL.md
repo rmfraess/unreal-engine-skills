@@ -43,8 +43,8 @@ independent structures:
    and GameInstance.
 4. **Services** — Engine, GameInstance, World, and LocalPlayer Subsystems.
 5. **Data and assets** — Data Assets, Data Tables, config, soft references, and SaveGame objects.
-6. **Communication** — direct calls, interfaces, delegates/Event Dispatchers, Gameplay Messages,
-   replicated properties, and RPCs.
+6. **Communication** — direct calls, interfaces, delegates/Event Dispatchers, an explicitly
+   selected project/plugin message bus, replicated properties, and RPCs.
 
 Treat these as separate decisions. A feature can have an Actor hierarchy, state owned by a
 PlayerState component, definitions stored in Primary Data Assets, and UI notified through a local
@@ -70,8 +70,8 @@ progress, state them and continue. High-value questions usually concern:
 - Whether state survives pawn replacement, level travel, reconnects, or application restarts.
 - Expected scale: player count, active instances, update frequency, and world size.
 - Whether designers need Blueprint extension, data-only tuning, or runtime authoring.
-- Existing framework commitments such as GAS, CommonUI, Gameplay Messages, Mass, or a project
-  plugin architecture.
+- Existing framework commitments such as GAS, CommonUI, a project message bus, Mass, or a
+  project plugin architecture.
 
 Do not ask for preferences that can be derived from the project or resolved by a clearly superior
 default.
@@ -192,8 +192,9 @@ multiplayer system may need all nine sections.
 - Do not use RPCs as local event dispatchers or delegates as network transport.
 - Do not duplicate authoritative state in widgets. UI observes gameplay state and derives display
   state.
-- Do not recommend GAS, Mass, Gameplay Messages, or a plugin boundary solely because they are
-  scalable. Adopt them when their capabilities match demonstrated requirements.
+- Do not recommend GAS, Mass, an unnamed Gameplay Message subsystem, or a plugin boundary solely
+  because it is scalable. Adopt a named provider when its capabilities match demonstrated
+  requirements.
 - Do not design only the happy path. Include teardown, unbinding, travel, disconnect, respawn,
   asset-load failure, and authority rejection where applicable.
 

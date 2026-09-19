@@ -131,7 +131,7 @@ bool bActivated = ASC->TryActivateAbilityByClass(UGA_FireBolt::StaticClass());
 // By spec handle (precise)
 bool bActivated = ASC->TryActivateAbility(Handle);
 
-// By Gameplay Event (does not go through normal CanActivate path)
+// By Gameplay Event (dispatches through InternalTryActivateAbility, including CanActivate)
 FGameplayEventData Payload;
 Payload.EventTag = FGameplayTag::RequestGameplayTag("Event.FireBolt.Launched");
 ASC->HandleGameplayEvent(Payload.EventTag, &Payload);

@@ -209,10 +209,12 @@ float MaxHealth = 100.f;
 ## Logging and errors
 
 - Log through a named category with `UE_LOG` (`logging-and-assertions`).
-- `check(Condition)` for invariants — aborts in all builds if violated. Never put side effects
-  inside a `check`.
-- `ensure(Condition)` for recoverable "shouldn't happen" — fires once in non-shipping builds,
-  returns bool so you can handle the failure.
+- `check(Condition)` for invariants — when `DO_CHECK` is enabled, a failure reports and
+  aborts. It can compile out in shipping/configurations with checks disabled, and the
+  expression is not evaluated when disabled. Never put side effects inside a `check`.
+- `ensure(Condition)` for recoverable "shouldn't happen" — build configuration controls
+  whether ensure handling is enabled; it reports a failure and returns a boolean when enabled.
+  Handle the false result, and do not use it as a shipping-only data-validation boundary.
 - Remove debug prints before submitting.
 
 ## Gotchas

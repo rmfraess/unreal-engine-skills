@@ -37,10 +37,10 @@ Decision rule: if you forward-declare a type in your header and only use the ful
 | Property | Values | Notes |
 |---|---|---|
 | `PCHUsage` | `PCHUsageMode` enum (line 195) | Controls precompiled header sharing. |
-| `UseExplicitOrSharedPCHs` | (recommended) | Enables IWYU compliance. Each `.cpp` must include its matching `.h` first. A private `PrivatePCHHeaderFile` generates an explicit PCH; otherwise shares one. |
+| `UseExplicitOrSharedPCHs` | (recommended) | Normal modern UE PCH mode; it does not itself enable IWYU enforcement. Each `.cpp` must include its matching `.h` first. A private `PrivatePCHHeaderFile` generates an explicit PCH; otherwise shares one. |
 | `UseSharedPCHs` | (legacy) | Allows monolithic-style shared PCHs. Not IWYU-safe for new code. |
 | `NoPCHs` | (rare) | Disable all PCHs for this module. Slow but guarantees isolated compilation. |
-| `IWYUSupport` | `IWYUSupport` enum (default `Full`) | IWYU enforcement level; with `UseExplicitOrSharedPCHs`, warns on monolithic header includes. Replaces `bEnforceIWYU` (deprecated in 5.2). |
+| `IWYUSupport` | `IWYUSupport` enum (default `Full`) | Module IWYU support level. The deprecated **module** `bEnforceIWYU` property was replaced in 5.2; target-level `TargetRules.bEnforceIWYU` remains the UE 5.8 enforcement gate. |
 | `PrivatePCHHeaderFile` | string | Path to an explicit private PCH header (relative to module root). |
 
 ## Compile behavior

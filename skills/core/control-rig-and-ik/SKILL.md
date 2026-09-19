@@ -61,7 +61,10 @@ The AnimGraph node `FAnimNode_ControlRig` (`AnimNode_ControlRig.h`:21) integrate
 Forward Solve each frame, and outputs the modified pose.
 
 Key node properties:
-- **Control Rig Class** — the `TSubclassOf<UControlRig>` that the node instantiates.
+- **Control Rig asset reference** — in UE 5.8.2 the node stores an
+  `FControlRigAssetStrongReference`; `ControlRigClass_DEPRECATED` and
+  `GetControlRigClass()` are compatibility paths. New tooling should use the asset
+  reference and `GetControlRigAssetReference()`.
 - **Transfer Input Pose** — lets the rig read the incoming animated pose (required for
   overlay/fixup rigs; disable for fully procedural rigs).
 - **Alpha** / **LOD Threshold** — blend strength and max LOD to run the rig.
@@ -248,8 +251,8 @@ blend, before output.
   `FAnimNode_IKRig` and `FAnimNode_ControlRig`).
 - **Root motion + IK fighting** — validate locomotion + IK together; IK on an unconstrained
   root can cause visible sliding if the root motion is also changing pelvis height.
-- **ModularRig path deprecation** — `GetRigModuleNameSpace()` was deprecated in 5.6;
-  use `GetRigModulePrefix()` instead.
+- **ModularRig path API** — `GetRigModuleNameSpace()` is not present in the UE 5.8.2
+  installed source; use `UControlRig::GetRigModulePrefix()` instead.
 
 ## Version notes
 

@@ -65,8 +65,11 @@ Three rules follow:
    `MoverComponent.h:933`).
 2. **All gameplay influence enters through the input cmd or queued objects**, so
    the simulation can replay them identically during a network rollback.
-3. **`ProduceInput` runs only on the locally-controlled instance** and is *not*
-   re-run during resimulation — author intent there, don't simulate there.
+3. **`ProduceInput` is driven on the owning instance** (autonomous proxy or
+   authority, not only a local-player client; `MoverComponent.h:185-186`).
+   Simulated proxies consume backend-provided input/state. Keep producer output
+   deterministic and treat rollback as replay of recorded simulation inputs;
+   do not author one-shot world side effects from this hook.
 
 ## Enabling Mover
 
@@ -167,8 +170,13 @@ Wiring notes:
 - If the **owning actor** implements `IMoverInputProducerInterface`, the
   MoverComponent auto-registers it as its `InputProducer` at BeginPlay
   (`MoverComponent.cpp:292-302`). Actor components implementing the interface
-  are also gathered when `bGatherInputFromAllInputProducerComponents` is true
-  (`MoverComponent.h:232`).
+  are enumerated by the UE 5.8.2 `BeginPlay` implementation
+  (`MoverComponent.cpp:304-311`). Although the header documents
+  `bGatherInputFromAllInputProducerComponents` (`MoverComponent.h:230-232`) as the
+  gate, this installed source path does not read the flag. Until that source/API
+  mismatch is resolved or confirmed by Epic, do not rely on setting the flag to
+  false to suppress component producers; use one explicit producer and audit all
+  owner components that implement the interface.
 - `ProduceInput` is a `BlueprintNativeEvent` — override
   `ProduceInput_Implementation` in C++ or the *Produce Input* event in BP.
 - Bind Enhanced Input actions normally in `SetupPlayerInputComponent`; the
@@ -243,7 +251,11 @@ MoverComponent subclass; never `NewObject` with a random outer.
 Layered moves (`FLayeredMoveBase`, `LayeredMove.h:74`) run *on top of* the
 current mode for a duration, each generating a proposed move mixed by
 `MixMode` (`EMoveMixMode`: additive / override velocity / override all) and
-`Priority`. They replicate and participate in rollback.
+`Priority`. `FLayeredMoveBase` values participate in rollback, but network
+transport is backend-dependent. The default Network Prediction path does not
+network every arbitrary queued move; ChaosMover has explicit move-injection and
+scheduling paths. Confirm the selected backend before treating a queued move as
+remote-authoritative state.
 
 ```cpp
 #include "DefaultMovementSet/LayeredMoves/BasicLayeredMoves.h"

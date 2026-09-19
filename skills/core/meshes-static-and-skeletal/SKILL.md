@@ -132,7 +132,9 @@ if (SkMesh->GetSocketByName(TEXT("hand_r")))
 }
 ```
 
-A missing socket name silently attaches at the component origin — always validate.
+A missing socket name uses the component's fallback transform in world/actor space, while
+component/parent-bone space returns the identity transform. Always validate with
+`GetSocketByName` or `DoesSocketExist` when a missing socket is an error.
 
 ## Instanced meshes (ISM / HISM)
 
@@ -212,11 +214,13 @@ Nanite is enabled per-mesh via `FMeshNaniteSettings::bEnabled` on the `UStaticMe
 asset. In 5.8 skeletal meshes also expose a Nanite settings panel in the editor.
 
 ```cpp
-// Enable Nanite on a static mesh asset at runtime (editor / cooking context):
+// Configure Nanite on a static-mesh asset in an editor/asset-build context;
+// these settings are not gameplay-runtime controls:
 FMeshNaniteSettings Settings = MyStaticMesh->GetNaniteSettings();
 Settings.bEnabled = true;
 MyStaticMesh->SetNaniteSettings(Settings);
-// Note: triggers a rebuild; call from editor utilities, not gameplay code.
+MyStaticMesh->NotifyNaniteSettingsChanged(); // invokes PostEditChangeProperty
+// Save/mark the package as appropriate and let the editor/cook build derived data.
 ```
 
 Nanite supports Opaque and Masked materials; Translucent and two-sided foliage have
@@ -268,8 +272,13 @@ ecosystem, leader-pose setup, bone queries, and `animation-system` cross-referen
 - Since UE 5.7, `NaniteSettings` on `UStaticMesh` is deprecated for direct access
   (`UE_DEPRECATED(5.7, ...)`, still in effect in 5.8). Use `GetNaniteSettings()` /
   `SetNaniteSettings()`.
-- Skeletal mesh Nanite (full Nanite skinning) is production-ready since 5.7 with a single
-  draw call per character and Virtual Shadow Map support; animation LODs still apply.
+- Skeletal mesh Nanite has a supported skinned render path in UE 5.8.2, but its actual
+  use is gated by project/platform settings, valid built Nanite resources, and material
+  audit results. It does not guarantee one draw call per character; material sections and
+  render passes still matter. Animation LODs still apply.
+- Morph targets are not consumed by the Nanite skinned update path in 5.8.2. If a mesh
+  needs morph deformation, explicitly use the traditional skinned path (for example,
+  disallow Nanite on that component) and verify the result in the target project.
 - ISM LOD-per-instance (previously a HISM differentiator) is now also available on ISM
   since 5.3+. HISM retains its hierarchical culling tree advantage for very large static
   instance counts without Nanite.

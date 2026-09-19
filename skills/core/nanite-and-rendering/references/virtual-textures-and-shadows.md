@@ -37,7 +37,7 @@ Key project settings (`RendererSettings.h`):
 | `VirtualTextureTileSize` | `r.VT.TileSize` | Tile size in pixels (power-of-2, default 128) |
 | `VirtualTextureTileBorderSize` | `r.VT.TileBorderSize` | Border for anisotropic filtering |
 | `bVirtualTextureAnisotropicFiltering` | `r.VT.AnisotropicFiltering` | Enable aniso on VT (adds shader cost) |
-| `bMobileVirtualTextures` | `r.Mobile.VirtualTextures` | VT on mobile — project setting deprecated in 5.8; override `bVirtualTextures` in per-platform .ini instead |
+| `bVirtualTextures` | `r.VirtualTextures` | Master VT switch; override it in the target's `<Platform>Engine.ini` when mobile/platform behavior differs |
 
 ### Runtime Virtual Textures (RVT)
 
@@ -138,7 +138,8 @@ r.ForwardShading=1
 r.AntiAliasingMethod=3               ; MSAA (forward only)
 r.MSAACount=4
 ; Nanite is disabled automatically in forward mode
-; VSM is compatible with forward but with reduced feature set
+; UE 5.8.2's RendererSettings selects ordinary Shadow Maps when Forward Shading is enabled;
+; do not rely on r.Shadow.Virtual.Enable=1 for this project path.
 ```
 
 ## Version notes
@@ -148,7 +149,10 @@ r.MSAACount=4
 - **VSM + Nanite skeletal mesh**: skeletal mesh Nanite shadow rendering via VSM is
   supported in 5.8; check the Nanite skeletal mesh documentation for limitations on
   complex animations.
-- **Mobile VT**: requires base `r.VirtualTextures=1`; the `bMobileVirtualTextures`
-  project setting is deprecated in 5.8 (override `bVirtualTextures` per platform);
-  feature set is more limited than desktop (no RVT on all mobile paths).
-- **VSM with path tracer**: the path tracer uses its own shadow model and does not use VSM.
+- **Mobile VT**: configure `r.VirtualTextures`/`bVirtualTextures` in the target's
+  per-platform engine ini. `bMobileVirtualTextures` and `r.Mobile.VirtualTextures` are
+  deprecated in 5.8; the latter's 5.8.2 CVar declaration directs callers to the platform
+  override. Keep mobile RVT/material support target-specific and validate the cooked path.
+- **VSM with forward shading**: the project setting is not supported; UE selects ordinary
+  Shadow Maps when Forward Shading is enabled. The path tracer likewise uses its own shadow
+  model and does not use VSM.

@@ -127,7 +127,8 @@ Each entry in `"Plugins"` corresponds to `FPluginReferenceDescriptor`
 | `PlatformDenyList` | `PlatformDenyList`:53 | Disable on listed platforms. |
 | `TargetAllowList` | `TargetAllowList`:62 | Enable for listed `EBuildTargetType` values only. |
 | `TargetDenyList` | `TargetDenyList`:65 | Disable for listed target types. |
-| `RequestedVersion` | `RequestedVersion`:74 | Pin a specific plugin `Version` integer. |
+| `Version` | `RequestedVersion`:74 | Pin a specific plugin `Version` integer; serialized as `Version`, not `RequestedVersion`. |
+| `Activate` | `bActivate`:38 | For GameFeaturePlugin activation, also activate this dependency when the parent is activated. |
 
 ## Complete example
 

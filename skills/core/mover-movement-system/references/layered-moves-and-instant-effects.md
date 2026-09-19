@@ -7,11 +7,14 @@ relative to `Engine/Plugins/Experimental/Mover/Source/Mover/Public/` (UE 5.8).
 
 `FLayeredMoveBase` (`LayeredMove.h:74`) = a struct that generates an
 `FProposedMove` alongside the active movement mode for some duration. They are
-stored in the sync state (`FLayeredMoveGroup`, `LayeredMove.h:191`), replicate
-to other clients, and are rewound/replayed during rollbacks — which is why they
-must be queued (`UMoverComponent::QueueLayeredMove`, `MoverComponent.h:314`)
-rather than applied immediately, and why they're cloned on queueing (configure
-fully *before* queueing).
+stored in the sync state (`FLayeredMoveGroup`, `LayeredMove.h:191`) and are
+rewound/replayed during rollbacks. Whether they are transported to other
+endpoints depends on the backend: UE 5.8.2 documents automatic layered-move
+networking as pending for general Mover, while ChaosMover has explicit
+injection/scheduling support (`MoverComponent.h:316-334`,
+`ChaosMover/Backends/ChaosMoverBackend.h:135-149`). Queue moves with
+`UMoverComponent::QueueLayeredMove` (`MoverComponent.h:314`) rather than applying them
+immediately. Moves are cloned on queueing, so configure them fully before queueing.
 
 Key fields on every layered move:
 
@@ -70,8 +73,9 @@ struct FLayeredMove_HomingDash : public FLayeredMoveBase
 {
     GENERATED_BODY()
 
+    // Capture this value before queueing; simulation code must use deterministic data.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mover)
-    TWeakObjectPtr<AActor> Target;
+    FVector TargetLocation = FVector::ZeroVector;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mover)
     float Speed = 1500.f;
@@ -88,10 +92,10 @@ struct FLayeredMove_HomingDash : public FLayeredMoveBase
     {
         const FMoverDefaultSyncState* Sync =
             StartState.SyncState.SyncStateCollection.FindDataByType<FMoverDefaultSyncState>();
-        if (!Sync || !Target.IsValid()) { return false; }
+        if (!Sync) { return false; }
 
         const FVector ToTarget =
-            (Target->GetActorLocation() - Sync->GetLocation_WorldSpace()).GetSafeNormal();
+            (TargetLocation - Sync->GetLocation_WorldSpace()).GetSafeNormal();
         OutProposedMove.MixMode        = MixMode;
         OutProposedMove.LinearVelocity = ToTarget * Speed;
         return true;
@@ -109,7 +113,7 @@ struct FLayeredMove_HomingDash : public FLayeredMoveBase
     {
         Super::NetSerialize(Ar);
         Ar << Speed;
-        // Serialize everything GenerateMove depends on; object refs need care
+        Ar << TargetLocation;
     }
 };
 ```
@@ -144,7 +148,7 @@ MoverComp->RegisterMove<UMyDashLogic>();                    // MoverComponent.h:
 MoverComp->QueueLayeredMoveActivation(UMyDashLogic::StaticClass());   // :303
 // or with params:
 FMyDashActivationParams Params; Params.DurationMs = 300.0;
-MoverComp->QueueLayeredMoveActivationWithContext(Params, TSubclassOf<UMyDashLogic>()); // :282
+MoverComp->QueueLayeredMoveActivationWithContext(Params, UMyDashLogic::StaticClass()); // :282
 ```
 
 One logic instance serves all simultaneous activations; only the instanced data
@@ -177,6 +181,7 @@ struct FSwapToModeAndStopEffect : public FInstantMovementEffect
 {
     GENERATED_BODY()
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mover)
     FName ModeName = DefaultModeNames::Falling;
 
     virtual bool ApplyMovementEffect(FApplyMovementEffectParams& Params,
@@ -192,6 +197,11 @@ struct FSwapToModeAndStopEffect : public FInstantMovementEffect
     virtual FInstantMovementEffect* Clone() const override
     {
         return new FSwapToModeAndStopEffect(*this);
+    }
+    virtual void NetSerialize(FArchive& Ar) override
+    {
+        Super::NetSerialize(Ar);
+        Ar << ModeName;
     }
     virtual UScriptStruct* GetScriptStruct() const override
     {

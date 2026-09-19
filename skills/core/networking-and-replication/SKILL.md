@@ -58,7 +58,7 @@ AMyActor::AMyActor()
 {
     bReplicates = true;          // enable replication
     SetReplicateMovement(true);  // replicate transform (non-Character actors)
-    NetUpdateFrequency = 10.f;   // updates/sec (use SetNetUpdateFrequency in 5.5+)
+    SetNetUpdateFrequency(10.f); // updates/sec
     NetDormancy = DORM_DormantAll; // start dormant; call FlushNetDormancy before changing props
 }
 ```
@@ -68,9 +68,10 @@ AMyActor::AMyActor()
 :4624).
 
 Key actors by design: GameMode is server-only. GameState and PlayerState are built to replicate
-(`gameplay-framework`). `SetReplicates(true)` at runtime triggers a replication start callback
-— in Iris projects (5.7+), override `OnReplicationStartedForIris` rather than the deprecated
-`OnReplicationStarted`.
+(`gameplay-framework`). `SetReplicates(true)` can trigger an Iris replication-start callback when the actor is not already
+replicating. In UE 5.8.2, override `OnReplicationStartedForIris` (and use
+`OnStopReplicationForIris` for the matching stop hook); the legacy `BeginReplication` and
+`EndReplication` methods are deprecated as part of the Iris transition.
 
 ## Property replication
 
@@ -167,8 +168,10 @@ RPC rules:
 - **Reliable** — guaranteed delivery with ordering; reserve for gameplay-critical calls.
   **Unreliable** — fire and forget; use for frequent cosmetic calls. Flooding reliable RPCs can
   saturate the channel.
-- `WithValidation` is required by Epic coding standards for all Server RPCs that accept parameters
-  from untrusted clients. Returning `false` from `_Validate` disconnects the caller.
+- For Server RPCs that accept untrusted input, enforce validation on the server. `WithValidation`
+  adds the explicit UHT-generated `_Validate` pre-dispatch hook; returning `false` from it
+  disconnects the caller. Keep authoritative authorization, range, ownership, and game-state
+  checks in `_Implementation` as well; do not rely on a client or on a cosmetic RPC gate.
 
 Full RPC reference and execution matrix: [references/rpcs.md](references/rpcs.md).
 
@@ -221,11 +224,15 @@ to simulate 100ms latency.
 
 - **5.5+**: `NetUpdateFrequency` direct write is deprecated; use `SetNetUpdateFrequency()` /
   `GetNetUpdateFrequency()` (`Actor.h`:903).
-- **5.8 / Iris**: The Iris replication system remains beta and opt-in in 5.8
-  (`net.Iris.UseIrisReplication`, default off). It coexists with the
-  existing property/RPC model — existing `DOREPLIFETIME` and RPC code continues to work. Iris
-  replaces `OnReplicationStarted` (deprecated 5.7) with `OnReplicationStartedForIris`. For Push
-  Model with Iris, use `DOREPLIFETIME_WITH_PARAMS_FAST` + `bIsPushBased = true`. See
+- **5.8 / Iris**: Epic's 5.8 release notes call Iris production-ready for licensees, while the
+  public 5.8 documentation and UE 5.8.2 source keep it opt-in
+  (`net.Iris.UseIrisReplication`, default `0`). Treat it as a deliberate target/project choice,
+  verify the distribution and compatibility matrix, and test a server/client session before
+  enabling it. It coexists with the existing property/RPC model; existing `DOREPLIFETIME` and
+  RPC declarations are not an automatic migration. Iris-specific actor hooks are
+  `OnReplicationStartedForIris` and `OnStopReplicationForIris`; the deprecated legacy hooks are
+  `BeginReplication` and `EndReplication`. For Push Model with Iris, use
+  `DOREPLIFETIME_WITH_PARAMS_FAST` + `bIsPushBased = true`. See
   [references/replication-conditions-and-push-model.md](references/replication-conditions-and-push-model.md).
 
 ## References & source material

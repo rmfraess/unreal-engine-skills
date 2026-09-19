@@ -94,11 +94,17 @@ dependency. An empty allow list means all platforms.
 ### Version-pinned dependency
 
 ```json
-{ "Name": "SomeSDK", "Enabled": true, "RequestedVersion": 5 }
+{ "Name": "SomeSDK", "Enabled": true, "Version": 5 }
 ```
 
-`RequestedVersion`:74 (`TOptional<int32>`) pins to a specific integer `Version` from the
-dependency's `.uplugin`. Use this when your plugin relies on a specific API revision.
+`Version` is the serialized key for `RequestedVersion`:74 (`TOptional<int32>`); it pins to a
+specific integer `Version` from the dependency's `.uplugin`. It is valid only when
+`Enabled` is `true`. Use this when the plugin relies on a specific API revision. For a
+GameFeaturePlugin dependency that should activate with its parent, also use:
+
+```json
+{ "Name": "SomeGameFeature", "Enabled": true, "Activate": true }
+```
 
 ## Explicit-load plugins
 
@@ -123,7 +129,19 @@ if (!bOK)
 ```
 
 `MountExplicitlyLoadedPlugin` (`IPluginManager.h`:556) mounts content and loads modules up
-to the specified loading phase. Call `UnmountExplicitlyLoadedPlugin` to reverse this.
+to the specified loading phase. If the plugin has no compiled modules and its content may be
+unmounted, pass the required reason pointer:
+
+```cpp
+FText UnmountReason;
+const bool bUnmounted = IPluginManager::Get().UnmountExplicitlyLoadedPlugin(
+    TEXT("MyContentPlugin"), &UnmountReason);
+```
+
+The UE 5.8.2 contract says unmounting does not work on plugins with compiled modules; do not
+use this as a general code hot-unload mechanism. Localization for an explicitly loaded plugin
+is separately ref-counted and requires `MountExplicitlyLoadedPluginLocalizationData` when it
+is needed.
 
 For plugins loaded from a `.uplugin` path on disk rather than by name:
 
@@ -201,8 +219,11 @@ distributable folder containing only the built binaries and descriptor (no sourc
 - `Binaries/` (compiled DLLs for target platforms)
 - `Content/` (if `CanContainContent: true`)
 - `Resources/` (icon, etc.)
-- `Config/` is **not** automatically packaged; copy ini files to the project's `Config/`
-  manually if needed.
+- `Config/` is not in the default `BuildPlugin` include list. Add required distribution
+  files with rules in `Config/FilterPlugin.ini`, or document that the setting belongs to the
+  consuming project. This is distinct from cooked project staging: `CopyBuildToStagingDirectory.Automation.cs:1923-1949`
+  enumerates staged `.uplugin` files, finds each plugin's `Config` directory, and stages its
+  `*.ini` files as UFS.
 
 **Source inclusion for Marketplace plugins:** include the `Source/` directory so buyers can
 recompile for their engine version. Ship with compiled binaries as well for users without
@@ -210,8 +231,11 @@ a code project.
 
 **Engine version compatibility:** plugin binaries compiled against one UE version are not
 ABI-compatible with other versions. Precompiled plugins must be recompiled for each engine
-version. The `EngineVersion` field in the descriptor is informational; UBT performs the actual
-compatibility check by comparing module identifiers.
+version. `FPluginManager::IsPluginCompatible` parses the descriptor's `EngineVersion` and
+compares it with `FEngineVersion::CompatibleWith()`; a mismatch can make the plugin
+incompatible and trigger a load prompt. This is a compatibility gate, not an ABI guarantee:
+rebuild and test every binary for the target engine. `BuildPlugin` embeds the current
+`Major.Minor.0` value unless `-Unversioned` is used.
 
 **Platform staging:** by default, plugin content and binaries are staged for all platforms.
 Use `SupportedTargetPlatforms` in the descriptor or `PlatformAllowList`/`PlatformDenyList`

@@ -99,7 +99,13 @@ public:
     }
     float GetHealth() const { return Health; }
 
-    void SetMaxHealth(float Value) { UE_MVVM_SET_PROPERTY_VALUE(MaxHealth, Value); }
+    void SetMaxHealth(float Value)
+    {
+        if (UE_MVVM_SET_PROPERTY_VALUE(MaxHealth, Value))
+        {
+            UE_MVVM_BROADCAST_FIELD_VALUE_CHANGED(GetHealthPercent);
+        }
+    }
     float GetMaxHealth() const { return MaxHealth; }
 
     // Derived FieldNotify function — bindable like a property:

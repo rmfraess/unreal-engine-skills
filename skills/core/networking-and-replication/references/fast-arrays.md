@@ -7,8 +7,12 @@ Deep dive for [../SKILL.md](../SKILL.md). Covers the `FFastArraySerializer` step
 
 ## When to use FFastArraySerializer
 
-A plain `UPROPERTY(Replicated) TArray<FMyStruct>` replicates the **entire array** when any
-element changes. For large or frequently-modified arrays this wastes bandwidth and CPU.
+A plain `UPROPERTY(Replicated) TArray<FMyStruct>` uses Unreal's generic property-delta
+replication path when its element/property types support it; do not assume that every update
+transfers the entire array. It preserves ordinary array semantics, but it does not provide
+Fast Array's stable per-item replication IDs or item-level add/remove/change callbacks. Choose
+`FFastArraySerializer` when those identities/callbacks or its measured delta behavior justify
+the extra setup, and measure bandwidth/CPU for the actual element type and update pattern.
 
 `FFastArraySerializer` is a custom delta serializer that tracks changes per element using
 stable IDs and replication keys. It sends only the changed/added/removed elements. It also
@@ -66,6 +70,10 @@ struct FInventoryArray : public FFastArraySerializer
         return FFastArraySerializer::FastArrayDeltaSerialize<
             FInventoryItem, FInventoryArray>(Items, DeltaParms, *this);
     }
+
+    // Optional: called on the serializer after a receiving NetDeltaSerialize call.
+    void PostReplicatedReceive(
+        const FFastArraySerializer::FPostReplicatedReceiveParameters& Parameters);
 };
 
 // Step 3: struct traits — enables the custom delta serializer
@@ -134,17 +142,19 @@ Forgetting `MarkItemDirty` or `MarkArrayDirty` means the change is never sent to
 
 ## Per-element callbacks
 
-Implement these on the item struct. They run on the client after each delta is applied:
+Implement the first three callbacks on the item struct. They run on the client as each
+item-level add/change/removal is processed:
 
 | Function | When called |
 |---|---|
 | `PostReplicatedAdd` | A new element arrived from the server |
 | `PostReplicatedChange` | An existing element's data changed |
 | `PreReplicatedRemove` | An element is about to be removed locally (before removal) |
-| `PostReplicatedReceive` | Called once after all per-element callbacks for a single update |
+| `PostReplicatedReceive` | Implement on `FInventoryArray`, not the item; called after a receiving `NetDeltaSerialize` call |
 
-These are called per element as the delta is processed — the array may not be fully consistent
-when they fire. Do not modify `Items` from inside them.
+The first three are called per element as the delta is processed — the array may not be fully
+consistent when they fire. `PostReplicatedReceive` is the serializer-level hook for work after
+that receive call. Do not modify `Items` from inside the per-item callbacks.
 
 ## Fast arrays and Push Model
 

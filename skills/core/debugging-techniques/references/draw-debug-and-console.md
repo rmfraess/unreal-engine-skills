@@ -6,8 +6,9 @@ Deep dive for [../SKILL.md](../SKILL.md). Grounded in UE 5.8
 
 ## DrawDebug full shape catalog
 
-All functions below are declared in `DrawDebugHelpers.h` and guarded by
-`#if ENABLE_DRAW_DEBUG`. They are no-ops in Shipping builds. The common parameter tail is:
+All functions below are declared in `DrawDebugHelpers.h` only when
+`ENABLE_DRAW_DEBUG` is true. The disabled branch intentionally removes the declarations, so
+guard call sites in Shipping/Test builds. The common parameter tail is:
 `bool bPersistentLines, float LifeTime, uint8 DepthPriority, float Thickness`.
 
 | Function (line) | Geometry | Notable parameters |
@@ -34,10 +35,14 @@ All functions below are declared in `DrawDebugHelpers.h` and guarded by
 
 ### LifeTime semantics
 
-- `LifeTime = -1.f` — "use the engine default", which is one frame for most functions.
-- `LifeTime > 0.f` — shape persists for that many seconds.
-- `bPersistentLines = true` — shape stays until `FlushPersistentDebugLines` is called,
-  regardless of `LifeTime`.
+- `LifeTime <= 0.f` with `bPersistentLines = false` — the common helpers select the transient
+  World/Foreground batcher and store its default lifetime, but the game/editor viewport flushes
+  those batchers after drawing. Treat this as a transient per-draw visualization; the stored
+  default is not a guaranteed visible duration.
+- `LifeTime > 0.f` — the helper selects a persistent batcher and the entry expires after the
+  requested duration.
+- `bPersistentLines = true` — the persistent path uses an indefinite entry lifetime until
+  `FlushPersistentDebugLines` is called (subject to the selected depth/batcher path).
 
 ### DepthPriority values
 

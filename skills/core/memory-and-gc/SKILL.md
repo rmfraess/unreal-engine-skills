@@ -223,6 +223,8 @@ if (TSharedPtr<FConnectionState> Pinned = WeakState.Pin())
 
 `TSharedPtr`/`TSharedRef`/`TWeakPtr` are declared in
 `Runtime/Core/Public/Templates/SharedPointer.h`.
+In UE 5.8.2 their public template default is `ESPMode::ThreadSafe`; opt into
+`ESPMode::NotThreadSafe` only for a demonstrably single-threaded hot path.
 `TUniquePtr` is declared in
 `Runtime/Core/Public/Templates/UniquePtr.h`.
 

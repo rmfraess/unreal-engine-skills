@@ -185,5 +185,11 @@ complexity in input handling.
   `ServerMovePacked`/`ClientMoveResponsePacked` for bandwidth efficiency. The old
   names are `DEPRECATED_CHARACTER_MOVEMENT_RPC`-marked in 5.8 (`CMC.h:2635`).
   Existing code using the old names still compiles but should migrate.
+- UE 5.8 also converts movement bases from a `UPrimitiveComponent*` contract to
+  `FMovementBaseInterfaceData`. `SetBase(UPrimitiveComponent*)`, old
+  `MovementBaseUtility` overloads, and related `FBasedMovementInfo`/CMC extension
+  paths are deprecated with fixups. Use `MovementBaseInterface.h`, populate the
+  struct from the owning `UObject`, and follow `ACharacter::OnRep_ReplicatedBasedMovement()`
+  when custom networking code needs the new representation.
 - Mover's networked physics backend (Chaos) is separate from the Network
   Prediction Plugin backend; choose at plugin configuration time.

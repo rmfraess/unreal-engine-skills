@@ -1,0 +1,13 @@
+{
+  "FileVersion": 3,
+  "EngineAssociation": "5.8",
+  "Description": "Isolated probes for approved UE 5.8.2 skill correctness fixes.",
+  "DisableEnginePluginsByDefault": true,
+  "Plugins": [
+    { "Name": "EnhancedInput", "Enabled": true },
+    { "Name": "Niagara", "Enabled": true }
+  ],
+  "Modules": [
+    { "Name": "SkillAuditP1", "Type": "Editor", "LoadingPhase": "Default" }
+  ]
+}

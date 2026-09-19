@@ -60,13 +60,16 @@ When you call `FX->SetVariableFloat(TEXT("Intensity"), 1.5f)`, Niagara:
    (`OverrideParameters` member, `NiagaraComponent.h`).
 2. If the parameter exists in the system's `ExposedParameters` store
    (`UNiagaraSystem::GetExposedParameters`, `NiagaraSystem.h:368`), writes the value.
-3. On the next simulation tick, the value is forwarded into the live system instance's parameter
-   store and becomes visible to modules.
+3. The component stores the override and forwards it through the system-instance controller;
+   an already-running instance observes it on a subsequent applicable simulation step. The exact
+   same-frame/next-frame point depends on activation order, tick group, and whether the Niagara
+   controller is configured for deferred asynchronous operations.
 
-Parameters set **before** `Activate()` are applied when the instance starts. Parameters set
-**during** execution take effect on the next tick — there is a one-frame latency. If you need
-instantaneous effect at spawn, set parameters before calling `Activate(true)` or before passing
-the component to a spawn function.
+Parameters set **before** `Activate()` are applied when the instance starts. For deterministic
+initial values, set them before calling `Activate(true)` or before handing the component to a
+spawn function. For an active instance, treat a setter as applying before a subsequent applicable
+simulation step; do not promise a universal one-frame latency without testing the project’s tick
+and controller configuration.
 
 ## Parameter types and C++ setters (5.8)
 
@@ -124,10 +127,13 @@ loaded (weapons, characters). Use soft refs for rare/world-building effects.
 | `ManualRelease` | You call `ReleaseToPool()` when done; use when timing matters |
 | `FreeInPool` | Internal; indicates a component already in the pool |
 
-The pool lives on the `UWorld` as a `UNiagaraComponentPool` subsystem. Pool components must have
-`SetUserParametersToDefaultValues()` called before reuse to prevent parameter bleed-through
-between instances — the pooling system does this automatically for `AutoRelease` components, but
-you are responsible for `ManualRelease` components.
+`UNiagaraComponentPool` is a transient `UObject` owned by the Niagara world manager and accessed
+as `FNiagaraWorldManager::Get(World)->GetComponentPool()`; it is not a `UWorldSubsystem`. On
+pooled reuse, `UNiagaraComponent::OnPooledReuse` calls
+`SetUserParametersToDefaultValues()` to clear local overrides and prevent parameter bleed-through
+for pooled components. `ManualRelease` controls when `ReleaseToPool()` is requested; it does not
+remove the reuse reset. Apply each instance’s current overrides after acquisition and do not rely
+on the previous user-parameter values.
 
 ```cpp
 // Spawning from the pool:
@@ -167,7 +173,8 @@ void AWeapon::PlayImpactFX(const FHitResult& Hit)
 }
 ```
 
-All `SetVariable*` calls after `SpawnSystemAtLocation` take effect on the first simulation tick
-(one-frame latency). For effects that are sensitive to the initial parameters, set them before
-activation by creating the component manually with `bAutoActivate = false`, setting parameters,
-then calling `Activate()`.
+`SetVariable*` calls after `SpawnSystemAtLocation` update the spawned component’s overrides and
+are observed by a subsequent applicable simulation step. For effects that are sensitive to the
+initial parameters, create the component with `bAutoActivate = false`, set parameters, then call
+`Activate()`. If exact frame ordering matters, verify it in the project’s chosen tick groups;
+the API does not make a universal one-frame promise.

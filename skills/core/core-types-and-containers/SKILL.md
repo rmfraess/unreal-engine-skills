@@ -175,7 +175,7 @@ double  Dist = FVector::Dist(A, B);           // Dist:1017
 
 FQuat Q    = Actor->GetActorQuat();
 FQuat Rot  = FQuat(FVector::UpVector, FMath::DegreesToRadians(45.0));
-FQuat Comp = Q * Rot;                         // compose: apply Q then Rot
+FQuat Comp = Q * Rot;                         // compose: apply Rot then Q
 
 FQuat Blended = FQuat::Slerp(Q, Target, Alpha); // smooth interpolation
 

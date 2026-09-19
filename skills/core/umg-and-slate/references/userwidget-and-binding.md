@@ -20,15 +20,16 @@ to teardown is:
    assembled and `BindWidget` pointers are populated. Safe for one-time setup that does not
    need a visible widget or world context (e.g. sub-widget ref caching, non-gameplay delegate
    registration). Runs **before** the widget is ever shown.
-4. **`NativePreConstruct()`** (`UserWidget.h`:1583) — runs in the editor designer and on
-   every Blueprint compile. Used for design-time preview; do not do gameplay work here.
-5. **`NativeConstruct()`** (`UserWidget.h`:1584) — called when the widget is added to the
-   viewport/player screen (i.e. when it becomes visible). Analogous to `BeginPlay`. Bind
-   `OnClicked`, start timers, read game state.
+4. **`NativePreConstruct()`** (`UserWidget.h`:1583) — runs in the designer and at runtime.
+   Restrict it to cosmetic setup using locally owned data; use `IsDesignTime()` rather than
+   assuming editor-only execution.
+5. **`NativeConstruct()`** (`UserWidget.h`:1584) — follows construction of the underlying Slate
+   widget, including nested widgets. It is not exclusively an AddToViewport event and can run
+   again for the same UObject.
 6. **`NativeTick(Geometry, DeltaTime)`** (`UserWidget.h`:1586) — called each frame if ticking
    is enabled (see Tick section below).
-7. **`NativeDestruct()`** (`UserWidget.h`:1585) — called when the widget is removed from the
-   viewport. Clean up delegates, timers, and any resources created in `NativeConstruct`.
+7. **`NativeDestruct()`** (`UserWidget.h`:1585) — called when the underlying Slate widget is
+   torn down. Clean up delegates, timers, and any resources created in `NativeConstruct`.
 
 `NativeConstruct`/`NativeDestruct` can be called multiple times if the same widget instance
 is added and removed from the viewport repeatedly. `NativeOnInitialized` fires only once per
