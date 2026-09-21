@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Math/Quat.h"
 #include "Misc/AutomationTest.h"
+#include "Misc/CommandLine.h"
 #include "Modules/ModuleManager.h"
 #include "NiagaraDataChannelAccessContext.h"
 #include "NiagaraDataChannelFunctionLibrary.h"
@@ -190,5 +191,18 @@ bool FSkillAuditP1Test::RunTest(const FString& Parameters)
         OwnerKey.HasSameIndexAndSerialNumber(Target));
     TestEqual(TEXT("Explicit engine weak key funcs preserve first stale key"), WeakKeyMap.FindRef(OwnerKey), 1);
     TestEqual(TEXT("Explicit engine weak key funcs preserve second stale key"), WeakKeyMap.FindRef(Target), 2);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSkillAuditAutomationFailureProbe,
+    "SkillAudit.P2.AutomationFailureProbe",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FSkillAuditAutomationFailureProbe::RunTest(const FString& Parameters)
+{
+    if (FParse::Param(FCommandLine::Get(), TEXT("SkillAuditIntentionalFailure")))
+    {
+        AddError(TEXT("Intentional failure selected by -SkillAuditIntentionalFailure."));
+    }
     return true;
 }

@@ -11,6 +11,21 @@ editor, waits for completion, and checks the newly exported automation result.
 It does not open or change any production project. Generated output stays ignored;
 UBT/engine tools may also use their normal system caches and trace locations.
 
+To exercise the CI completion contract with separate fresh editor processes, run:
+
+```bash
+UE_ENGINE_ROOT='C:/Program Files/Epic Games/UE_5.8' python evals/fixtures/SkillAuditP1/run.py --verify-ci-contract
+```
+
+That mode runs the normal passing probe with `RunTests;SoftQuit`, then explicitly selects
+`SkillAudit.P2.AutomationFailureProbe` with `RunTest` and
+`-SkillAuditIntentionalFailure` in two more processes. The `Quit` case must exit non-zero;
+its forced termination can leave the just-emitted completion marker absent from the
+persisted log, so the fresh failed report remains required. The `SoftQuit` case reproduces the
+pinned Windows behavior where the failed report and non-zero `TEST COMPLETE` marker
+accompany process exit `0`. The wrapper rejects either failure as a passing test. Without
+the opt-in flag, the failure probe passes and cannot break the default run.
+
 Compile checks cover the submix-effect signature, functional-test cleanup signature,
 thread-safe shared-pointer default, and a native `FDelegateHandle` member in a reflected
 owner. The editor test covers case-insensitive string assertions, quaternion composition
@@ -39,7 +54,10 @@ The same probe compiles both `UFUNCTION(CallInEditor)` and
 parameter size. Both satisfy the Details button's metadata predicate in UE 5.8.2;
 the audit's assertion that the metadata form is malformed is not a verified P1 fix.
 
-Logs/results: `Saved/Build.log`, `Saved/Probe.log`, `Saved/Report/index.json`.
+Build output remains at `Saved/Build.log`. Each editor launch gets an isolated directory
+under `Saved/AutomationCI/` containing `Command.txt`, `Process.log`, `Editor.log`,
+`Result.json`, and `Report/index.json`; the runner deletes that directory before launch,
+bounds the process to five minutes, and rejects timeouts or missing/incomplete reports.
 `-nullrhi` deliberately excludes rendering. This is representative contract evidence,
 not exhaustive verification of every skill example, audio playback, functional-test
 actor cleanup, packaging, multiplayer, or third-party UDS/UDW assets.

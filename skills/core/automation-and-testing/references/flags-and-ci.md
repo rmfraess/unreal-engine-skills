@@ -67,39 +67,73 @@ treated as unclassified. Convenience masks: `EAutomationTestFlags_PriorityMask`,
 ### Run a test path prefix
 ```
 UnrealEditor-Cmd.exe MyGame.uproject
-  -ExecCmds="Automation RunTest MyGame.Combat;Quit"
+  -ExecCmds="Automation RunTest StartsWith:MyGame.Combat;Quit"
   -unattended -nopause -nullrhi
 ```
-`MyGame.Combat` matches all tests whose dotted path starts with that prefix.
+`RunTest` and `RunTests` are both accepted aliases in UE 5.8.2. Bare terms use
+substring matching; `StartsWith:` supplies prefix semantics.
 
 ### Run individual tests by name
 ```
--ExecCmds="Automation RunTest MyGame.Combat.DamageMath+MyGame.Inventory.AddItem;Quit"
+-ExecCmds="Automation RunTest ^MyGame.Combat.DamageMath$+^MyGame.Inventory.AddItem$;Quit"
 ```
-Separate multiple tests with `+`.
+Separate filters with `+`; `^...$` selects a full test name exactly.
 
 ### Run a named test group
 ```
 -ExecCmds="Automation RunTest Group:CI_Smoke;Quit"
 ```
-Groups are configured in `DefaultEngine.ini`:
-```ini
-[AutomationTestSettings]
-+AutomationTestGroups=(GroupName="CI_Smoke", Tests="MyGame.Combat,MyGame.Inventory")
-```
+`UAutomationControllerSettings::Groups` owns config-backed group names and filters.
+Confirm the named group exists in the project before using it in CI.
 
 ### Export results
 ```
 -ReportExportPath="TestResults/"
 ```
 Writes JSON and HTML files consumable by the Automation Test Report Server.
+Use a new empty directory for every ordinary CI launch. An old `index.json` can make a
+terminated or incomplete launch look successful if the pipeline only checks that a file
+exists.
 
 ### Resume an interrupted run
 ```
 -ReportExportPath="TestResults/" -ResumeRunTest
 ```
 Reads the existing JSON and skips tests already marked as run. In-progress tests
-from the previous run are marked as failed.
+from the previous run are marked as failed. Use this only for intentional resumption, not
+as the default CI recipe.
+
+### Completion and exit-status contract
+
+`RunTest`/`RunTests` queues test work. A following `Quit` or `SoftQuit` is also queued and
+is processed only after earlier automation commands finish. `Quit` requests forced exit;
+`SoftQuit` requests non-forced exit. At that final command, the controller checks report
+errors and command-line errors, emits
+`**** TEST COMPLETE. EXIT CODE: 0|-1 ****`, and requests process exit.
+
+On Windows UE 5.8.2 / CL 56702186, the distinction affects observable status: forced
+`Quit` terminates with the requested byte status (`-1` appears to the caller as non-zero),
+and a live run left the just-emitted marker absent from the persisted log despite the forced
+exit path's flush attempt. `SoftQuit` posts a clean quit request. A real failed `SoftQuit`
+probe produced a failed fresh report and marker `-1` but process status `0`, because the
+clean launch path returns its editor initialization result after leaving the main loop.
+`-unattended` only suppresses interactive UI.
+
+A CI wrapper should apply a bounded timeout and require every signal below:
+
+1. The editor process exits before the timeout.
+2. The process exit status is zero.
+3. A fresh `ReportExportPath/index.json` exists, parses, contains the expected test set,
+   and has zero `failed`, `notRun`, and `inProcess` counts.
+4. For `SoftQuit`, the completion marker appears in the current launch's log and reports
+   zero. Retain a `Quit` marker when present, but do not require it after forced termination.
+
+Any non-zero process status, timeout, stale/missing report, incomplete counts, unexpected
+test set, or missing/non-zero `SoftQuit` marker is unsuccessful verification. Wait for
+process exit; do not infer completion from the report appearing on disk. For a regression
+check of the wrapper itself, launch a deliberately failing test in a separate fresh process.
+Prefer `Quit` when CI requires test failure to propagate as a non-zero process status; with
+`SoftQuit`, the report and marker must reject the false-zero process result.
 
 ### Headless flags to always include in CI
 ```
@@ -109,7 +143,8 @@ from the previous run are marked as failed.
 -nosplash        # skip splash screen
 ```
 Add `-nullrhi` only when tests do not require rendering. Remove it for
-`NonNullRHI`-flagged tests or screenshot comparison tests.
+`NonNullRHI`-flagged tests, screenshot comparison tests, or any assertion whose evidence
+depends on a rendered frame. A NullRHI run provides no rendering acceptance evidence.
 
 ## Test naming convention
 
@@ -177,3 +212,16 @@ or running hour-scale stability/performance tests.
   `EAutomationTestFlags_PriorityMask`, etc.).
 - `Runtime/Core/Public/Misc/AutomationTest.h`:1608–1611 — `bSuppressLogWarnings`,
   `bElevateLogWarningsToErrors`, `SuppressedLogCategories`.
+- `Engine/Source/Developer/AutomationController/Private/AutomationCommandline.cpp`:133–163,
+  211–227 — `+`, substring, prefix, and exact filters; :478–504 — queued quit completion,
+  report-error check, marker, and status request; :610–628 — `RunTest`/`RunTests` aliases;
+  :726–745 — forced `Quit` and non-forced `SoftQuit` queue entries.
+- `Engine/Source/Developer/AutomationController/Public/AutomationControllerSettings.h`:
+  185–216 — config-backed group names and filters.
+- `Engine/Source/Developer/AutomationController/Private/AutomationControllerManager.cpp`:332–395 —
+  report initialization and optional resume; :725–768 — JSON generation/write;
+  :1093–1155 — final report export after test completion.
+- `Engine/Source/Runtime/Core/Private/Windows/WindowsPlatformMisc.cpp`:1474–1521 — forced exit uses
+  `TerminateProcess` with the requested status; non-forced exit uses `PostQuitMessage`.
+- `Engine/Source/Runtime/Launch/Private/Launch.cpp`:146–204 — the clean editor main loop returns its
+  initialization result after exit is requested.
