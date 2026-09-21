@@ -247,22 +247,27 @@ you return `false` or call `UE_RETURN_ON_ERROR`):
 
 **Editor:** Tools → Test Automation → Automation tab → select tests → Start Tests.
 
-**Command line / CI (headless):**
+**Command line / CI (CPU-only example):**
 ```
 UnrealEditor-Cmd.exe MyProject.uproject
-  -ExecCmds="Automation RunTest MyGame.Combat;Quit"
+  -ExecCmds="Automation RunTest StartsWith:MyGame.Combat;Quit"
   -unattended -nopause -nullrhi
   -ReportExportPath="TestResults/"
 ```
 Flags:
-- `-ExecCmds="Automation RunTest <filter>"` — dotted prefix runs all tests under it.
+- `RunTest` and `RunTests` are both accepted. Bare terms are substring matches; use
+  `StartsWith:<path>` for a dotted prefix, or `^<full-name>$` for an exact test.
+- Separate multiple filters with `+`.
 - `-ExecCmds="Automation RunTest Group:MyGroup;Quit"` — named test group (configured
-  via `AutomationTestGroup` in `DefaultEngine.ini`).
+  through `UAutomationControllerSettings::Groups`).
 - `-ReportExportPath` — writes JSON + HTML for a report server.
 - `-ResumeRunTest` — resume an interrupted run from a saved JSON report.
 
-Parse the exit code and log for pass/fail in your CI pipeline. A non-zero exit code
-indicates test failures when `-unattended` is set.
+Use a fresh report directory and bounded timeout. Require process exit with status `0`
+and a complete fresh report; failed `SoftQuit` can still return `0`, while forced `Quit`
+can leave its completion marker absent from the persisted log. `-unattended` only
+suppresses UI, and `-nullrhi` excludes rendering evidence. See
+[the CI reference](references/flags-and-ci.md#completion-and-exit-status-contract).
 
 ## Gotchas
 
