@@ -151,9 +151,17 @@ Exposure settings in `FPostProcessSettings`:
 - `AutoExposureMinBrightness` / `AutoExposureMaxBrightness` (lines 1994, 2002) —
   clamp the auto-exposure range (in EV100 or cd/m² depending on project setting)
 
-For predictable results, prefer **manual exposure** over auto: set
-`AutoExposureMethod` to `AEM_Manual` and fix the EV100 directly with `AutoExposureBias`.
-Auto-exposure "breathes" as the camera pans, which reads as incorrect to players.
+For a fixed-exposure review, inspect the existing setup before replacing it. Equal
+`AutoExposureMinBrightness` and `AutoExposureMaxBrightness` already disable adaptation;
+with `ExtendDefaultLuminanceRange` enabled those bounds are EV100. In manual mode,
+`AutoExposureBias` is exposure compensation (**positive is brighter**), not the camera's
+absolute EV100; physical camera exposure additionally depends on ISO, shutter and aperture.
+Verified in installed UE 5.8.2 `Engine/Scene.h:1928–2002`.
+
+When evaluating saved post-process exposure changes in the Editor, use the viewport's
+**Game Settings** exposure mode. A fixed viewport EV override can mask the volume's changes.
+Record that review state before both captures; do not confuse a presentation-only override
+with a persisted lighting adjustment.
 
 Color grading and tone curve live alongside exposure in the same struct; see
 [references/shadows-and-postprocess.md](references/shadows-and-postprocess.md).
@@ -216,6 +224,12 @@ On `ULocalLightComponent`:
   shadow cost; keep count per-area ≤ 4.
 - **Auto-exposure surprise** — scenes look inconsistent as the camera moves; use
   manual exposure for cinematic or stylized work.
+- **Post-reload comparison drift** — re-read and re-establish the viewport's Game View,
+  exposure mode and camera/lens after loading a map; presentation flags can reset even
+  when the camera pose remains unchanged. Inspect complete target geometry in each
+  captured frame: matching camera readbacks do not prove render resources have settled.
+  Retain a fresh complete redraw rather than presenting an incomplete early frame as a
+  lighting difference; on-demand stills still do not prove temporal stability.
 - **Sky Light not recapturing** — with `bRealTimeCapture = false`, the sky light bakes
   once; call `RecaptureSky()` or set `bRealTimeCapture = true` when the sky changes.
 - **VSM invalidation cost** — moving or spawning many Movable meshes near shadowed

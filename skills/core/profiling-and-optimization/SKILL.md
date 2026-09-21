@@ -242,6 +242,10 @@ overdraw, post-process stack, screen percentage, too many dynamic lights.
 | Memory growth | Avoid hard references pulling large assets; stream assets async (`asset-management`) |
 | Streaming hitches | Prestream assets before they're needed; adjust streaming budget |
 
+## Fixed-preset Windows PIE captures
+
+See [references/windows-pie-baselines.md](references/windows-pie-baselines.md) for verified native preset/readback, tick-driven capture, dynamic CSV columns, and observer limitations.
+
 ## Gotchas
 
 - **Profiling in Development/Editor** misleads on absolute timing; use Shipping-config

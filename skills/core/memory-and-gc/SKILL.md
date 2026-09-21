@@ -231,6 +231,13 @@ In UE 5.8.2 their public template default is `ESPMode::ThreadSafe`; opt into
 Full smart-pointer guide with thread-safety notes and `TSharedFromThis`:
 [references/smart-pointers.md](references/smart-pointers.md).
 
+## Windows Editor out-of-memory triage
+
+- Distinguish physical RAM, GPU memory, and Windows committed-memory exhaustion before choosing a fix. A UE crash reporting `The paging file is too small` requires checking the system commit limit, not merely pagefile current usage or GPU texture pools.
+- Query `Win32_ComputerSystem.AutomaticManagedPagefile`, `Win32_PageFileSetting`, `Win32_PageFileUsage`, free disk space, and `Win32_PerfFormattedData_PerfOS_Memory` (`CommitLimit`, `CommittedBytes`, `AvailableMBytes`). A fixed pagefile can exhaust commit headroom even when its current disk usage appears small.
+- With authorization and sufficient free disk space, prefer Windows-managed paging to a speculative fixed size. Use normal administrator approval, preserve prior settings, and never reboot or close unrelated applications without permission. For elevated PowerShell, prefer an inspected local script over nested inline quoting; do not bypass managed execution policies.
+- Verify configuration and effective capacity separately. `AutomaticManagedPagefile=True` with registry `PagingFiles=?:\\pagefile.sys` confirms the configured policy; it does not prove the running commit limit increased or the Unreal workload is fixed. When capacity is unchanged, pause heavy builds until restart and recheck headroom before a bounded representative retry.
+
 ## Gotchas
 
 - **Raw `UObject*` member without `UPROPERTY`** → collected → dangling crash. This is the #1 UE

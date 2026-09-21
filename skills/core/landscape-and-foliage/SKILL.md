@@ -69,15 +69,21 @@ uses 32 × 32 components with the same 4 total sections/component arranged 2 × 
 
 ### Material layers and `ULandscapeLayerInfoObject`
 
-Each paintable weight layer requires a `ULandscapeLayerInfoObject` data asset
-(`LandscapeLayerInfoObject.h`:59) paired with a `LandscapeLayerBlend` node in the landscape
-material. Layer weights are stored per-component in weightmap textures.
+Represent each paint target in the material (for example with `LandscapeLayerSample` or
+`LandscapeLayerBlend`) and assign a `ULandscapeLayerInfoObject`. Independent masks use
+non-weight-blended layer infos; they may overlap without summing to one.
 
-```cpp
-// Resolved paint weights: ULandscapeComponent::GetLayerWeightAtLocation.
-// Runtime queries need available CPU data; see references/landscape.md.
-// ULandscapeLayerInfoObject holds PhysicalMaterial and layer blend settings.
-```
+In UE 5.8.2, persist bindings in `ALandscapeProxy::TargetLayers`
+(`TMap<FName, FLandscapeTargetLayerSettings>`); populating `ULandscapeInfo::Layers` alone
+can appear to work and then lose the bindings/paint on reload. Inspect the installed
+assignment implementation, use a suitable native setter, and prove map unload/reopen
+before acceptance. Do not replace this with an `EditorLayerSettings` recipe from an
+older engine version.
+
+Read edit-layer arrays and resolved component weightmaps separately. The verified
+5.8.2 resolved path is `ULandscapeComponent::GetLayerWeightAtLocation`; Python's
+`editor_get_paint_layer_weight_by_name_at_location` uses its final-data path. Query
+representative overlaps and component seams after reopen, not only the writer's accessor.
 
 **Edit Layers** (`LandscapeEditLayer.h`) allow non-destructive stacking of sculpt/paint
 operations — each edit layer renders additively/subtractively into the final heightmap.
@@ -87,6 +93,16 @@ operations — each edit layer renders additively/subtractively into the final h
 `ALandscapeSplineActor` (`LandscapeSplineActor.h`:14) owns a `ULandscapeSplinesComponent`
 containing control points and segments. Splines deform terrain beneath them (raise/lower)
 and optionally spawn static meshes along their length as decoration or road surfaces.
+
+For scripted spline placement, verify the actual owning `ULandscapeSplinesComponent`
+transform. Its world scale can differ from the Landscape actor scale. Control-point
+Location is Landscape/component-local, Width is half-width, and native connection
+TangentLen is signed. Read native points, component transform and segment connections
+independently of service setters/getters; a shared wrong transform can make a round-trip
+pass. Preserve an immutable base-height checksum, accepted-generation identity and a
+before-image before coupled height/mask writes. Region API calls are not one atomic
+transaction: fail closed on partial writes, retain recovery evidence, and prove an edit,
+exact restore and affected manual contacts before promising regeneration safety.
 
 ### Nanite landscape
 

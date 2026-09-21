@@ -239,6 +239,16 @@ on the component. Use `FCollisionQueryParams::bTraceComplex = true` to query com
 - **`SetSimulatePhysics(true)` silently does nothing** — the mesh has no simple collision,
   or `SetCollisionEnabled` is `NoCollision`/`QueryOnly`.
 
+## Persisting decorative collision policy
+
+For saved static-mesh decorations, set a named `NoCollision` profile rather than only
+calling `SetCollisionEnabled(NoCollision)`. In UE 5.8.2,
+`UStaticMeshComponent::SetCollisionProfileName` disables `bUseDefaultCollision`; leaving
+that flag enabled can restore the asset's BlockAll profile on reload. Verify profile,
+enabled mode and default-collision flag after map unload/reopen, then exercise both
+simple and complex queries. Keep source mesh collision assets unchanged when the
+policy belongs to the placed component.
+
 ## Version notes
 
 Chaos replaced PhysX as the default physics engine in UE5. The Chaos solver runs

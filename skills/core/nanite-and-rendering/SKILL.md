@@ -127,6 +127,16 @@ for higher-fidelity RT shadows/reflections.
 
 Both are described in [references/nanite.md](references/nanite.md).
 
+## Native foliage wind: verify the component path
+
+For UE 5.8 Dynamic Wind, inspect the actual component and wind data before tuning a global wind value. Epic's documented path is a skeletal mesh with Dynamic Wind Skeletal Data, an **Instanced Skinned Mesh Component**, and assigned Transform Provider Data. An ordinary SkeletalMeshComponent with no animation is not automatically registered by enabling the plugin; adding an AnimBP is not the documented Dynamic Wind setup. Component conversion, required data assets and source-mesh export are separate mutation decisions.
+
+Distinguish PVE static export from skeletal export: the UE 5.8 `PVExportParams` documentation says static export has no wind animation support; skeletal export includes bones and requires `wind_settings`. A static mesh can still use explicitly authored material WPO, but do not infer that path from a foliage material's name. Trace its actual graph, parameter values and component WPO settings.
+
+Trace a vendor's direction control to its consuming node before mapping it to physical wind: a vector connected to RotateAboutAxis is a rotation axis, not a velocity direction. A successful material-collection setter/readback proves control state only; require visible deformation at recorded runtime views before claiming motion.
+
+Verified sources: [Epic Nanite Foliage, UE 5.8](https://dev.epicgames.com/documentation/en-us/unreal-engine/nanite-foliage?application_version=5.8), [Epic PVExportParams](https://dev.epicgames.com/documentation/en-us/unreal-engine/python-api/class/PVExportParams.html), and installed UE 5.8.2 `DynamicWindData.h/.cpp` (InstancedSkinned provider proxy and skeletal asset-user-data lookup).
+
 ## Rendering pipeline overview
 
 ### Deferred vs forward

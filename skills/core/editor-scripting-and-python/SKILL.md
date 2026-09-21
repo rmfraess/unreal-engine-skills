@@ -264,6 +264,24 @@ Source: `Runtime/CoreUObject/Public/UObject/ObjectMacros.h:1285`.
 - **Long Python jobs block the editor UI** — wrap with `unreal.ScopedSlowTask` and yield
   `enter_progress_frame` to keep the editor responsive and allow cancellation.
 - **Treating `time.sleep()` as an Unreal frame wait** — Python normally blocks the editor/game thread, so sleeping does not advance component registration, shader/render-resource readiness, foliage rebuilds, visibility, SceneCapture work, or render-target completion. Use a verified post-tick callback, latent automation command, or other tick-driven state machine. For visual evidence after asset load/import/reimport, load `unreal-editor-python` and follow **Tick-Driven Render Verification**; missing target pixels are inconclusive, not asset failure.
+- **Unexposed editor settings classes** — if a native config class lacks an `unreal.ClassName` binding, load its verified `/Script/Module.ClassName` with `load_class` and obtain its default object. Use the native property names when snake-case aliases do not exist. In UE 5.8.2, `LevelEditorPlaySettings` was accessible this way with `NewWindowWidth`, `NewWindowHeight`, and `CenterNewWindow`; no new plugin or reflection wrapper was needed.
+- **Live reflected containers** — a map returned by `get_editor_property` can be a live
+  view: item assignment may change native state even when a later property setter rejects
+  a read-only property. Copy the container before preparing edits, avoid mutating shared
+  struct values, use proper edit notifications, and inspect state after a failed setter.
+- **Rotation construction** — use named `pitch=`, `yaw=`, and `roll=` arguments for new `unreal.Rotator` values. Verified UE 5.8.2 positional construction `Rotator(-22, 52, 0)` yielded roll=-22, pitch=52, yaw=0; read camera rotation back before capture.
+- **Imported mesh validation** — a non-null material instance is not proof of complete rendering dependencies. Follow its parent chain to a material and query Asset Registry package dependencies; missing plugin master materials and missing vendor textures require different remedies. Verify a rendered representative before scaling up placement.
+- **Exact transform restoration** — in verified UE 5.8.2 bindings, the `Rotator(...)`
+  constructor rounded native double angles. For exact restore, create an empty Rotator
+  and assign its pitch/yaw/roll properties with the retained native values; then compare
+  native state again. Do not weaken exact-restore checks to hide constructor loss.
+- **Struct inspection** — reflected function discovery may omit native struct helpers.
+  Verify installed bindings before assuming absence: `HitResult.to_dict()` exposes typed
+  hit actors/components, while `StructBase.export_text()` can retain native connection
+  references. Prefer typed dictionaries where available; validate any text parsing against
+  exact field boundaries and known object identities.
+- **VibeUE Python pre-execution saves** — inspect the installed execution wrapper before using `execute_python_code` under a selective-save or dirty-state-preservation constraint. Verified VibeUE 5.0 `UPythonTools::ExecutePythonCode` gathers dirty content and world packages and calls `UEditorLoadingAndSavingUtils::SavePackages` before executing the script. An in-script dirty check is too late. Prefer dedicated read operations until the dirty/save boundary is independently established; never use this wrapper merely to inspect unknown dirty state.
+- **Post-tick work can outlive an adapter timeout** — a callback registered by `execute_python_code` can begin a long native compile before the HTTP response flushes, so the client may time out while the callback continues and saves successfully. Do not retry the mutation. Read its progress artifact, WorkflowService run journal, Editor heartbeat, and persisted asset state first. On Windows, make advisory progress checkpoints tolerant of `Path.replace()` sharing violations caused by concurrent readers; the authoritative run journal must still close.
 - **Forgetting to save** — call `EAS->SaveAsset()` or the Python equivalent; unsaved
   changes to assets are lost when the editor closes.
 - **Hardcoding asset paths** — use the Asset Registry to discover paths dynamically; see
