@@ -1,6 +1,17 @@
 ---
 name: ue-uds-modifiers-configs-state
-description: Use UDS's higher-level state features — Sky Modifiers (data assets that override sky/post-process properties, time-of-day-triggered modifiers), the Configuration Manager (save/apply complete UDS configs, runtime Apply Sky Configuration, configuration override), Save UDS+UDW state for save games, Sun Lens Flare, Post Process Components driven by time/weather/interior, Interior Adjustments + Player Occlusion (with UDS Occlusion Volume and Portal), Water Level (caustics, underwater fog, Water Body Classes), Ambient Sound — Time and Weather Controlled, and the UDS Onscreen Controls widget (with multiplayer client controller). Use any time the user asks about saving/loading sky presets, applying a different sky config, save-game serialization for time/weather, sun lens flare, post-processing tied to time of day, indoor vs outdoor differences, water/underwater effects, ambient sounds that change with time, or an on-screen UI to control the sky.
+description: >-
+  Save, apply, and restore Ultra Dynamic Sky configurations and sky/weather state — Sky Modifiers
+  (data assets that override sky/post-process properties, time-of-day-triggered modifiers), the
+  Configuration Manager and Configuration Buttons (save/apply complete UDS configs, runtime Apply
+  Sky Configuration, configuration override), Save UDS+UDW state for save games, Sun Lens Flare,
+  Post Process Components driven by time/weather/interior, Interior Adjustments + Player Occlusion
+  (with UDS Occlusion Volume and Portal), Water Level (caustics, underwater fog, Water Body
+  Classes), Ambient Sound — Time and Weather Controlled, the UDS Onscreen Controls widget (with
+  multiplayer client controller), and update-safe child blueprints. Use when saving/loading sky
+  presets or UDS/UDW state, applying configs, modifying UDS via child blueprints, or setting up
+  lens flare, time/weather/interior post-processing, interior adjustments, water/underwater
+  effects, time-aware ambient sound, or on-screen controls.
 metadata:
   asset: Ultra Dynamic Sky (marketplace)
   category: state-management

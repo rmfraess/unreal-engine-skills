@@ -1,6 +1,7 @@
 ---
 name: ue-lighting-and-lumen
-description: Light Unreal scenes in C++ and configure them correctly — light component
+description: >-
+  Configure Unreal lighting and Lumen in C++ — light component
   types (UDirectionalLightComponent, UPointLightComponent, USpotLightComponent,
   URectLightComponent, USkyLightComponent), mobility (Static/Stationary/Movable) and
   its impact on GI, baking, and runtime cost, Lumen global illumination and reflections

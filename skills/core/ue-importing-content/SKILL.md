@@ -1,15 +1,18 @@
 ---
 name: ue-importing-content
-description: Import external assets into Unreal using the Interchange framework (UInterchangeManager,
-  UInterchangePipelineBase, UInterchangeFactoryBase, UInterchangeTranslatorBase, UInterchangeSourceData)
-  and the legacy FBX pipeline (UFbxFactory / UnFbx::FFbxImporter). Covers the three-stage
-  Interchange pipeline (translate → pipeline → factory), pipeline stacks, format support
-  (FBX, glTF/GLB, OBJ, USD, images, audio), mesh and texture import settings (units/axes,
-  normals, lightmap UVs, Nanite, sRGB/compression), skeletal mesh skeleton assignment,
-  import asset data (UInterchangeAssetImportData / UAssetImportData), and programmatic
-  runtime import via C++, Blueprint, and Python. Use when importing DCC content, troubleshooting
-  wrong scale/rotation/shading after import, scripting automated batch import, customising
-  an import pipeline, or setting up a repeatable reimport workflow.
+description: >-
+  Interchange/FBX import, LOD reimport, and material slots. Import external assets into Unreal
+  using the Interchange framework (UInterchangeManager,
+  UInterchangePipelineBase, UInterchangeFactoryBase, UInterchangeTranslatorBase,
+  UInterchangeSourceData) and the legacy FBX pipeline (UFbxFactory / UnFbx::FFbxImporter). Covers
+  the three-stage Interchange pipeline (translate → pipeline → factory), pipeline stacks, format
+  support (FBX, glTF/GLB, OBJ, USD, images, audio), mesh and texture import settings (units/axes,
+  normals, lightmap UVs, Nanite, sRGB/compression), skeletal mesh skeleton assignment, import
+  asset data (UInterchangeAssetImportData / UAssetImportData), and programmatic runtime import via
+  C++, Blueprint, and Python. Use when importing DCC content, troubleshooting wrong
+  scale/rotation/shading after import or gray/default meshes and persistent shading seams after
+  LOD reimport, scripting automated batch import, customising an import pipeline, or setting up a
+  repeatable reimport workflow.
 metadata:
   engine-version: "5.8"
   category: content-assets

@@ -1,13 +1,16 @@
 ---
 name: ue-module-and-build-system
-description: Structure Unreal C++ into modules and configure the build with *.Build.cs
+description: >-
+  Build.cs/Target.cs, UBT modules, include and link errors. Structure Unreal C++ into modules
+  and configure the build with *.Build.cs
   (ModuleRules) and *.Target.cs (TargetRules). Use when creating a new module, splitting
   code out of an existing module, adding a dependency, fixing "unresolved external symbol" /
-  "cannot open include file" / "module not found" link errors, choosing public vs private
+  "cannot open include file" / "module not found" errors, choosing public vs private
   dependencies, wiring IMPLEMENT_MODULE / IMPLEMENT_PRIMARY_GAME_MODULE / IModuleInterface,
   setting the module loading phase or host type, or understanding how UnrealBuildTool (UBT)
-  discovers and compiles modules. Related to plugins: see ue-plugins-and-modules for packaging
-  modules inside .uplugin files.
+  discovers and compiles modules. Use ue-plugins-and-modules for .uplugin descriptors, plugin
+  content mounting, and plugin distribution; load both when plugin work also changes module
+  build rules.
 metadata:
   engine-version: "5.8"
   category: cpp-foundations

@@ -1,13 +1,13 @@
 ---
 name: ue-character-and-movement
-description: Implement player/AI characters in Unreal C++ with ACharacter and
-  UCharacterMovementComponent — capsule/mesh setup, movement modes
-  (walking/falling/flying/swimming/custom), rotation behaviors, jumping,
-  crouching, root motion sources, client-predicted networked movement, and the
-  experimental Mover plugin successor. Use when creating or configuring a
-  Character class, setting movement speeds/gravity/air-control, overriding a
-  custom movement mode (PhysCustom), adding root motion, or debugging network
-  smoothing and prediction on a character.
+description: >-
+  Implement player/AI characters in Unreal C++ with ACharacter and UCharacterMovementComponent —
+  capsule/mesh setup, movement modes (walking/falling/flying/swimming/custom), rotation behaviors,
+  jumping, crouching, root motion sources, client-predicted networked movement, and the
+  experimental Mover plugin successor. Use when creating or configuring a Character class, setting
+  movement speeds/gravity/air-control, overriding a custom movement mode (PhysCustom), adding root
+  motion, or debugging network smoothing, prediction artifacts, or crouching silently failing on a
+  character.
 metadata:
   engine-version: "5.8"
   category: gameplay-framework

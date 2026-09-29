@@ -1,12 +1,14 @@
 ---
 name: ue-core-types-and-containers
-description: Use Unreal's core C++ types instead of the standard library — containers
-  (TArray, TMap, TSet, TQueue, TArrayView), string types (FString, FName, FText,
-  TStringBuilder) with conversion patterns and localization rules, math types (FVector,
-  FRotator, FQuat, FTransform) with Large World Coordinates (LWC/double precision), and
-  utility types (TOptional, TVariant, TTuple). Use when writing any UE C++ that stores
-  collections, manipulates strings, does 3D math, or when choosing between FString/FName/
-  FText, between std:: and UE containers, or between FRotator and FQuat for rotation.
+description: >-
+  TArray/TMap/TSet, FString/FName/FText, and Unreal math types. Use Unreal's core C++ value types
+  instead of standard-library equivalents — containers (TArray, TMap, TSet, TQueue, TArrayView),
+  string types (FString, FName, FText, TStringBuilder) with conversion patterns and localization
+  rules, math types (FVector, FRotator, FQuat, FTransform) with Large World Coordinates
+  (LWC/double precision), and utility types (TOptional, TVariant, TTuple). Use when selecting or
+  using collections, strings/localization, 3D math, rotation types (FRotator vs FQuat), or Unreal
+  optional/variant/tuple types. Use ue-memory-and-gc for UObject lifetime and smart-pointer
+  ownership choices.
 metadata:
   engine-version: "5.8"
   category: cpp-foundations

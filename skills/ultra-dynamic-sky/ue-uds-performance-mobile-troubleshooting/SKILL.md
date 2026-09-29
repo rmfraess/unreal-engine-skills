@@ -1,6 +1,16 @@
 ---
 name: ue-uds-performance-mobile-troubleshooting
-description: Tune Ultra Dynamic Sky for performance, configure for mobile/consoles, update UDS safely, modify it via child blueprints, and resolve common runtime issues. Covers Sky Mode perf impact, Volumetric Cloud Rendering Mode, sample scales, Two Layers, Sky Light Mode tradeoffs, Volumetric Fog scalability, Half Rate Tick, Use Sky Mode Scalability Map, Lights Update settings, the Mobile category + Platform Feature Levels map, updating UDS from the Fab launcher (default vs custom location), Static Properties functions, Hard Reset Cache, Max Property Cache Period, and fixes for black scene, ambient light not updating, slow Lumen GI adaptation, runtime property changes that take a second or don't apply, hard cloud/mesh intersections, blurry/streaky/dark clouds, hard fog lines, sky flickering black, low-quality volumetric fog, and missing Space Layer.
+description: >-
+  UDS performance, mobile, and static-property cache failures. Tune Ultra Dynamic Sky for
+  performance, configure for mobile/consoles, update UDS safely, modify it via child blueprints,
+  and resolve common runtime issues. Covers Sky Mode perf impact, Volumetric Cloud Rendering Mode,
+  sample scales, Two Layers, Sky Light Mode tradeoffs, Volumetric Fog scalability, Half Rate Tick,
+  Use Sky Mode Scalability Map, Lights Update settings, the Mobile category + Platform Feature
+  Levels map, updating UDS from the Fab launcher (default vs custom location), Static Properties
+  functions, Hard Reset Cache, Max Property Cache Period, and fixes for black scene, ambient light
+  not updating, slow Lumen GI adaptation, runtime property changes that take a second or don't
+  apply, hard cloud/mesh intersections, blurry/streaky/dark clouds, hard fog lines, sky flickering
+  black, low-quality volumetric fog, and missing Space Layer.
 metadata:
   asset: Ultra Dynamic Sky (marketplace)
   category: performance

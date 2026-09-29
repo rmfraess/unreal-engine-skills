@@ -1,6 +1,8 @@
 ---
 name: ue-timers-and-async
-description: Schedule and defer work in Unreal C++ — FTimerManager (SetTimer with FTimerHandle,
+description: >-
+  Timers, worker tasks, and game-thread result dispatch. Schedule and defer work in Unreal C++ —
+  FTimerManager (SetTimer with FTimerHandle,
   looping and one-shot timers, SetTimerForNextTick, ClearTimer, PauseTimer/UnPauseTimer,
   timer delegates with payloads), async work (Async/EAsyncExecution, AsyncTask/ENamedThreads,
   TFuture/TPromise, FNonAbandonableTask/FAutoDeleteAsyncTask/FAsyncTask, FRunnable/FRunnableThread,

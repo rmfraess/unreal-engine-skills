@@ -1,6 +1,8 @@
 ---
 name: ue-navigating-engine-source
-description: Locate, read, and cite exact Unreal Engine APIs in the on-disk engine source
+description: >-
+  Find Unreal source headers, owning modules, and signatures. Locate, read, and cite exact Unreal
+  Engine APIs in the on-disk engine source
   instead of guessing. Use when you need a real function signature, class hierarchy,
   UPROPERTY/UFUNCTION specifier, module name, or include path; when verifying that an API
   exists in UE 5.8; when resolving "which module do I add to Build.cs?"; or when an API

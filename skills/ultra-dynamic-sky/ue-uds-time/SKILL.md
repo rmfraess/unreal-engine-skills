@@ -1,6 +1,14 @@
 ---
 name: ue-uds-time
-description: Control Time of Day on Ultra Dynamic Sky — setting/animating time, day/night cycles, the runtime functions (Set Time with Time Code, Set Time of Day with String, Transition Time of Day), the getter functions (Get Time of Day, Get Time Code, Get Date Time, Is It Daytime), and the event dispatchers (Sunrise, Sunset, Midnight, Hourly, Current Hour Changed, Every Minute, Custom Time). Use any time the user asks about time-of-day cycles, day/night transitions, animating time, triggering events at sunrise/sunset/midnight, displaying a clock, setting time programmatically, time speed / Day Length / Night Length, or syncing game events to the in-game time — even if they don't mention UDS in a project that already uses it.
+description: >-
+  Control Time of Day on Ultra Dynamic Sky — setting/animating time, day/night cycles, the runtime
+  functions (Set Time with Time Code, Set Time of Day with String, Transition Time of Day), the
+  getter functions (Get Time of Day, Get Time Code, Get Date Time, Is It Daytime), and the event
+  dispatchers (Sunrise, Sunset, Midnight, Hourly, Current Hour Changed, Every Minute, Custom Time).
+  Use any time the user asks about time-of-day cycles, day/night transitions, animating time,
+  triggering events at sunrise/sunset/midnight, displaying a clock, setting time programmatically,
+  time speed / Day Length / Night Length, syncing game events to in-game time, or replicating UDS
+  time/date across multiplayer — even if they don't mention UDS in a project that already uses it.
 metadata:
   asset: Ultra Dynamic Sky (marketplace)
   category: time

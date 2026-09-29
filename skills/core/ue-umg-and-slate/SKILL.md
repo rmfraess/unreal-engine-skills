@@ -1,19 +1,17 @@
 ---
 name: ue-umg-and-slate
-description: Build game UI in Unreal — UMG user widgets (UUserWidget) with the C++ lifecycle
-  (NativeOnInitialized, NativeConstruct, NativeDestruct, NativeTick), the widget tree and
-  common leaf/panel widgets (UButton/UTextBlock/UImage/UProgressBar/UCanvasPanel/UHorizontalBox/
-  UVerticalBox/UOverlay), the meta=(BindWidget/BindWidgetOptional) pattern to wire C++ to
-  Blueprint-designed widgets, CreateWidget + AddToViewport / RemoveFromParent, UWidgetComponent
-  for 3D in-world UI, event binding (OnClicked AddDynamic), the Slate layer (SWidget,
-  SCompoundWidget, declarative syntax), and CommonUI for input-routed multiplatform menus —
-  plus UI best practices and performance optimization: invalidation boxes/retainer boxes/
-  volatility, widget pooling (FUserWidgetPool, ListView), event-driven updates instead of
-  property bindings or Tick, Canvas Panel nesting rules, animation cost tiers, MVVM
-  viewmodels (FieldNotify), CommonUI layer stacks (the Lyra pattern), DPI scaling, and safe
-  zones. Use when creating HUDs/menus/inventory/widgets, wiring UI to gameplay in C++,
-  handling button/input events, choosing UMG vs Slate vs CommonUI, debugging BindWidget name
-  mismatches, optimizing slow UI, or architecting screen flow for a production game.
+description: >-
+  Build Unreal UI with UMG, Slate, and CommonUI: `UUserWidget` lifecycle (`NativeOnInitialized`,
+  `NativeConstruct`, `NativeDestruct`, `NativeTick`), widget trees and controls/panels (`UButton`,
+  `UTextBlock`, `UImage`, `UProgressBar`, `UCanvasPanel`, `UHorizontalBox`, `UVerticalBox`,
+  `UOverlay`), `BindWidget`/`BindWidgetOptional`, `CreateWidget`/`AddToViewport`/`RemoveFromParent`,
+  `UWidgetComponent` 3D UI, `OnClicked`/`AddDynamic`, Slate (`SWidget`, `SCompoundWidget`,
+  declarative syntax), and CommonUI input-routed menus. Covers invalidation/retainer boxes,
+  volatility, pooling (`FUserWidgetPool`, `ListView`), event-driven updates over bindings/Tick,
+  Canvas nesting, animation cost tiers, MVVM `FieldNotify`, CommonUI layer stacks (Lyra), DPI
+  scaling, and safe zones. Use when creating HUDs/menus/inventory widgets, wiring gameplay data,
+  handling button/input events, choosing UMG vs Slate vs CommonUI, debugging `BindWidget`
+  mismatches, fixing slow UI, building in-world widgets, or structuring production screen flow.
 metadata:
   engine-version: "5.8"
   category: ui

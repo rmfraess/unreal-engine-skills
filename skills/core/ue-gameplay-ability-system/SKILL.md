@@ -1,16 +1,18 @@
 ---
 name: ue-gameplay-ability-system
-description: Build abilities, attributes, and effects with Unreal's Gameplay Ability System (GAS)
-  — UAbilitySystemComponent (ASC), UGameplayAbility with ActivateAbility/CommitAbility/EndAbility,
-  UAttributeSet with FGameplayAttributeData and ATTRIBUTE_ACCESSORS macro, UGameplayEffect with
+description: >-
+  Implement Unreal's Gameplay Ability System (GAS) — UAbilitySystemComponent (ASC),
+  UGameplayAbility with ActivateAbility/CommitAbility/EndAbility, UAttributeSet with
+  FGameplayAttributeData and ATTRIBUTE_ACCESSORS macro, UGameplayEffect with
   Instant/HasDuration/Infinite policies and GE Components, FGameplayAbilitySpec for granting,
-  UAbilityTask for async steps (WaitDelay, PlayMontageAndWait, WaitGameplayEvent), GameplayCues for
-  networked VFX/SFX, instancing policies (InstancedPerActor/InstancedPerExecution), net execution
-  policies (LocalPredicted/ServerOnly), and replication modes (Full/Mixed/Minimal). Use when
-  implementing abilities with cooldowns/costs/tags, health/stamina/mana attributes, buffs/debuffs/
-  damage via Gameplay Effects, ability tasks for async gameplay, Gameplay Cues for cosmetic feedback,
-  or networked server-authoritative ability activation with client prediction. GAS requires the
-  GameplayAbilities plugin and AbilitySystemGlobals initialization.
+  UAbilityTask for async steps (WaitDelay, PlayMontageAndWait, WaitGameplayEvent), Gameplay Cues
+  for networked VFX/SFX, instancing policies (InstancedPerActor/InstancedPerExecution), net
+  execution policies (LocalPredicted/ServerOnly), and replication modes (Full/Mixed/Minimal). Use
+  when building abilities with cooldowns/costs/tags, health/stamina/mana attributes, Gameplay
+  Effect buffs/debuffs/damage, async ability tasks, or server-authoritative activation with client
+  prediction; diagnose silent montage or target-data prediction failures when
+  UAbilitySystemGlobals::Get().InitGlobalData() is missing. Requires the GameplayAbilities plugin
+  and AbilitySystemGlobals initialization.
 metadata:
   engine-version: "5.8"
   category: gameplay-framework

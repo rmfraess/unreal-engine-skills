@@ -1,12 +1,15 @@
 ---
 name: ue-blueprint-cpp-integration
-description: Expose C++ classes, functions, and properties to Blueprint in Unreal Engine — UFUNCTION
-  specifiers (BlueprintCallable, BlueprintPure, BlueprintImplementableEvent, BlueprintNativeEvent),
-  UPROPERTY exposure (BlueprintReadWrite/ReadOnly, EditAnywhere/DefaultsOnly, ExposeOnSpawn),
-  UCLASS specifiers (Blueprintable, BlueprintType), meta=(...) tags, Blueprint function libraries,
-  TSubclassOf/soft references, and Blueprint-implementable interfaces. Use when deciding which
-  specifiers to put on C++ members or functions, designing a designer-facing API, calling between
-  C++ and Blueprint, or debugging missing nodes/properties/events in the Blueprint graph.
+description: >-
+  Expose Unreal C++ APIs to Blueprint with reflection specifiers — `UFUNCTION`
+  (`BlueprintCallable`, `BlueprintPure`, `BlueprintImplementableEvent`, `BlueprintNativeEvent`),
+  `UPROPERTY` exposure (`BlueprintReadWrite`/`BlueprintReadOnly`,
+  `EditAnywhere`/`EditDefaultsOnly`, `ExposeOnSpawn`), `UCLASS` (`Blueprintable`,
+  `BlueprintType`), `meta=(...)` tags, Blueprint function libraries, `TSubclassOf` and soft
+  references, and Blueprint-implementable interfaces. Use when choosing specifiers, designing a
+  designer-facing API, calling between C++ and Blueprint, or diagnosing missing graph nodes,
+  properties, or events. For Blueprint asset classes, graph types, Construction Script, and the
+  C++-base/Blueprint-subclass model, see `ue-blueprint-fundamentals`.
 metadata:
   engine-version: "5.8"
   category: blueprints

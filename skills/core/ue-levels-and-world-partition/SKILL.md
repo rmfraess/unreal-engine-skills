@@ -1,6 +1,7 @@
 ---
 name: ue-levels-and-world-partition
-description: Structure and stream Unreal worlds in C++ — UWorld (persistent level +
+description: >-
+  Structure Unreal levels and World Partition streaming in C++ — UWorld (persistent level +
   streaming levels), ULevel, ULevelStreaming; World Partition (UWorldPartition, runtime
   spatial-hash grid, UWorldPartitionRuntimeCell, streaming sources/UWorldPartitionStreamingSourceComponent);
   Data Layers (UDataLayerAsset, UDataLayerInstance, UDataLayerManager, EDataLayerRuntimeState);

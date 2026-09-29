@@ -1,6 +1,11 @@
 ---
 name: ue-game-thread-performance
-description: Explain how game-thread time drives frame rate and how to optimize it. Use when profiling CPU-bound frame-time spikes, tick-heavy actors, hitches, or when deciding whether to move work off the game thread.
+description: >-
+  Diagnose CPU-bound Unreal Game-thread frame-time spikes and hitches — use when `stat unit` or
+  `stat game` shows Game-thread dominance, tick-heavy actors or Blueprint hot paths are costly, or
+  you need to decide what work can safely move off the Game thread. Covers frame-budget reasoning,
+  reducing per-frame work, timers/events, caching, background CPU work, and returning UObject or
+  actor mutations to the Game thread.
 metadata:
   engine-version: "5.8"
   category: performance

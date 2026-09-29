@@ -1,6 +1,17 @@
 ---
 name: ue-uds-simulation
-description: Use Ultra Dynamic Sky's real-world astronomical simulation — Simulate Real Sun, Simulate Real Moon, Simulate Real Stars; latitude/longitude/time zone setup; North Yaw; daylight savings; city presets; the simulation date; Simulation Speed; and Use System Time (sync with the OS clock). Use any time the user mentions real-world sun position, latitude/longitude, city presets, accurate sunrise/sunset times for a real location, real star map, real moon phases matching a date, North direction in the level, daylight savings handling, or syncing in-game time to the player's actual system clock.
+description: >-
+  UDS real-world sun/moon/stars and system-clock sync. Use Ultra Dynamic Sky's real-world
+  astronomical simulation - Simulate Real Sun, Simulate Real Moon, Simulate Real Stars;
+  latitude/longitude/time zone setup; North Yaw; daylight savings; city presets; the simulation
+  date; Simulation Speed; and Use System Time (sync with the OS clock). Use in an Ultra Dynamic
+  Sky project for real-world sun position, accurate sunrise/sunset for a location/date, real star
+  maps or dated moon phases, North direction, daylight savings, or syncing in-game time to the
+  player's system clock. Also use when Simulate Real Sun makes Day Length, Night Length, Dawn
+  Time, or Dusk Time ineffective, or the sun is hours out of position after a location change.
+  Use ue-uds-time for ordinary day/night cycles and time events, and ue-uds-sun-moon-stars for
+  manual placement and celestial appearance. This is UDS configuration, not general astronomy
+  or OS clock troubleshooting.
 metadata:
   asset: Ultra Dynamic Sky (marketplace)
   category: simulation

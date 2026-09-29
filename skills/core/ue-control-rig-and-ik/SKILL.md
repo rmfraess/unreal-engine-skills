@@ -1,6 +1,8 @@
 ---
 name: ue-control-rig-and-ik
-description: Procedural animation and inverse kinematics in Unreal Engine — Control Rig
+description: >-
+  Control Rig, IK solvers, and IK Retargeter/runtime retargeting. Procedural animation and inverse
+  kinematics in Unreal Engine — Control Rig
   (RigVM-based graph that manipulates a bone/control hierarchy), IK Rig (solver definitions
   with Full-Body IK, Limb IK, Set Transform), the IK Retargeter (transfers animation
   between skeletons of different proportions), and lightweight AnimGraph IK nodes

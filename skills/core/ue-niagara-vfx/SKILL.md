@@ -1,6 +1,7 @@
 ---
 name: ue-niagara-vfx
-description: Create and control visual effects using Unreal's Niagara system — UNiagaraSystem,
+description: >-
+  Spawn and control Niagara VFX in Unreal — UNiagaraSystem,
   UNiagaraComponent, UNiagaraFunctionLibrary; the system/emitter/module/parameter hierarchy;
   spawning effects at a world location or attached to an actor/socket (SpawnSystemAtLocation,
   SpawnSystemAttached); setting User Parameters from C++ (SetVariableFloat, SetVariableVec3,
@@ -8,7 +9,8 @@ description: Create and control visual effects using Unreal's Niagara system —
   Data Interfaces (skeletal mesh, static mesh, collision); component lifetime management
   (bAutoDestroy, Activate/Deactivate, OnSystemFinished); and Niagara Data Channels. Use when
   spawning particle or VFX (fire, smoke, impacts, trails, magic), attaching effects to actors
-  or sockets, driving an effect from gameplay parameters, choosing CPU vs GPU emitters, or
+  or sockets, driving an effect from gameplay parameters, triggering Niagara from animation
+  notifies or GAS Gameplay Cues, choosing CPU vs GPU emitters, or
   migrating from Cascade (deprecated).
 metadata:
   engine-version: "5.8"

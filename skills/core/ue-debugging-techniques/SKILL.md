@@ -1,13 +1,13 @@
 ---
 name: ue-debugging-techniques
-description: Debug Unreal C++ and gameplay code — native debugger usage (VS/Rider, natvis, Live
-  Coding caveats), DrawDebug* world-space helpers (DrawDebugLine, DrawDebugSphere, DrawDebugString,
-  etc.), on-screen messages (GEngine->AddOnScreenDebugMessage), the Visual Logger (UE_VLOG*,
-  timestamped replay of spatial/temporal events), the Gameplay Debugger (FGameplayDebuggerCategory,
-  custom categories), ensure/check as debugging aids, and stat/console commands for runtime
-  interrogation. Use when diagnosing wrong behavior, visualizing traces/ranges/AI state in the
-  world, reproducing intermittent or AI bugs with timeline replay, stepping through a crash, or
-  adding in-game debug overlays to a custom system.
+description: >-
+  Diagnose Unreal gameplay bugs with DrawDebug helpers, the Visual Logger, Gameplay Debugger, and
+  the native C++ debugger. Covers DrawDebugLine, DrawDebugSphere, DrawDebugString and world overlays,
+  `GEngine->AddOnScreenDebugMessage`, `UE_VLOG*` timestamped spatial replay, custom
+  `FGameplayDebuggerCategory` overlays, VS/Rider debugger/natvis and Live Coding caveats, ensure/check
+  aids, and console/stat interrogation. Use when behavior is wrong, traces/ranges/AI state need
+  visualization, an intermittent bug needs timeline replay, a crash needs a callstack, or a custom
+  system needs an in-game debug view.
 metadata:
   engine-version: "5.8"
   category: tooling

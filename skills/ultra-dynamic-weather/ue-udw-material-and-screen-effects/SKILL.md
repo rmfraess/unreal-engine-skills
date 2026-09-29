@@ -1,6 +1,17 @@
 ---
 name: ue-udw-material-and-screen-effects
-description: Add weather-responsive material effects and screen-space effects with Ultra Dynamic Weather — Surface Weather Effects (wetness/snow/dust/dripping/droplets), Dynamic Landscape Weather Effects V3 (DLWE) with the DLWE Interaction component for trails/ripples, Glass Window Rain Drips, Foliage Wind Movement, Water Surface Rain Ripples, the Sample UDW Material State / Season / Wind nodes, plus screen/environmental effects — Rainbow, Screen Droplets, Screen Frost, Heat Distortion, Post Process Wind Fog, Puddle Fluid Volume (with fluid interactions), Dripping Mesh Particles, Freezing Breath, Rain Drip Spline (with icicles), and the Weather Occlusion Volume. Use any time the user asks about materials responding to weather, footprints/tracks in snow, puddles, rain on windows, foliage sway, rain ripples on water, rainbow, screen droplets/frost, heat haze, breath in cold weather, or water dripping from a roof edge.
+description: >-
+  UDW materials, DLWE footprints/ripples, and screen effects. Add weather-responsive material
+  effects and screen-space effects with Ultra Dynamic Weather — Surface Weather Effects
+  (wetness/snow/dust/dripping/droplets), Dynamic Landscape Weather Effects V3 (DLWE) with the DLWE
+  Interaction component for trails/ripples, Glass Window Rain Drips, Foliage Wind Movement, Water
+  Surface Rain Ripples, the Sample UDW Material State / Season / Wind nodes, plus
+  screen/environmental effects — Rainbow, Screen Droplets, Screen Frost, Heat Distortion, Post
+  Process Wind Fog, Puddle Fluid Volume (with fluid interactions), Dripping Mesh Particles,
+  Freezing Breath, Rain Drip Spline (with icicles), and the Weather Occlusion Volume. Use any time
+  the user asks about materials responding to weather, footprints/tracks in snow, puddles, rain on
+  windows, foliage sway, rain ripples on water, rainbow, screen droplets/frost, heat haze, breath
+  in cold weather, or water dripping from a roof edge.
 metadata:
   asset: Ultra Dynamic Weather (marketplace)
   category: material-and-screen-effects
