@@ -32,7 +32,7 @@ Every task is scored on three layers, in order:
 | Layer | Check | How |
 |---|---|---|
 | 1. Compiles | Code builds against UE 5.8 with no errors | Drop generated files into a scratch UE 5.8 C++ project (`Source/<Module>/`) and build the Development Editor target |
-| 2. API truth | Every engine class/function/specifier used actually exists with that signature | Spot-check against `E:\Program Files\Epic Games\UE_5.8\Engine\Source` |
+| 2. API truth | Every engine class/function/specifier used actually exists with that signature | Spot-check against `Engine/Source` under `UE_ENGINE_ROOT` |
 | 3. Task criteria | The task's specific acceptance criteria | Listed per task file |
 
 Record results as pass/fail per criterion. A task "passes" only when all three layers do.
@@ -59,11 +59,12 @@ title: <short name>
 ## Running a compile check
 
 Create (once) a scratch project `EvalScratch` from the UE 5.8 "Blank C++" template,
-then for each eval output:
+set `UE_ENGINE_ROOT` to the installation directory containing `Engine/`, then for
+each eval output (PowerShell):
 
 ```
 # copy generated .h/.cpp into EvalScratch/Source/EvalScratch/
-& "E:\Program Files\Epic Games\UE_5.8\Engine\Build\BatchFiles\Build.bat" `
+& "$env:UE_ENGINE_ROOT\Engine\Build\BatchFiles\Build.bat" `
   EvalScratchEditor Win64 Development -Project="<path>\EvalScratch.uproject" -WaitMutex
 ```
 

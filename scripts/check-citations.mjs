@@ -12,9 +12,7 @@
  *   node scripts/check-citations.mjs            # check all skills
  *   node scripts/check-citations.mjs core/ue-gameplay-tags   # check one skill dir
  *
- * Engine root resolution:
- *   1. UE_ENGINE_ROOT env var (the directory that CONTAINS Engine/), if set.
- *   2. E:\Program Files\Epic Games\UE_5.8 (this machine's primary install).
+ * Set UE_ENGINE_ROOT to the directory that contains Engine/.
  *
  * Exit code 0 = all cited paths exist; 1 = at least one missing (or engine
  * root not found).
@@ -28,8 +26,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
 const skillsRoot = path.join(repoRoot, 'skills');
 
-const DEFAULT_ENGINE_ROOT = 'E:\\Program Files\\Epic Games\\UE_5.8';
-const engineRoot = process.env.UE_ENGINE_ROOT?.trim() || DEFAULT_ENGINE_ROOT;
+const engineRoot = process.env.UE_ENGINE_ROOT?.trim();
 
 // Matches Engine/Source/... and Engine/Plugins/... citations ending in a
 // source-ish extension. Trailing punctuation from prose is stripped afterwards.
@@ -76,6 +73,10 @@ async function findMarkdownFiles(dir) {
 }
 
 async function main() {
+  if (!engineRoot) {
+    console.error('[check-citations] Set UE_ENGINE_ROOT to the directory that contains Engine\\.');
+    process.exit(1);
+  }
   if (!(await isDir(path.join(engineRoot, 'Engine')))) {
     console.error(`[check-citations] Engine root not found: ${engineRoot}`);
     console.error('[check-citations] Set UE_ENGINE_ROOT to the directory that contains Engine\\.');

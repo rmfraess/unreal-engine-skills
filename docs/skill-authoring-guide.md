@@ -63,7 +63,7 @@ Order skills roughly like this. Omit sections that don't apply.
 - **Target UE 5.8.** Snippets must be valid against 5.8. When an API differs across 5.x,
   add a short *Version note*.
 - **Ground in real source, and always reference it.** Cite verified paths under
-  `E:\Program Files\Epic Games\UE_5.8\Engine\Source\...`. Prefer naming the header and class
+  `Engine/Source/...` in your UE 5.8 installation. Prefer naming the header and class
   (e.g. `GameFramework/Actor.h` → `AActor`) over vague references. If unsure of a signature,
   read the header before asserting it. **Every skill must include a "References & source
   material" section** with at least one verified engine-source path (and official UE 5.8 doc

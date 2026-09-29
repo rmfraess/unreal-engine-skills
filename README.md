@@ -21,9 +21,9 @@ correct in Unreal*, not *which tool to operate*.
 
 | Item | Value |
 |---|---|
-| Primary engine version | **UE 5.8** (`E:\Program Files\Epic Games\UE_5.8`) |
+| Primary engine version | **UE 5.8** |
 | Engine source for cross-ref | 5.8 (binary install incl. source); 5.7 install kept for version diffing |
-| Engine source root (5.8) | `E:\Program Files\Epic Games\UE_5.8\Engine\Source` |
+| Engine source root (5.8) | `Engine/Source` under `UE_ENGINE_ROOT` |
 
 Skills target 5.8 APIs. Where an API moved or changed between 5.x versions, the skill notes it.
 
@@ -189,14 +189,15 @@ skills-ref validate ./skills/<category>/<skill-name>
 ```
 
 Verify that every engine-source citation in the skills still exists on disk (run after
-editing skills, and when re-targeting a new engine version):
+editing skills, and when re-targeting a new engine version). First set
+`UE_ENGINE_ROOT` to your UE 5.8 installation directory (the one containing `Engine/`):
 
 ```
 node scripts/check-citations.mjs            # all skills
 node scripts/check-citations.mjs core/ue-gameplay-tags   # one skill
 ```
 
-Set `UE_ENGINE_ROOT` if your engine install is not at the default path.
+
 
 ## Evals
 
