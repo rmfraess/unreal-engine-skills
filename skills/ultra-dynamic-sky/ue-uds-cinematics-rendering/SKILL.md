@@ -170,7 +170,7 @@ Full lightning details in `ue-udw-particles-lightning-wind-sounds`.
 - **Keyframed Time of Day has no effect** — `Animate Time of Day` is still on and overriding. Disable it.
 - **Keyframed Cloud Coverage / Fog on UDS has no effect** — UDW is in the scene. Keyframe on UDW's manual weather state instead.
 - **Cloud movement looks different each playback** — `Randomize Cloud Formation On Run` is on, or `Clouds Move With Time of Day` is on. Disable both for deterministic playback.
-- **Cloud movement loops with a visible seam** — one of the looping recipe steps is missing (often Formation Change Speed ≠ 1, or 3D Noise Vertical Movement ≠ 0).
+- **Cloud movement loops with a visible seam** — check all looping recipe steps, including the Formation Change Speed / Cloud Phase pairing (1 with 0 → 100, or 0.5 with 0 → 200) and `3D Noise Vertical Movement` = 0.
 - **Exposed-to-cinematics variable doesn't actually update at runtime** — not dynamically re-applied. Call `Static Properties - <Category>` every frame.
 - **Game perf is terrible after rendering** — Project Mode is still on **Cinematic / Offline**. Switch back to Game / Real-time.
 - **Path-traced render shows no height fog in the distance** — `Render Height Fog In Path Tracer Using Post Process` is off. The path tracer lacks native height fog; UDS approximates via post process when enabled.
