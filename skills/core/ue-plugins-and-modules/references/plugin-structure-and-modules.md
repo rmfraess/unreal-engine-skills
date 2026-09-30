@@ -237,6 +237,6 @@ dependent module will get an "unresolved external symbol" link error.
 - `Runtime/Core/Public/Modules/ModuleInterface.h` — `IModuleInterface`, all hooks
 - `Runtime/Core/Public/Modules/ModuleManager.h` — `IMPLEMENT_MODULE`:946,
   `FDefaultModuleImpl`:884
-- Example: `E:\Program Files\Epic Games\UE_5.8\Engine\Plugins\FX\Niagara\Niagara.uplugin`
+- Example: `Engine/Plugins/FX/Niagara/Niagara.uplugin` under `UE_ENGINE_ROOT`
   (multi-module plugin with Runtime, UncookedOnly, and Editor modules)
 - Official doc: <https://dev.epicgames.com/documentation/unreal-engine/plugins-in-unreal-engine>

@@ -1,7 +1,8 @@
 # Finding APIs in the engine source
 
-Deep-dive companion to [../SKILL.md](../SKILL.md). Grounded in UE 5.8 at
-`E:\Program Files\Epic Games\UE_5.8\Engine\Source` (Build.version: 5.8.1).
+Deep-dive companion to [../SKILL.md](../SKILL.md). Grounded in UE 5.8
+`Engine/Source/`. Resolve `UE_ENGINE_ROOT` and the exact local version as described there;
+substitute that root for `<UE_ENGINE_ROOT>` in examples.
 
 A repeatable, step-by-step playbook for locating any class, function, or type
 without guessing. Uses tools available to an agent (Grep, Glob, Read).
@@ -14,7 +15,7 @@ without guessing. Uses tools available to an agent (Grep, Glob, Read).
 
 1. **Glob for the header** — most UE types have a header named after them:
    ```
-   Glob("**/*.h", path="E:/Program Files/Epic Games/UE_5.8/Engine/Source")
+   Glob("**/*.h", path="<UE_ENGINE_ROOT>/Engine/Source")
    → filter for "GameplayTagContainer.h"
    ```
    Result: `Runtime\GameplayTags\Classes\GameplayTagContainer.h`.
@@ -46,7 +47,7 @@ without guessing. Uses tools available to an agent (Grep, Glob, Read).
 
 1. **Grep for the symbol** — limit to one pass of headers:
    ```
-   Grep("SpawnActor", path="E:/Program Files/Epic Games/UE_5.8/Engine/Source/Runtime/Engine/Classes/Engine/World.h",
+   Grep("SpawnActor", path="<UE_ENGINE_ROOT>/Engine/Source/Runtime/Engine/Classes/Engine/World.h",
         output_mode="content")
    ```
    Scan the output for the templated overload signature.
@@ -111,15 +112,11 @@ Steps:
 
 ## Workflow 6 — Comparing a signature across engine versions
 
-Use the other available engine roots:
+Resolve a separate installation root for each version being compared; confirm
+each exact version in `Engine/Build/Build.version`. The historical authoring comparison
+used 5.5.1, 5.7, and 5.8.1; their former paths are recorded in [../SKILL.md](../SKILL.md).
 
-| Version | Root |
-|---|---|
-| 5.5.1 | `E:\Repo\Git\UE_5_5_1_Fresh\UnrealEngine\Engine\Source` |
-| 5.7 | `E:\Program Files\Epic Games\UE_5.7\Engine\Source` |
-| 5.8.1 (primary) | `E:\Program Files\Epic Games\UE_5.8\Engine\Source` |
-
-Grep the same symbol in all three, then diff the results. When an API changed
+Grep the same symbol in each resolved `Engine/Source/` tree, then diff the results. When an API changed
 between versions, document the version it changed in the skill or code you produce.
 
 ---

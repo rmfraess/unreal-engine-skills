@@ -103,7 +103,7 @@ if `BlueprintReadWrite`/`BlueprintReadOnly` is set).
 ### Other useful specifiers
 | Specifier | Effect |
 |---|---|
-| `Category="Group|Sub"` | Details panel hierarchy (required for all exposed properties). |
+| `Category="Group|Sub"` | Details panel hierarchy; explicit categories are required for exposed properties in engine modules (`Engine/Source/Programs/Shared/EpicGames.UHT/Types/UhtProperty.cs`). |
 | `AdvancedDisplay` | Shown under the Advanced dropdown in Details. |
 | `NoClear` | Hides the clear (null) button for object references. |
 | `EditFixedSize` | Array size is immutable; only elements can be edited. |

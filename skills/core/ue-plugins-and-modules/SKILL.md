@@ -1,14 +1,13 @@
 ---
 name: ue-plugins-and-modules
-description: Create, structure, and manage Unreal Engine plugins — the .uplugin descriptor
-  (FileVersion, Modules array, CanContainContent, EnabledByDefault, Plugins dependencies),
-  plugin folder layout (Source/Content/Resources), EHostType module types (Runtime, Editor,
-  Developer, UncookedOnly, ServerOnly, ClientOnly) and ELoadingPhase values, IModuleInterface
-  StartupModule/ShutdownModule, IPluginManager/IPlugin runtime queries, content-only plugins,
-  engine vs project plugins, explicit-load plugins, plugin dependency hierarchy, and packaging
-  for distribution. Use when creating a reusable plugin, deciding plugin vs project module,
-  structuring an editor or runtime plugin, wiring plugin module C++, enabling plugins in a
-  project, or troubleshooting a plugin that won't load or whose content won't mount.
+description: >-
+  Use when creating a plugin or choosing plugin vs project module; structuring runtime/editor or
+  content-only plugins; wiring modules; enabling or troubleshooting plugin loading/content mounts;
+  or packaging for distribution. Covers `.uplugin` fields (FileVersion, Modules, CanContainContent,
+  EnabledByDefault, Plugins), Source/Content/Resources layout, EHostType (Runtime, Editor,
+  Developer, UncookedOnly, ServerOnly, ClientOnly) and ELoadingPhase, IModuleInterface
+  StartupModule/ShutdownModule, IPluginManager/IPlugin queries, engine/project and explicitly
+  loaded plugins, and dependency hierarchy.
 metadata:
   engine-version: "5.8"
   category: tooling
@@ -302,7 +301,9 @@ For code-level dependencies between modules inside or across plugins, list the m
 
 ## References & source material
 
-Engine source (UE 5.8, under `E:\Program Files\Epic Games\UE_5.8\Engine\Source\`):
+Set `UE_ENGINE_ROOT` to the installation directory containing `Engine/`; read
+`Engine/Build/Build.version` there for the exact local version.
+Engine source (UE 5.8; paths below relative to `Engine/Source/` under that root):
 - `Runtime/Projects/Public/PluginDescriptor.h` — `FPluginDescriptor`:38,
   `EPluginEnabledByDefault`:28, `Modules` field:90, `bCanContainContent`:127,
   `Plugins` field:174.
@@ -317,7 +318,7 @@ Engine source (UE 5.8, under `E:\Program Files\Epic Games\UE_5.8\Engine\Source\`
 - `Runtime/Core/Public/Modules/ModuleInterface.h` — `IModuleInterface`, `StartupModule`:49,
   `ShutdownModule`:79.
 
-Real example descriptor: `E:\Program Files\Epic Games\UE_5.8\Engine\Plugins\FX\Niagara\Niagara.uplugin`
+Real example descriptor: `Engine/Plugins/FX/Niagara/Niagara.uplugin` under `UE_ENGINE_ROOT`.
 
 Official docs (UE 5.8):
 - Plugins in Unreal Engine —

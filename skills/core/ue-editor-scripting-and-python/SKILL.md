@@ -1,18 +1,15 @@
 ---
 name: ue-editor-scripting-and-python
 description: >-
-  Editor Python, asset batches, and Editor Utility Widgets. Automate and extend the Unreal Editor
-  using Python (the unreal module, startup scripts, commandlets), Editor Utility
-  Widgets/Blueprints (Blutility - UEditorUtilityWidget, UEditorUtilityObject,
-  UEditorUtilityWidgetBlueprint, UAssetActionUtility), the editor scripting subsystems
-  (UEditorActorSubsystem, UEditorAssetSubsystem, ULevelEditorSubsystem, UAssetEditorSubsystem,
-  UEditorUtilitySubsystem), and how C++ UFUNCTION specifiers (BlueprintCallable, CallInEditor,
-  ScriptMethod, ScriptName) control which APIs surface in Python and Blueprints. Use when
-  batch-processing assets, building in-editor tools or dockable UMG panels, running headless
-  Python commandlets in CI, scripting repetitive editor tasks, or exposing custom C++ editor APIs
-  to Python/Blueprints. Editor-only, not packaged-game logic. Use ue-blueprint-cpp-integration for
-  runtime Blueprint API exposure and ue-umg-and-slate for widget layout/input; load together as
-  needed for editor tools.
+  Automate Unreal Editor tasks with Python (the unreal module, startup scripts, commandlets),
+  Editor Utility Widgets/Blueprints (UEditorUtilityWidget, UEditorUtilityObject,
+  UEditorUtilityWidgetBlueprint, UAssetActionUtility), editor subsystems (UEditorActorSubsystem,
+  UEditorAssetSubsystem, ULevelEditorSubsystem, UAssetEditorSubsystem, UEditorUtilitySubsystem),
+  and UFUNCTION specifiers (BlueprintCallable, CallInEditor, ScriptMethod, ScriptName). Use when
+  batch-processing assets, building dockable UMG tools, running CI commandlets, automating
+  repetitive editor tasks, or exposing C++ APIs to editor Python/Blueprints. Editor-only, not
+  packaged-game logic. Use ue-blueprint-cpp-integration for runtime Blueprint API exposure and
+  ue-umg-and-slate for widget layout/input; load together as needed.
 metadata:
   engine-version: "5.8"
   category: tooling

@@ -114,8 +114,8 @@ meaningful for every model.
 1. Author one `UMaterial` with **parameter nodes** (Scalar Parameter, Vector
    Parameter, Texture Parameter) for everything that varies across surfaces.
 2. Create `UMaterialInstanceConstant` assets (child instances) in the Content
-   Browser for static art variants — they share the compiled shader, adding no
-   recompile cost and almost no memory overhead.
+   Browser for art variants. Scalar/vector/texture overrides reuse the parent shader;
+   static parameters and qualifying base-property overrides can require separate shader permutations.
 3. At runtime, call `CreateDynamicMaterialInstance` on a component to get a
    `UMaterialInstanceDynamic` when a value must change during play.
 
@@ -133,7 +133,7 @@ attributes, static switches, and custom HLSL nodes.
 UMaterialInstanceDynamic* MID =
     MeshComp->CreateDynamicMaterialInstance(0, BaseMaterial);
 
-// MaterialInstanceDynamic.h — three core setters (thread-safe game-thread calls)
+// MaterialInstanceDynamic.h — three core setters (call on the game thread)
 MID->SetScalarParameterValue(TEXT("DamageAmount"), 0.75f);
 MID->SetVectorParameterValue(TEXT("TeamColor"), FLinearColor(0.f, 0.f, 1.f, 1.f));
 MID->SetTextureParameterValue(TEXT("DetailTex"), MyTexture);
@@ -220,8 +220,9 @@ Enable only what the content actually uses; extra usages silently grow compile t
   `UMaterialParameterCollection` assets.
 - **Static switch combinations**: each unique combination is a separate compiled
   shader. With N static switches you can have 2^N permutations.
-- **MID lifetime**: hold the returned `UMaterialInstanceDynamic*` in a
-  `UPROPERTY()` member or it will be garbage-collected.
+- **MID lifetime**: retain GC-visible strong ownership. A strong `UPROPERTY()` member
+  is appropriate for independent retention; assignment to a reachable mesh component's
+  material slot also retains the MID.
 
 ## Version notes — Substrate materials
 
@@ -261,6 +262,9 @@ Engine source (UE 5.8, `Engine/Source/Runtime/Engine/`):
   `SetScalarParameterValue`:30; `SetVectorParameterValue`:34.
 - `Classes/Components/PrimitiveComponent.h` — `SetMaterial`:1600;
   `CreateDynamicMaterialInstance`:1629.
+- `Private/Materials/MaterialInstance.cpp` — static permutation creation and game-thread parameter updates.
+- `Classes/Components/MeshComponent.h` — GC-visible `OverrideMaterials` references.
+- `Private/Components/PrimitiveComponent.cpp` — `CreateDynamicMaterialInstance` creation/reuse behavior.
 
 Official docs (UE 5.8):
 - Materials overview —

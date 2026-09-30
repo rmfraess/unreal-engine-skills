@@ -1,14 +1,13 @@
 ---
 name: ue-uds-setup-and-modes
 description: >-
-  UDS Sky Mode, Feature Level, and mobile-mode selection. Add Ultra Dynamic Sky (UDS) to a level
-  and choose its top-level modes — Sky Mode
-  (Volumetric/Static/2D/Voxel/Aurora/Space), Color Mode (Sky Atmosphere vs Simplified), Project
-  Mode (Game vs Cinematic), Feature Level (Desktop/Mobile). Use whenever the user mentions adding
-  UDS to a scene, the UDS actor not working, choosing between cloud types, setting up the sky in a
-  new level, mobile/console targets, or anything in the "Basic Controls" category — even when
-  phrased generically like "why are my volumetric clouds missing on mobile", "switch to
-  performance-friendly clouds", or "is there a space-only sky mode".
+  Use when adding UDS to a level, setting up Basic Controls, choosing cloud/space modes, or
+  targeting mobile/console. Covers top-level `Sky Mode` (`Volumetric Clouds`, `Static Clouds`,
+  `2D Dynamic Clouds`, `No Clouds`, `Volumetric Aurora`, `Space`, `Voxel Clouds`), `Color Mode`
+  (`Sky Atmosphere` or `Simplified Color`), `Project Mode` (`Game / Real-time` or
+  `Cinematic / Offline`), and `Feature Level` (`Desktop` or `Mobile`). Also use for a UDS actor
+  not working, volumetric clouds missing on mobile, switching to performance-friendly clouds,
+  or choosing a space-only sky mode.
 metadata:
   asset: Ultra Dynamic Sky (marketplace)
   category: setup

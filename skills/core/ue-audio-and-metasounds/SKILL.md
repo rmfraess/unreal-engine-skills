@@ -173,12 +173,15 @@ UQuartzClockHandle* Clock = Quartz->CreateNewClock(this, TEXT("MusicClock"),
 // Schedule a sound to start on the next bar boundary:
 FQuartzQuantizationBoundary Boundary;
 Boundary.Quantization = EQuartzCommandQuantization::Bar;
-Boundary.BoundaryType = EQuarztQuantizationBoundaryType::FromNow;
+Boundary.CountingReferencePoint = EQuarztQuantizationReference::BarRelative;
 AC->PlayQuantized(GetWorld(), Clock, Boundary, {});
 ```
 
 The Quartz subsystem (`UQuartzSubsystem`) lives in the Audio Mixer module.
 `UAudioComponent::PlayQuantized` is declared in `AudioComponent.h`:521.
+The boundary member and intentionally spelled `EQuarztQuantizationReference` enum are
+declared in `Runtime/Engine/Classes/Sound/QuartzQuantizationUtilities.h`.
+`BarRelative` matches the sample's next-bar scheduling intent.
 
 ## Triggering from gameplay & animation
 
@@ -227,6 +230,9 @@ Engine source (UE 5.8):
   `Play`:517, `Stop`:583, `FadeIn`:500, `FadeOut`:511, `SetFloatParameter`:548,
   `SetBoolParameter`:534, `SetIntParameter`:541, `SetWaveParameter`:622,
   `OnAudioFinished`:456, `GetPlayState`:605, `SetSubmixSend`:644.
+- `Runtime/Engine/Classes/Sound/QuartzQuantizationUtilities.h` —
+  `EQuarztQuantizationReference`, `FQuartzQuantizationBoundary::CountingReferencePoint`.
+- `Runtime/AudioMixer/Private/Quartz/QuartzMetronome.cpp` — bar-relative scheduling.
 - `Runtime/Engine/Public/Audio/SoundParameterControllerInterface.h` —
   `ISoundParameterControllerInterface`:24, `SetTriggerParameter`:32.
 - `Runtime/Engine/Classes/Sound/SoundBase.h` — `USoundBase`:108,

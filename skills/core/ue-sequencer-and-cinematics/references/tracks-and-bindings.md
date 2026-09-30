@@ -104,11 +104,25 @@ AActor* Actor = GetBoundActor(ObjectBinding);
 
 ## Dynamic Binding (UE 5.4+)
 
-Dynamic Binding (`dynamic-binding-in-sequencer` doc) is a newer mechanism that lets a
-Blueprint subclass of the Director decide *which* object to resolve for each binding,
-rather than using the override table. It replaces the old "Binding Overrides" pattern for
-fresh code. Under the hood it hooks `ULevelSequence::IterateDynamicBindings` (editor-only)
-and a `UClass`-derived resolver at runtime.
+Dynamic Binding is custom resolution authored with the sequence, commonly through a
+Director Blueprint endpoint or a custom replaceable binding. Use it when object selection
+belongs to the sequence and should resolve from playback context. Use
+`ALevelSequenceActor::SetBinding` / `SetBindingByTag` when gameplay code already knows the
+actors to assign to a particular sequence actor. Both mechanisms remain supported;
+Dynamic Binding is not a blanket replacement for runtime overrides.
+
+With `bAllowBindingsFromAsset = false`, a valid actor override suppresses asset resolution,
+including custom/dynamic binding resolution. With `true`, asset resolution continues and
+can add objects alongside the explicit actors. Choose that flag deliberately.
+
+Runtime custom resolution passes through `FMovieSceneBindingReferences::ResolveBindingInternal`;
+the Director binding invokes `FMovieSceneDynamicBindingInvoker::ResolveDynamicBinding`.
+`ULevelSequence::IterateDynamicBindings` is editor-only enumeration, not runtime dispatch.
+Source evidence:
+- `Engine/Source/Runtime/LevelSequence/Private/LevelSequencePlayer.cpp` — override/default resolution gate.
+- `Engine/Source/Runtime/MovieScene/Private/MovieSceneBindingOverrides.cpp` — override composition.
+- `Engine/Source/Runtime/MovieScene/Private/MovieSceneBindingReferences.cpp` — custom resolution.
+- `Engine/Source/Runtime/MovieSceneTracks/Private/Bindings/MovieSceneReplaceableDirectorBlueprintBinding.cpp` — Director endpoint invocation.
 
 ## Sections and channels
 

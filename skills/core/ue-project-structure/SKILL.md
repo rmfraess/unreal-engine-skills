@@ -1,17 +1,12 @@
 ---
 name: ue-project-structure
 description: >-
-  .uproject descriptors, Config ini files, and Unreal layout. Navigate and configure an Unreal
-  Engine project — the .uproject descriptor (FProjectDescriptor: FileVersion, EngineAssociation,
-  Modules, Plugins), the standard folder layout (Config/ with Default*.ini files, Content/,
-  Source/ with the primary game module, Plugins/, and generated
-  Binaries/Intermediate/DerivedDataCache/Saved/ folders), the config file hierarchy and ini syntax
-  (sections, array operators, UPROPERTY(config), GConfig), content virtual paths (/Game/ /Engine/),
-  and which files to source-control versus ignore. Use when creating or opening a project, editing
-  .uproject modules or plugin references, changing settings via Config Default*.ini, deciding what
-  to commit to Git/Perforce, writing a .gitignore, understanding EngineAssociation, registering a
-  primary game module, or debugging wrong engine version, stale generated headers, or
-  config-not-applying problems.
+  Use when creating, opening, or navigating a project; editing `.uproject` modules, plugins, or
+  `EngineAssociation`; changing `Config/Default*.ini` or debugging config precedence; registering
+  the primary game module; choosing what to commit/ignore in Git or Perforce; writing `.gitignore`;
+  or fixing wrong-engine, stale-header, or config-not-applying issues. Covers `FProjectDescriptor`
+  (`FileVersion`, `EngineAssociation`, `Modules`, `Plugins`), folder layout, ini hierarchy/operators
+  (`UPROPERTY(config)`, `GConfig`), and `/Game/`/`/Engine/` mount paths.
 metadata:
   engine-version: "5.8"
   category: cpp-foundations

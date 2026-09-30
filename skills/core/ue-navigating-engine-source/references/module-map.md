@@ -1,8 +1,7 @@
 # Engine module map
 
-Deep-dive companion to [../SKILL.md](../SKILL.md). Grounded in UE 5.8 at
-`E:\Program Files\Epic Games\UE_5.8\Engine\Source` (version confirmed via
-`Engine\Build\Build.version`: MajorVersion 5, MinorVersion 8, PatchVersion 1).
+Deep-dive companion to [../SKILL.md](../SKILL.md). Grounded in UE 5.8
+`Engine/Source/`. Resolve `UE_ENGINE_ROOT` and the exact local version as described there.
 
 This reference lists the most frequently needed modules, what they own, and
 where their headers live. Use it to resolve "which module do I add to Build.cs?"

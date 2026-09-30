@@ -1,7 +1,8 @@
 # Build.cs (ModuleRules) Reference
 
 Grounded in UE 5.8 engine source:
-`E:\Program Files\Epic Games\UE_5.8\Engine\Source\Programs\UnrealBuildTool\Configuration\Rules\ModuleRules.cs`
+`Engine/Source/Programs/UnrealBuildTool/Configuration/Rules/ModuleRules.cs`
+(relative to `UE_ENGINE_ROOT`, resolved as described in [../SKILL.md](../SKILL.md)).
 
 See also: [../SKILL.md](../SKILL.md)
 
@@ -138,7 +139,7 @@ rather than shipping separate files.
 - `ModuleRules.cs`:1270 — `PrivateDependencyModuleNames`
 
 All paths under:
-`E:\Program Files\Epic Games\UE_5.8\Engine\Source\Programs\UnrealBuildTool\Configuration\Rules\`
+`Engine/Source/Programs/UnrealBuildTool/Configuration/Rules/` under `UE_ENGINE_ROOT`.
 
 Official docs:
 - Module Properties — <https://dev.epicgames.com/documentation/unreal-engine/module-properties-in-unreal-engine>

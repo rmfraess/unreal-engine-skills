@@ -37,9 +37,10 @@ For an object created with `NewObject<T>(Outer)`:
 4. Object is returned to the caller. No gameplay context exists yet.
 
 For objects loaded from a package (`PostLoad` path):
-1. Memory is allocated; deserialized data is applied (properties loaded from the archive).
-2. `PostLoad()` — versioning, fixup, and upgrade logic. Called instead of `PostInitProperties`
-   for loaded objects; the two are mutually exclusive.
+1. The object is constructed and receives `PostInitProperties` before serialization.
+2. Deserialized data is applied (properties loaded from the archive).
+3. `PostLoad()` — versioning, fixup, and upgrade logic after loading. These callbacks are
+   not mutually exclusive; `PostLoad` is not called for newly created objects (`UObject/Object.h`).
 
 For `CreateDefaultSubobject` (constructor only):
 - Creates the subobject immediately and registers it as a default subobject of the outer class.
@@ -58,7 +59,7 @@ For `CreateDefaultSubobject` (constructor only):
 
 ## GC destruction sequence
 
-When a UObject becomes unreachable (no `UPROPERTY` or root-set reference holds it) and the GC runs:
+When a UObject becomes unreachable through GC-visible references and the GC runs:
 
 1. `BeginDestroy()` (`Object.h`:361) — release async/render-thread resources. Called immediately
    when the GC marks the object for deletion. The object is still in memory; do not access it from
@@ -94,13 +95,15 @@ UObject
   └─ UField
        └─ UStruct          (Class.h:495) — base for all structured types
             ├─ UClass       (Class.h:3893) — runtime descriptor for UCLASS types; has CDO
-            └─ UScriptStruct (Class.h:1774) — runtime descriptor for USTRUCT types; no CDO, no GC
+            └─ UScriptStruct (Class.h:1774) — UObject descriptor for USTRUCT value types
 ```
 
 - `UClass` is what `T::StaticClass()` returns for any UObject-derived type. It carries the CDO,
   the `ClassFlags`, and the `ClassConstructor`.
-- `UScriptStruct` is what `T::StaticStruct()` returns for a USTRUCT. It has no CDO and does not
-  participate in GC. Struct instances are plain memory managed by their containing object or stack.
+- `UScriptStruct` is what `T::StaticStruct()` returns for a USTRUCT. The descriptor is a UObject;
+  USTRUCT value instances have no per-value CDO or UObject GC lifetime. Strong UObject fields in a
+  reflected struct can be traversed through its reachable containing owner; see
+  `Engine/Source/Runtime/CoreUObject/Private/UObject/GarbageCollection.cpp`.
 - Both provide property iteration, serialization, and editor metadata through the `UStruct` base.
 
 ## Root set and GC clustering

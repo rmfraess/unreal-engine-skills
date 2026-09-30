@@ -91,9 +91,10 @@ directly to `UPROPERTY` specifiers:
 | Replicated | `Replicated` |
 | Transient | `Transient` |
 
-**Categories** (the "Category" field) are purely organizational strings — they control grouping
-in the Details panel. They have no runtime effect but must be set for any `BlueprintReadWrite`
-property to appear in the editor details by default.
+**Categories** (the "Category" field) organize grouping; they do not grant Details visibility.
+For native C++ properties, use `Edit*` / `Visible*` specifiers for Details access and
+`BlueprintReadWrite` / `BlueprintReadOnly` for graph access. UHT requires an explicit category
+for exposed properties in engine modules, not as a universal visibility condition.
 
 Local variables in functions have no instance storage; they exist only on the call stack for the
 duration of that function call.
@@ -232,6 +233,8 @@ Engine source (UE 5.8, under `Engine/Source/`):
   `ExecuteConstruction`:3439.
 - `Runtime/CoreUObject/Public/UObject/ObjectMacros.h`:992 — `BlueprintImplementableEvent`,
   `BlueprintNativeEvent`:997, `BlueprintPure`:1026, `BlueprintCallable`:1029.
+- `Runtime/CoreUObject/Public/UObject/ObjectMacros.h` — `UP` edit, visibility, and Blueprint-access specifiers.
+- `Programs/Shared/EpicGames.UHT/Types/UhtProperty.cs` — engine-module category validation.
 
 Official docs (UE 5.8):
 - Blueprints Visual Scripting — <https://dev.epicgames.com/documentation/unreal-engine/blueprints-visual-scripting-in-unreal-engine>

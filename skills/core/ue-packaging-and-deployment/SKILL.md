@@ -1,15 +1,13 @@
 ---
 name: ue-packaging-and-deployment
-description: Cook, package, and ship an Unreal project — the cook process (by-the-book vs
-  on-the-fly, cook rules, always/never cook directories, shader sharing), build configurations
-  (Debug/DebugGame/Development/Test/Shipping) and build targets (Game/Client/Server/Editor)
-  declared in *.Target.cs files, UAT BuildCookRun command-line pipeline, pak files and the
-  modern IoStore (.utoc/.ucas) container format, asset chunking and Primary Asset Rules for
-  DLC/patching, ProjectPackagingSettings (bUseIoStore, bGenerateChunks, bCompressed,
-  DirectoriesToAlwaysCook/NeverCook), platform targets, content-on-demand / IoStore On-Demand,
-  and shipping-vs-development behavioral differences (WITH_EDITOR, stripped checks/logs). Use
-  when producing a runnable build, automating cook/package in CI, diagnosing packaging failures,
-  configuring what ships, or setting up chunked DLC delivery.
+description: >-
+  Use when producing a runnable Unreal build, automating or diagnosing cook/package failures,
+  configuring shipped content, or preparing chunked DLC/patches. Covers by-the-book/on-the-fly
+  cooking; cook rules and DirectoriesToAlwaysCook/DirectoriesToNeverCook; ProjectPackagingSettings
+  (bUseIoStore, bGenerateChunks, bCompressed), shader sharing; Debug/DebugGame/Development/Test/
+  Shipping configurations and Game/Client/Server/Editor targets in *.Target.cs; UAT BuildCookRun;
+  pak/IoStore (.utoc/.ucas), compression, and Primary Asset Rules; platform targets; IoStore
+  On-Demand; and Shipping-vs-Development behavior (WITH_EDITOR, stripped check/UE_LOG).
 metadata:
   engine-version: "5.8"
   category: tooling

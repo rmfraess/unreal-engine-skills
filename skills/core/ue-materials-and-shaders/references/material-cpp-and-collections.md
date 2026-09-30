@@ -210,9 +210,14 @@ doc for setup details.
 
 | Mistake | Symptom | Fix |
 |---|---|---|
-| MID not in a `UPROPERTY()` | MID garbage-collected mid-play; component shows default material | Add `UPROPERTY()` to the member |
-| Calling `CreateDynamicMaterialInstance` twice on same slot | First MID silently abandoned; second overrides | Cache the returned pointer; call once |
+| MID lacks any GC-visible strong owner | Unassigned/unretained MID can be collected | Retain with a strong `UPROPERTY()` member or a reachable mesh component material slot |
+| Assuming every `CreateDynamicMaterialInstance` call creates a new MID | Existing slot MID may be reused; a non-MID source can replace it | Cache the return value and choose `SourceMaterial` deliberately |
 | Setting parameters before `BeginPlay` | Component not yet registered; slot material may not be assigned | Defer to `BeginPlay` or `PostInitializeComponents` |
 | Wrong parameter name (typo/case) | Set call silently no-ops | Verify exact `FName` spelling against material graph |
 | Modifying a MIC at runtime | `Set*EditorOnly` functions missing outside editor | Create a MID instead |
 | Setting parameters from a non-game thread | Undefined behavior / crash in render thread | Enqueue on game thread via `AsyncTask` or check `IsInGameThread()` |
+
+Implementation evidence: `Engine/Source/Runtime/Engine/Private/Components/PrimitiveComponent.cpp`
+for MID reuse/assignment, `Engine/Source/Runtime/Engine/Classes/Components/MeshComponent.h`
+for retained material slots, and `Engine/Source/Runtime/Engine/Private/Materials/MaterialInstance.cpp`
+for game-thread parameter updates.

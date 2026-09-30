@@ -106,15 +106,16 @@ Obj->RemoveFromRoot();  // allow GC to collect it
 Use sparingly. Forgetting `RemoveFromRoot` leaks the object permanently. Prefer `FGCObject` or a
 `UPROPERTY` instead.
 
-### TStrongObjectPtr (editor/tool use)
+### TStrongObjectPtr (RAII retention)
 
 ```cpp
 TStrongObjectPtr<UMyObject> StrongRef = TStrongObjectPtr<UMyObject>(NewObject<UMyObject>());
 // Keeps Obj alive as long as StrongRef is in scope
 ```
 
-`TStrongObjectPtr` is semantically similar to `AddToRoot` but RAII-scoped. It is designed for
-editor tools and test code, not for gameplay systems (use `UPROPERTY` in gameplay).
+`TStrongObjectPtr` retains its target for the pointer's lifetime; it is not editor-only.
+Use it when a non-UObject owner needs RAII retention. Prefer strong reflected members for
+UObject owners. See `Engine/Source/Runtime/Core/Public/UObject/StrongObjectPtrTemplates.h`.
 
 ## Weak references
 
@@ -164,7 +165,7 @@ before GC and in a well-defined order relative to gameplay. See `ue-actors-and-c
 | Manager singleton (subsystem) | `UGameInstanceSubsystem` | Owned by `UGameInstance`; see `ue-subsystems` |
 | Asset held in memory | `UPROPERTY() TSoftObjectPtr<UTexture>` | Lazy; load on demand |
 | Transient runtime helper | `UPROPERTY() TObjectPtr<UHelper>` | Outer=`this`, no disk save |
-| Editor tool | `TStrongObjectPtr<UMyEditorData>` | RAII pin; editor only |
+| Editor tool | `TStrongObjectPtr<UMyEditorData>` | RAII strong reference |
 | Non-UObject system | `FGCObject::AddReferencedObjects` | Correct C++ class → UObject bridge |
 
 ## Version notes

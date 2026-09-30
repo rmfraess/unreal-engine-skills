@@ -1,17 +1,14 @@
 ---
 name: ue-physics-and-chaos
-description: Implement collision, physics simulation, and world queries using Unreal's Chaos
-  physics engine in C++ — collision channels (ECollisionChannel), response types
-  (ECollisionResponse / ECR_Block/Overlap/Ignore), collision presets and profiles, query vs
-  physics collision (ECollisionEnabled), FBodyInstance damping/mass, SetSimulatePhysics,
-  AddForce/AddImpulse, line traces and shape sweeps (LineTraceSingleByChannel,
-  SweepSingleByChannel, OverlapMultiByChannel), FHitResult/FCollisionQueryParams, hit and
-  overlap events (OnComponentHit, OnComponentBeginOverlap), physical materials
-  (UPhysicalMaterial friction/restitution), ragdoll via UPhysicsAsset, and physics
-  constraints (FConstraintInstance, UPhysicsConstraintComponent). Use when setting up
-  what collides with what, creating trigger volumes, doing line/shape traces for aiming or
-  interaction, simulating rigid-body objects, applying forces or impulses, building
-  ragdolls, constraining bodies, or debugging missing hit/overlap events.
+description: >-
+  Use when configuring collision or trigger volumes, querying for aiming/interaction, simulating
+  rigid bodies, applying forces/impulses, building ragdolls/constraints, or debugging missing
+  hit/overlap events. Covers Chaos C++ collision channels/profiles/responses (ECollisionChannel,
+  ECollisionResponse/ECR_Block/Overlap/Ignore, ECollisionEnabled); FBodyInstance damping/mass,
+  SetSimulatePhysics, AddForce/AddImpulse; traces/sweeps/overlaps (LineTraceSingleByChannel,
+  SweepSingleByChannel, OverlapMultiByChannel, FHitResult, FCollisionQueryParams); events
+  (OnComponentHit, OnComponentBeginOverlap); UPhysicalMaterial friction/restitution; ragdolls
+  (UPhysicsAsset); and constraints (FConstraintInstance, UPhysicsConstraintComponent).
 metadata:
   engine-version: "5.8"
   category: systems
@@ -52,7 +49,9 @@ Every `UPrimitiveComponent` has three collision controls:
    - `QueryAndPhysics` — both. Default for most simulated objects.
 
 **Block** requires *both* sides to set `ECR_Block` for the other's object type. For **overlap**
-events, both sides need `ECR_Overlap` response *and* `bGenerateOverlapEvents = true`.
+events, enable query collision and `bGenerateOverlapEvents` on both components. One side must
+respond with `ECR_Overlap`; the other may use `ECR_Overlap` or `ECR_Block`. Either side using
+`ECR_Ignore` suppresses the overlap.
 
 ```cpp
 // Set up a trigger sphere: query-only, ignore everything except pawns.
@@ -212,9 +211,9 @@ on the component. Use `FCollisionQueryParams::bTraceComplex = true` to query com
 
 ## Gotchas
 
-- **Overlap never fires** — both components need `ECR_Overlap` response to each other's
-  object type *and* `bGenerateOverlapEvents = true` on both. One side being `ECR_Block` still
-  generates an overlap if the other is `ECR_Overlap`, but only one fires.
+- **Overlap never fires** — check query collision and `bGenerateOverlapEvents` on both, then
+  their responses to each other's object type. `Overlap` + `Block` resolves to an overlap
+  and can notify both components; `Ignore` on either side suppresses it.
 - **Hit event never fires** — enable `Simulation Generates Hit Events` (`bNotifyRigidBodyCollision`
   on `FBodyInstance`); physics sim must also be enabled.
 - **Trace misses everything** — check `ECollisionEnabled` on targets; `NoCollision` or
@@ -243,6 +242,11 @@ internals differ from PhysX but the `UPrimitiveComponent` API is unchanged.
 Engine source (UE 5.8, under `Engine/Source/`):
 - `Runtime/Engine/Classes/Engine/EngineTypes.h` — `ECollisionChannel`:1098,
   `ECollisionResponse`:1346, `ECollisionEnabled`:1805, `FCollisionResponseContainer`:1445.
+- `Engine/Source/Runtime/Engine/Private/Components/SceneComponent.cpp` —
+  `GetCollisionResponseToComponent` combines the pair's responses with `FMath::Min`.
+- `Engine/Source/Runtime/Engine/Private/Components/PrimitiveComponent.cpp` —
+  `CanComponentsGenerateOverlap` checks both event flags; `BeginComponentOverlap` notifies
+  both valid components when notifications are enabled.
 - `Runtime/Engine/Classes/Engine/HitResult.h` — `FHitResult`:20.
 - `Runtime/Engine/Classes/Components/PrimitiveComponent.h` — `OnComponentHit`:1457,
   `OnComponentBeginOverlap`:1468, `SetGenerateOverlapEvents`:418, `SetSimulatePhysics`:1661,

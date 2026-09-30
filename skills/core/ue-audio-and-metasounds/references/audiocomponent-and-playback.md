@@ -121,7 +121,7 @@ UQuartzClockHandle* Clock = QS->CreateNewClock(this, TEXT("GameClock"), Settings
 // 2. Schedule a sound on the next bar:
 FQuartzQuantizationBoundary Boundary;
 Boundary.Quantization   = EQuartzCommandQuantization::Bar;
-Boundary.BoundaryType   = EQuarztQuantizationBoundaryType::FromNow;
+Boundary.CountingReferencePoint = EQuarztQuantizationReference::BarRelative;
 Boundary.bFireOnClockStart = true;
 
 FOnQuartzCommandEventBP EventDelegate; // optional BP delegate on quantization events
@@ -132,6 +132,11 @@ AC->PlayQuantized(GetWorld(), Clock, Boundary, EventDelegate);
 of frame rate, producing accurate musical events even under frame time spikes.
 Use `UQuartzSubsystem::FindClockHandle` to retrieve a named clock from another
 actor or subsystem.
+
+`CountingReferencePoint` and `EQuarztQuantizationReference` (preserve that engine spelling)
+are declared in `Engine/Source/Runtime/Engine/Classes/Sound/QuartzQuantizationUtilities.h`.
+`BarRelative` matches the next-bar intent; `CurrentTimeRelative` is a different timing policy.
+Scheduling implementation: `Engine/Source/Runtime/AudioMixer/Private/Quartz/QuartzMetronome.cpp`.
 
 ## Lifecycle relationship with actors
 

@@ -14,8 +14,8 @@ doc.
 |---|---|---|
 | Created | Content Browser, saved as `.uasset` | C++ / Blueprint at runtime |
 | Parameters changeable at runtime | No (`EditorOnly` setters only) | Yes |
-| Shader compiled | Shared with parent — only once | Same shader; no recompile |
-| Lifetime | Asset; managed by asset system | Object; must hold in `UPROPERTY` |
+| Shader compiled | Non-static overrides reuse the parent shader; static/base-property overrides can require a permutation | Same shader; runtime parameter updates do not recompile |
+| Lifetime | Asset; managed by asset system | Object; needs GC-visible strong ownership |
 | Use for | Art variants (color, texture swap) | Gameplay feedback, procedural animation |
 
 A MIC compiles its shader once for each unique combination of static parameters.
@@ -107,8 +107,10 @@ void AMyCharacter::OnDamage(float Severity)
 }
 ```
 
-Hold `DamageMID` in a `UPROPERTY()` member. Without `UPROPERTY()`, the GC can
-collect the MID while the component still references it — a silent crash.
+Hold `DamageMID` in a strong `UPROPERTY()` member for independent retention and later access.
+A reachable mesh component's `OverrideMaterials` also retains its assigned MID; GC does not
+collect it while that strong reference remains. See
+`Engine/Source/Runtime/Engine/Classes/Components/MeshComponent.h`.
 
 ## Index-cache API for high-frequency calls
 
@@ -152,11 +154,12 @@ root `UMaterial` regardless of chain depth.
 ## MID lifetime gotchas
 
 - A MID created by `CreateDynamicMaterialInstance` is automatically given the
-  component as its outer, but still needs a `UPROPERTY()` reference to survive
-  GC across frames.
-- Calling `CreateDynamicMaterialInstance` a second time on the same slot creates
-  a **new** MID and discards the old one. Cache the returned pointer if you need
-  to call setters later.
+  component as its outer when newly created. Outer alone is not retention;
+  assignment to a reachable mesh component's material slot provides a strong reference.
+- With no `SourceMaterial`, `CreateDynamicMaterialInstance` reuses a MID already in the slot.
+  Supplying a non-MID source replaces the slot and can cause a new MID to be created.
+  Cache the returned pointer for later setters, and decide source replacement deliberately.
+  See `Engine/Source/Runtime/Engine/Private/Components/PrimitiveComponent.cpp`.
 - In replicated actors, MID creation and parameter changes happen on each machine
   independently. The MID itself is not replicated — replicate the underlying data
   (e.g. `DamageAmount` as a `Replicated float`) and create/update the MID locally

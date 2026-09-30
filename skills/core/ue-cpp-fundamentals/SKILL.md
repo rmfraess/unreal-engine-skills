@@ -1,15 +1,13 @@
 ---
 name: ue-cpp-fundamentals
 description: >-
-  UHT reflection, generated headers, and UObject construction. Write Unreal C++ using the UObject
-  reflection system — UCLASS/USTRUCT/UENUM/UINTERFACE macros, UPROPERTY and UFUNCTION specifiers,
-  GENERATED_BODY, the *.generated.h pipeline, class prefixes (U/A/F/E/I), module API export
-  macros, the Class Default Object (CDO), NewObject vs CreateDefaultSubobject,
-  garbage-collection-safe UObject members, and UClass vs UScriptStruct internals. Use when
-  authoring reflected UE C++ types, exposing members or functions to Blueprints or replication,
-  fixing UHT/reflection build errors, or understanding CDO and construction behavior. Use
-  ue-memory-and-gc for detailed pointer/ownership selection and GC behavior; use
-  ue-actors-and-components for actor/component lifecycle and runtime spawning.
+  Author Unreal C++ reflected types and UObject construction with UHT (UCLASS/USTRUCT/UENUM/
+  UINTERFACE, UPROPERTY/UFUNCTION, GENERATED_BODY and generated headers), class prefixes, module
+  API macros, CDOs, NewObject/CreateDefaultSubobject, GC-visible members, and UClass/UScriptStruct
+  internals. Use when writing reflected types, exposing members to Blueprint or replication,
+  fixing UHT/reflection errors, or investigating CDO/construction behavior. Use ue-memory-and-gc
+  for pointer ownership and GC detail; use ue-actors-and-components for actor/component lifecycle
+  and spawning.
 metadata:
   engine-version: "5.8"
   category: cpp-foundations
@@ -42,8 +40,8 @@ Three interlocking pieces:
    constructed at startup with all defaults applied. New instances copy from the CDO. The
    constructor runs on the CDO and in the editor; never put gameplay logic there.
 
-UObjects are garbage-collected. Any UObject* you want kept alive must be stored in a `UPROPERTY`.
-A plain C++ pointer is invisible to the GC and will dangle after the next collection.
+UObjects are garbage-collected. A plain C++ pointer does not keep its target alive;
+use GC-visible ownership when retention is required (see **Memory rule** below).
 
 ## Class prefixes (mandatory)
 
@@ -146,17 +144,20 @@ Verified in `ObjectMacros.h` (namespace `UP`, line 1046):
 - `BlueprintReadWrite` — get and set in BP. `BlueprintReadOnly` — get only.
 
 **Common combos and meta:**
-- `Category = "Group"` — organizes the Details panel (required for every exposed member).
+- `Category = "Group"` — organizes the Details panel; it does not grant editor or Blueprint access.
+  UHT requires an explicit category for exposed properties in engine modules.
 - `meta=(ClampMin="0", ClampMax="100")` — value ranges.
 - `meta=(AllowPrivateAccess="true")` — expose a `private` member to Blueprint.
 - `Transient` — not saved to disk. `SaveGame` — included in SaveGame serialization.
 - `Replicated` / `ReplicatedUsing=OnRep_Func` — network replication (see `ue-networking-and-replication`).
 - `Instanced` — for per-instance configurable subobjects.
 
-**Memory rule:** any `UObject*` member you want kept alive must be a `UPROPERTY`. Use
-`TObjectPtr<UType>` for class members (editor-aware, access-tracked in UE5); raw `UType*` is
-acceptable for local variables and function parameters. Without `UPROPERTY`, the GC can collect the
-object and leave a dangling pointer. See `ue-memory-and-gc` for the full pointer hierarchy.
+**Memory rule:** prefer strong `UPROPERTY()` `TObjectPtr<UType>` members on a reachable
+UObject owner. Other retention mechanisms include `TStrongObjectPtr`,
+`FGCObject::AddReferencedObjects`, and explicit `AddToRoot` with matching `RemoveFromRoot` cleanup.
+A bare `TObjectPtr` is not a substitute for registering the reference with GC.
+Raw `UType*` is acceptable for local variables and function parameters while the target remains
+alive. See `ue-memory-and-gc` for the full pointer hierarchy.
 
 ## UFUNCTION specifiers
 
@@ -210,8 +211,9 @@ public:
 Key differences between `USTRUCT` and `UCLASS`:
 - `UScriptStruct` (the runtime descriptor for USTRUCT) derives from `UStruct`, not `UClass`.
   Struct instances are **value types** — no GC, no CDO, no `NewObject`.
-- `UPROPERTY` inside a struct still enables serialization and editor exposure; it does not imply
-  GC ownership (there is nothing for the GC to track in a value type).
+- `UPROPERTY` inside a struct enables serialization and editor exposure. Strong UObject fields
+  participate in GC reachability when the containing struct is held through GC-visible ownership;
+  a plain stack/value copy does not register those references by itself.
 - Prefer `USTRUCT` for lightweight data bags (stats, configs, hit results). Use `UCLASS` when you
   need GC lifetime, Blueprint subclassing, or per-instance identity.
 
@@ -253,7 +255,8 @@ encounter will mix both styles.
 
 ## Gotchas
 
-- **Forgot `UPROPERTY` on a UObject* member** → random crashes after GC. The most common bug.
+- **Unregistered owning UObject reference** → dangling pointers after GC. Prefer strong
+  `UPROPERTY` members for UObject owners; use the retention mechanisms above for other owners.
 - **`generated.h` not last / missing `GENERATED_BODY()`** → cryptic UHT errors that appear
   unrelated to the actual mistake.
 - **Gameplay logic in the constructor** → runs on the CDO and in the editor; no world, no
@@ -292,6 +295,13 @@ Engine source (UE 5.8, under `Engine/Source/Runtime/CoreUObject/Public/UObject/`
   `NewObject<T>(Outer)` (no name); `:1974` — `NewObject<T>(Outer, Name, …)`.
 - `ObjectPtr.h`:519 — `TObjectPtr<T>`.
 - `Interface.h`:18 — `UInterface` base class.
+
+Ownership and reflection implementation evidence:
+- `Engine/Source/Runtime/Core/Public/UObject/StrongObjectPtrTemplates.h` — RAII strong references.
+- `Engine/Source/Runtime/CoreUObject/Public/UObject/GCObject.h` — non-UObject reference reporting.
+- `Engine/Source/Runtime/CoreUObject/Private/UObject/GarbageCollection.cpp` — `FStructProperty::EmitReferenceInfo` traverses reflected struct fields.
+- `Engine/Source/Runtime/CoreUObject/Public/UObject/UObjectBaseUtility.h` — `AddToRoot` / `RemoveFromRoot`.
+- `Engine/Source/Programs/Shared/EpicGames.UHT/Types/UhtProperty.cs` — engine-module category validation.
 
 Official docs (UE 5.8):
 - Objects — <https://dev.epicgames.com/documentation/unreal-engine/objects-in-unreal-engine>

@@ -1,16 +1,13 @@
 ---
 name: ue-profiling-and-optimization
 description: >-
-  Unreal Insights, CPU/GPU hitches, and memory-growth profiling. Profile and optimize Unreal Engine
-  performance — trace-based CPU/GPU/memory profiling, .utrace sessions, Timing Insights, Memory
-  Insights, stat
-  commands (stat unit/fps/game/gpu/scenerendering/memory and the full stat command table),
-  stat groups, C++ instrumentation (DECLARE_STATS_GROUP, DECLARE_CYCLE_STAT,
-  SCOPE_CYCLE_COUNTER, QUICK_SCOPE_CYCLE_COUNTER, TRACE_CPUPROFILER_EVENT_SCOPE,
-  CSV_SCOPED_TIMING_STAT), memory profiling (LLM, MemReport, memreport -full), and the
-  measurement-first optimization workflow. Use when diagnosing frame-rate drops, hitches,
-  CPU/GPU bottlenecks, or memory growth, adding timing instrumentation to find a
-  hotspot, or deciding on CPU vs GPU vs memory optimization levers.
+  Use when diagnosing low frame rate, hitches, CPU/GPU bottlenecks, or memory growth; adding timing
+  instrumentation to find a hotspot; or choosing optimization levers. Covers Unreal Insights/.utrace
+  (Timing Insights and Memory Insights), stat commands/tables/groups (stat
+  unit/fps/game/gpu/scenerendering/memory), C++ cycle/trace/CSV scopes (DECLARE_STATS_GROUP,
+  DECLARE_CYCLE_STAT, SCOPE_CYCLE_COUNTER, QUICK_SCOPE_CYCLE_COUNTER,
+  TRACE_CPUPROFILER_EVENT_SCOPE, CSV_SCOPED_TIMING_STAT), LLM, memreport -full, and
+  measurement-first optimization.
 metadata:
   engine-version: "5.8"
   category: tooling
@@ -49,7 +46,7 @@ In the console (PIE or standalone game):
 | `stat dumphitches` | Log any hitch above `t.HitchFrameTimeThreshold` |
 | `stat startfile` / `stat stopfile` | Capture a `.uestats` file for legacy Session Frontend |
 | `stat llm` | Low Level Memory Tracker totals |
-| `stat lllmfull` | Expanded LLM counters per tag |
+| `stat llmfull` | Expanded LLM counters per tag |
 
 Read `stat unit` first:
 - **Game** dominates → optimize C++ / Blueprint / tick overhead.
@@ -276,6 +273,8 @@ Engine source (UE 5.8, under `Engine/Source/Runtime/Core/Public/`):
 - `ProfilingDebugging/ScopedTimers.h` — `FDurationTimer`:31, `FScopedDurationTimer`:65,
   `FScopedDurationTimeLogger`:193.
 - `HAL/LowLevelMemTracker.h` — `ENABLE_LOW_LEVEL_MEM_TRACKER`:19, LLM tag scopes.
+- `Engine/Source/Runtime/Core/Public/HAL/LowLevelMemStats.h` —
+  `STATGROUP_LLMFULL`, the group selected by `stat llmfull`.
 
 Official docs (UE 5.8, fetched and confirmed live):
 - Unreal Insights — <https://dev.epicgames.com/documentation/unreal-engine/unreal-insights-in-unreal-engine>

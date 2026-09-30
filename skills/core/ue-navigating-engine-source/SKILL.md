@@ -31,7 +31,16 @@ Memory is often a version or two stale.
 - You are resolving a build error ("unresolved external", "identifier not found")
   caused by a missing `#include` or missing `Build.cs` dependency.
 
-## Source tree on this machine
+## Resolve the local engine source
+
+Set `UE_ENGINE_ROOT` to the installation directory containing `Engine/`. Confirm
+`Engine/Source/` exists and read `Engine/Build/Build.version` under that root for
+`MajorVersion`, `MinorVersion`, `PatchVersion`, and `Changelist` before citing APIs.
+In examples, `<UE_ENGINE_ROOT>` means this resolved path, not a literal tool argument.
+
+Default to **5.8**. Resolve other installations only to compare signatures across versions.
+
+Historical authoring installations (not required paths or current-version claims):
 
 | Version | Root | Notes |
 |---|---|---|
@@ -39,11 +48,8 @@ Memory is often a version or two stale.
 | 5.7 | `E:\Program Files\Epic Games\UE_5.7\Engine` | Binary install; previous release for comparison |
 | 5.5.1 | `E:\Repo\Git\UE_5_5_1_Fresh\UnrealEngine\Engine` | Full source build |
 
-Default to **5.8**. Use the others only to compare signatures across versions.
-
-Confirm the exact version any time:
-`E:\Program Files\Epic Games\UE_5.8\Engine\Build\Build.version`
-→ MajorVersion 5, MinorVersion 8, PatchVersion 1.
+The 5.8 authoring snapshot was **5.8.1, changelist 56057345**. Read the local
+`Build.version` rather than treating that snapshot as the installed version.
 
 ## Source tree organization
 
@@ -146,7 +152,7 @@ Confirm by finding `<ModuleName>.Build.cs` under the source folder.
 
 Glob for `**/<ClassName>.h` under the source root, then confirm with Grep:
 ```
-Glob("**/Character.h", path="E:/Program Files/Epic Games/UE_5.8/Engine/Source")
+Glob("**/Character.h", path="<UE_ENGINE_ROOT>/Engine/Source")
 → Runtime\Engine\Classes\GameFramework\Character.h
 
 Grep("class ACharacter", path="...Character.h")
@@ -215,7 +221,7 @@ the module's `Intermediate\` folder, not in `Source\`.
 
 ## Verified examples (UE 5.8)
 
-All paths relative to `E:\Program Files\Epic Games\UE_5.8\Engine\Source\`:
+All paths relative to `Engine/Source/` under `UE_ENGINE_ROOT`:
 
 **AActor** (`Runtime\Engine\Classes\GameFramework\Actor.h`):
 - :281 `UCLASS(BlueprintType, Blueprintable, config=Engine, meta=(ShortTooltip="..."), MinimalAPI)`
@@ -259,8 +265,8 @@ class/function names are stable.)
 
 ## References & source material
 
-Engine source (UE 5.8, under `E:\Program Files\Epic Games\UE_5.8\Engine\`):
-- Version file: `Build\Build.version` (5.8.1, changelist 56057345).
+Engine paths (UE 5.8, relative to `UE_ENGINE_ROOT`):
+- Version file: `Engine/Build/Build.version` — read for the exact local version.
 - Primary source root: `Engine\Source\` → `Runtime\`, `Editor\`, `Developer\`,
   `Programs\`, `ThirdParty\`.
 - Plugin root: `Engine\Plugins\` → `AI\`, `Animation\`, `EnhancedInput\`, `FX\`,

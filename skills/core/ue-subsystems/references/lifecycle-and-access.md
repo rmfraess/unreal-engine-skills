@@ -30,20 +30,23 @@ void UMySubsystem::Initialize(FSubsystemCollectionBase& Collection)
     Collection.InitializeDependency<UOtherSubsystem>();
     Super::Initialize(Collection);
     UOtherSubsystem* Other = GetGameInstance()->GetSubsystem<UOtherSubsystem>();
-    // Other is guaranteed non-null here.
+    // Check Other before use if the dependency can decline creation.
 }
 ```
 
 `InitializeDependency` (`SubsystemCollection.h`:35, template form :42) initializes the named
 class immediately if not already done, then returns its pointer. It only works within the same
 collection — world and game-instance subsystems cannot declare dependencies on each other.
+Call it inside `Initialize`, before dependency use; there is no framework-mandated order
+relative to `Super::Initialize`. A dependency that declines creation can still return null.
 Circular dependency cycles are detected at runtime and result in an assertion failure.
 
 ### Deinitialization sequence
 
-`FSubsystemCollectionBase::Deinitialize` calls `USubsystem::Deinitialize()` on each active
-subsystem, in **reverse** initialization order (LIFO). Dependencies are therefore deinitialized
-after the subsystems that depend on them.
+`FSubsystemCollectionBase::Deinitialize` calls `Deinitialize()` on active subsystems by
+iterating its map; UE 5.8.3 does not guarantee reverse initialization or dependency order.
+Keep cleanup independent of a peer remaining initialized. See
+`Engine/Source/Runtime/Engine/Private/Subsystems/SubsystemCollection.cpp`.
 
 ## UWorldSubsystem extended lifecycle
 

@@ -1,15 +1,13 @@
 ---
 name: ue-sequencer-and-cinematics
-description: Create and drive Unreal Engine cinematics from C++ — ULevelSequence (the cinematic
-  asset), ALevelSequenceActor (the level-placed container), ULevelSequencePlayer
-  (CreateLevelSequencePlayer, Play, Stop, PlayLooping, SetPlaybackPosition, OnFinished),
-  possessables vs spawnables, runtime binding overrides (SetBinding/SetBindingByTag),
-  track and MovieScene concepts, Cine Camera (UCineCameraComponent, ACineCameraActor —
-  filmback, focal length, aperture, focus), Camera Cuts track, and Movie Render Queue for
-  high-quality offline output. Use when triggering or controlling a cutscene at runtime,
-  overriding sequence bindings for dynamic actors, reacting to sequence-end events,
-  animating a film-style camera, firing gameplay callbacks from an event track, or
-  rendering frames with the Movie Render Pipeline.
+description: >-
+  Use when triggering or controlling a runtime cutscene, rebinding dynamic actors, reacting to
+  sequence-end or event-track gameplay callbacks, animating a Cine Camera, or rendering sequences
+  with Movie Render Pipeline. Covers `ULevelSequence`/`UMovieScene`, `ALevelSequenceActor`,
+  `ULevelSequencePlayer` (`CreateLevelSequencePlayer`, `Play`, `Stop`, `PlayLooping`,
+  `SetPlaybackPosition`, `OnFinished`), possessables/spawnables and runtime overrides (`SetBinding`,
+  `SetBindingByTag`), Cine Camera (`UCineCameraComponent`, `ACineCameraActor`: filmback/focal
+  length/aperture/focus), Camera Cuts, and Movie Render Queue.
 metadata:
   engine-version: "5.8"
   category: animation
@@ -143,6 +141,8 @@ PlacedSeqActor->SetBindingByTag(
 `SetBinding` / `SetBindingByTag` / `AddBinding` / `ResetBindings` are all on
 `ALevelSequenceActor` (`LevelSequenceActor.h`:178–238). They write into the actor's
 `UMovieSceneBindingOverrides` object without modifying the sequence asset.
+Use these overrides when gameplay supplies known actors. Use sequence-authored Dynamic Binding
+when selection belongs to a playback-context resolver; neither requires migrating to the other.
 
 Full binding and track internals: [references/tracks-and-bindings.md](references/tracks-and-bindings.md).
 

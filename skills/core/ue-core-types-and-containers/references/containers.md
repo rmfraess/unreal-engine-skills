@@ -64,15 +64,16 @@ Actor->GetComponents(Components);
 
 ### UPROPERTY containers and GC
 
-A `TArray` of `UObject*` stored as a member **must** be a `UPROPERTY()` to prevent GC from
-collecting the referenced objects:
+For strong UObject-owned member arrays, use `UPROPERTY()` on a reachable owner to retain
+the referenced objects:
 
 ```cpp
 UPROPERTY()
 TArray<TObjectPtr<AActor>> SpawnedActors;
 ```
 
-Without `UPROPERTY`, the array entries can be silently garbage-collected mid-frame.
+Without GC-visible retention, a bare pointer array does not keep its targets alive.
+For non-UObject owners, see `ue-memory-and-gc` for `FGCObject` or strong-pointer ownership.
 
 ---
 

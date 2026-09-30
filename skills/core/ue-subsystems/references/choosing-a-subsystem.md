@@ -111,10 +111,17 @@ This eliminates the pattern of `StartupModule` manually managing service lifetim
 
 ### Conditional creation via ShouldCreateSubsystem
 
+**Unresolved server-filter example:** the predicate below does not implement its intended
+server/standalone policy. `IsServer(nullptr)` has no world context and returns false;
+the OR expression therefore admits non-dedicated processes, including clients.
+Choose the subsystem scope and supported world types before replacing this example;
+use a valid per-world net mode for gameplay authority, rather than a process-level server check.
+The example is retained for diagnosis, not as a working server filter.
+
 ```cpp
 bool UMySubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
-    // Only on servers and standalone:
+    // Intended server/standalone filter — incorrect; see the warning above.
     if (!Super::ShouldCreateSubsystem(Outer)) { return false; }
     return !IsRunningDedicatedServer() || UKismetSystemLibrary::IsServer(/*World*/nullptr);
 }
@@ -124,6 +131,10 @@ bool UMySubsystem::ShouldCreateSubsystem(UObject* Outer) const
 `UGameInstance`, `UWorld`, etc.) as the argument. You can inspect the outer to make decisions,
 but you cannot call `GetSubsystem` on it during this call — other subsystems may not yet be
 created.
+
+Source evidence: `Engine/Source/Runtime/Engine/Private/KismetSystemLibrary.cpp` —
+`UKismetSystemLibrary::IsServer`; `Engine/Source/Runtime/Engine/Private/UnrealEngine.cpp` —
+null-world-context handling in `UEngine::GetWorldFromContextObject`.
 
 ## Version notes
 

@@ -1,9 +1,10 @@
 # Module C++ & Loading Phases Reference
 
-Grounded in UE 5.8 engine source:
-- `E:\Program Files\Epic Games\UE_5.8\Engine\Source\Runtime\Core\Public\Modules\ModuleInterface.h`
-- `E:\Program Files\Epic Games\UE_5.8\Engine\Source\Runtime\Core\Public\Modules\ModuleManager.h`
-- `E:\Program Files\Epic Games\UE_5.8\Engine\Source\Programs\UnrealBuildTool\Configuration\Descriptors\ModuleDescriptor.cs`
+Grounded in UE 5.8 engine source (paths relative to `UE_ENGINE_ROOT`, resolved
+as described in [../SKILL.md](../SKILL.md)):
+- `Engine/Source/Runtime/Core/Public/Modules/ModuleInterface.h`
+- `Engine/Source/Runtime/Core/Public/Modules/ModuleManager.h`
+- `Engine/Source/Programs/UnrealBuildTool/Configuration/Descriptors/ModuleDescriptor.cs`
 
 See also: [../SKILL.md](../SKILL.md)
 

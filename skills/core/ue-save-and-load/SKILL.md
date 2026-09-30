@@ -1,16 +1,13 @@
 ---
 name: ue-save-and-load
-description: Persist and restore game data in Unreal C++ using the SaveGame system — define a
-  USaveGame subclass with UPROPERTY members, create/save/load/delete named slots via
-  UGameplayStatics (SaveGameToSlot, LoadGameFromSlot, AsyncSaveGameToSlot,
-  AsyncLoadGameFromSlot, DoesSaveGameExist, DeleteGameInSlot), and serialize actor state into
-  a byte buffer with FMemoryWriter/FMemoryReader and FObjectAndNameAsStringProxyArchive. Covers
-  the SaveGame UPROPERTY specifier and ArIsSaveGame archive flag for selective actor
-  serialization, the ULocalPlayerSaveGame subclass for per-user saves, save versioning and
-  migration, ISaveGameSystem platform abstraction, and design rules for what belongs in a save.
-  Use when implementing save/load, persisting progress, inventory, or settings, handling
-  multiple save slots or user profiles, serializing dynamic actor state, migrating old saves, or
-  troubleshooting missing fields and null returns on load.
+description: >-
+  Use when saving/loading progress, inventory, world state, or settings; managing named slots or
+  per-user profiles; persisting dynamic actor state; migrating saves; or diagnosing missing fields
+  and null loads. Covers `USaveGame`/`UPROPERTY`, `UGameplayStatics` (`SaveGameToSlot`,
+  `LoadGameFromSlot`, `AsyncSaveGameToSlot`, `AsyncLoadGameFromSlot`, `DoesSaveGameExist`,
+  `DeleteGameInSlot`), actor serialization with `UPROPERTY(SaveGame)`, `ArIsSaveGame`,
+  `FMemoryWriter`/`FMemoryReader`, and `FObjectAndNameAsStringProxyArchive`, `ULocalPlayerSaveGame`,
+  versioning/migration, `ISaveGameSystem`, and choosing SaveGame vs config.
 metadata:
   engine-version: "5.8"
   category: systems

@@ -66,7 +66,9 @@ Store the component in a reflected `TObjectPtr<UNiagaraComponent>` member if it 
 
 ## References & source material
 
-Verified UE 5.8 source paths under `E:\Program Files\Epic Games\UE_5.8\Engine\`:
+Set `UE_ENGINE_ROOT` to the installation directory containing `Engine/`; read
+`Engine/Build/Build.version` there for the exact local version.
+Verified UE 5.8 source paths relative to `Engine/` under that root:
 
 - `Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h` — `UNiagaraComponent`, activation, deactivation, and typed variable setters.
 - `Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h` — system spawn and attachment options.

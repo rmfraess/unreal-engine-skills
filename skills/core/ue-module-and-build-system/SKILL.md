@@ -292,7 +292,9 @@ Rules:
 
 ## References & source material
 
-Engine source (UE 5.8, under `E:\Program Files\Epic Games\UE_5.8\Engine\Source\`):
+Set `UE_ENGINE_ROOT` to the installation directory containing `Engine/`; read
+`Engine/Build/Build.version` there for the exact local version.
+Engine source (UE 5.8; paths below relative to `Engine/Source/` under that root):
 
 **C++ module system (Runtime/Core/Public/Modules/):**
 - `ModuleInterface.h` — `IModuleInterface`: `StartupModule()`:49, `ShutdownModule()`:79,

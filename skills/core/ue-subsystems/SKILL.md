@@ -1,14 +1,13 @@
 ---
 name: ue-subsystems
-description: >
-  Implement engine-managed singletons scoped to a defined lifetime using Unreal's Subsystem
-  framework — UEngineSubsystem, UGameInstanceSubsystem, UWorldSubsystem,
-  UTickableWorldSubsystem, and ULocalPlayerSubsystem. Covers Initialize/Deinitialize
-  lifecycle, ShouldCreateSubsystem for conditional creation, InitializeDependency for
-  ordered init, and Blueprint/Python exposure. Use when building a service or manager
-  (save system, ability registry, match service, analytics) and deciding whether to scope
-  it to the process, game session, world, or local player — and when choosing between a
-  subsystem, a manager actor, or a GameInstance override.
+description: >-
+  Use when choosing or implementing a shared service scoped to the engine process, game session,
+  world, or local player; deciding between a subsystem, manager actor/component, or
+  `UGameInstance` override; or exposing game/plugin services to Blueprint or editor Python.
+  Covers `UEngineSubsystem`, `UGameInstanceSubsystem`, `UWorldSubsystem`,
+  `UTickableWorldSubsystem`, and `ULocalPlayerSubsystem`; `Initialize`/`Deinitialize`,
+  `ShouldCreateSubsystem`, `InitializeDependency`, plugin initialization, and non-replicated
+  local-service constraints. Examples: save systems, ability registries, match services, analytics.
 metadata:
   engine-version: "5.8"
   category: gameplay-framework
@@ -107,9 +106,12 @@ bool UMySaveSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 
 Key rules:
 - `Initialize`/`Deinitialize` are the lifecycle hooks — not `BeginPlay`/`EndPlay`.
-- The subsystem is a `UObject`; use `UPROPERTY()` on all `UObject*` members.
+- Keep owned UObject members GC-visible, normally with strong `UPROPERTY()` references;
+  see `ue-memory-and-gc` for other ownership mechanisms.
 - `ShouldCreateSubsystem` is called on the CDO before any instance is created; keep it cheap.
-- Call `Super::Initialize(Collection)` first, `Super::Deinitialize()` last.
+- Declare dependencies inside `Initialize`, before using them. Order `Super` calls around
+  the base class's requirements; `USubsystem`'s default lifecycle hooks are empty.
+  For `UTickableWorldSubsystem`, call `Super::Deinitialize()` before your cleanup to stop ticking.
 
 ## Accessing a subsystem
 
@@ -152,6 +154,8 @@ void UMySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 `InitializeDependency` only works within the same collection (same owner). You cannot declare a
 `UWorldSubsystem` dependency on a `UGameInstanceSubsystem` — they live in separate collections.
+Dependency initialization may precede or follow `Super::Initialize`; initialize it first if
+base initialization needs it. Check the result when the dependency can decline creation.
 See `references/lifecycle-and-access.md` for the full initialization sequence.
 
 ## Ticking — UTickableWorldSubsystem
@@ -178,7 +182,8 @@ public:
 ```
 
 Rules:
-- Forward `Initialize`/`Deinitialize` to `Super` to enable/disable ticking correctly.
+- Forward `Initialize` to `Super` to enable ticking; call `Super::Deinitialize()` before
+  your cleanup to disable ticking.
 - `GetStatId` is a pure virtual — failing to implement it prevents compilation.
 - Prefer timers (`ue-timers-and-async`) over ticking when the work is infrequent.
 
@@ -234,6 +239,12 @@ Engine source (UE 5.8, `Engine/Source/Runtime/Engine/Public/Subsystems/`):
   `PlayerControllerChanged`:35.
 - `EngineSubsystem.h` — `UEngineSubsystem`:20 (derives from `UDynamicSubsystem`).
 - `SubsystemBlueprintLibrary.h` — Blueprint-internal getters for all subsystem types:15.
+
+Implementation evidence:
+- `Engine/Source/Runtime/Engine/Private/Subsystems/SubsystemCollection.cpp` —
+  dependency initialization context and conditional creation; map iteration during deinitialization.
+- `Engine/Source/Runtime/Engine/Private/Subsystems/WorldSubsystem.cpp` —
+  `UTickableWorldSubsystem::Initialize`/`Deinitialize` enable and disable ticking.
 
 Engine source (UE 5.8, `Engine/Source/Runtime/Engine/Classes/Engine/`):
 - `GameInstance.h` — `GetSubsystem<T>()`:440, static `GetSubsystem(GameInstance*)`:450.
