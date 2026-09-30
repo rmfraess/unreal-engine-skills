@@ -91,8 +91,11 @@ bool UMyWorldSub::DoesSupportWorldType(const EWorldType::Type WorldType) const
 ```
 
 **`ShouldCreateSubsystem` vs `DoesSupportWorldType`:** `ShouldCreateSubsystem` makes a
-one-time decision on the CDO (before any instance exists). `DoesSupportWorldType` is a
-per-world filter checked each time a new world is created — prefer it for world-type gating.
+decision on the CDO for each candidate outer world (before that subsystem instance exists).
+The world-subsystem base calls `DoesSupportWorldType` from that check, so both participate
+in per-world creation; prefer `DoesSupportWorldType` for world-type gating. See
+`Engine/Source/Runtime/Engine/Private/Subsystems/WorldSubsystem.cpp` and
+`Engine/Source/Runtime/Engine/Private/Subsystems/SubsystemCollection.cpp`.
 
 **Access:**
 ```cpp

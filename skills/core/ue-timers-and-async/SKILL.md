@@ -201,7 +201,7 @@ which exposes `EnsureCompletion()` and `IsDone()`.
 
 Full reference: [references/async-and-tasks.md](references/async-and-tasks.md).
 
-## UE Tasks System (UE 5.1+, preferred for new code)
+## UE Tasks system (examples target UE 5.8)
 
 The modern **Tasks System** (`UE::Tasks`) builds on the same worker-thread backend as the
 task graph but with a cleaner API, dependency graphs, and pipes.
@@ -372,8 +372,11 @@ subclass `UBlueprintAsyncActionBase` instead of implementing a raw `FPendingLate
 
 - `FTSTicker` replaced `FTicker` in UE5. Any UE4-era code using `FTicker::GetCoreTicker()`
   must be ported to `FTSTicker::GetCoreTicker()`.
-- The **UE Tasks System** (`UE::Tasks`) was introduced in UE 5.0. Prefer it over direct
-  task-graph usage (`TGraphTask`) for new code in 5.8.
+- The **UE Tasks System** (`UE::Tasks`) was introduced in UE 5.0
+  ([UE 5.0 release notes](https://dev.epicgames.com/documentation/unreal-engine/unreal-engine-5.0-release-notes?application_version=5.0)).
+  Prefer it over direct task-graph usage (`TGraphTask`) for new code in 5.8.
+  The examples target UE 5.8; the introduction date does not establish a minimum version
+  for every API shown. Check individual APIs when porting to an older release.
 - Busy-waiting in `UE::Tasks` was deprecated in UE 5.5 and replaced by oversubscription
   (standby threads). Do not call the removed busy-wait APIs.
 

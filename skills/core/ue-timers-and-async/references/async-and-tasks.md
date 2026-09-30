@@ -129,10 +129,15 @@ Never delete `FAsyncTask` before calling `EnsureCompletion()`.
 Declared in `Runtime/Core/Public/Tasks/Task.h` and `Tasks/Pipe.h`.
 Namespace: `UE::Tasks`.
 
-Introduced in UE 5.0, the Tasks System improves on `TGraphTask` with a cleaner API,
+Introduced in UE 5.0
+([UE 5.0 release notes](https://dev.epicgames.com/documentation/unreal-engine/unreal-engine-5.0-release-notes?application_version=5.0)),
+the Tasks System improves on `TGraphTask` with a cleaner API,
 first-class dependency graphs, and pipes. It uses the same scheduler backend as the task
 graph (verified: official Tasks System doc — "Tasks System and TaskGraph both use the same
 backend").
+
+The examples in this reference target UE 5.8; see the skill's version notes when porting
+to an older release.
 
 ### Launch
 

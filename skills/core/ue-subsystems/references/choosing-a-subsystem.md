@@ -109,37 +109,83 @@ void UMyPluginSubsystem::Deinitialize()
 
 This eliminates the pattern of `StartupModule` manually managing service lifetime.
 
-### Conditional creation via ShouldCreateSubsystem
+### Conditional creation and server work in a world subsystem
 
-**Unresolved server-filter example:** the predicate below does not implement its intended
-server/standalone policy. `IsServer(nullptr)` has no world context and returns false;
-the OR expression therefore admits non-dedicated processes, including clients.
-Choose the subsystem scope and supported world types before replacing this example;
-use a valid per-world net mode for gameplay authority, rather than a process-level server check.
-The example is retained for diagnosis, not as a working server filter.
+Make the owner explicit: this `UWorldSubsystem` supports only Game/PIE worlds and accepts
+standalone, listen-server, and dedicated-server net modes. It excludes editor/preview worlds
+and worlds currently reporting client mode. The creation check uses `Outer`, not the CDO's
+`GetWorld()` or a process-level server flag; each PIE world has its own network role.
 
 ```cpp
-bool UMySubsystem::ShouldCreateSubsystem(UObject* Outer) const
+// MySubsystem.h
+#pragma once
+#include "Subsystems/WorldSubsystem.h"
+#include "Engine/World.h"
+#include "MySubsystem.generated.h"
+
+UCLASS()
+class MYGAME_API UMySubsystem : public UWorldSubsystem
 {
-    // Intended server/standalone filter — incorrect; see the warning above.
-    if (!Super::ShouldCreateSubsystem(Outer)) { return false; }
-    return !IsRunningDedicatedServer() || UKismetSystemLibrary::IsServer(/*World*/nullptr);
-}
+    GENERATED_BODY()
+public:
+    virtual bool ShouldCreateSubsystem(UObject* Outer) const override
+    {
+        const UWorld* World = Cast<UWorld>(Outer);
+        return World && Super::ShouldCreateSubsystem(Outer)
+            && World->GetNetMode() < NM_Client;
+    }
+
+    virtual void OnWorldBeginPlay(UWorld& InWorld) override
+    {
+        Super::OnWorldBeginPlay(InWorld);
+        if (InWorld.GetNetMode() < NM_Client)
+        {
+            // Start authoritative gameplay work here; client worlds do no server work.
+        }
+    }
+
+protected:
+    virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override
+    {
+        return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
+    }
+};
 ```
+
+`ENetMode` orders the three server-capable modes before `NM_Client`, so the comparison includes
+standalone play. Creation observes the world's **current** net mode; network setup or later
+changes can affect that mode. Recheck before starting authoritative work and guard later
+server-only entry points too. Keep cleanup safe when no work was started.
+
+If a workflow cannot establish the intended network role at creation, use world-type-only
+creation and defer the authority gate to gameplay readiness instead. This example is not a
+guarantee that an early-created instance cannot remain after its world changes to client mode.
 
 `ShouldCreateSubsystem` is called on the CDO with the **outer object** (the owning
 `UGameInstance`, `UWorld`, etc.) as the argument. You can inspect the outer to make decisions,
 but you cannot call `GetSubsystem` on it during this call — other subsystems may not yet be
 created.
 
-Source evidence: `Engine/Source/Runtime/Engine/Private/KismetSystemLibrary.cpp` —
-`UKismetSystemLibrary::IsServer`; `Engine/Source/Runtime/Engine/Private/UnrealEngine.cpp` —
-null-world-context handling in `UEngine::GetWorldFromContextObject`.
+Source evidence:
+- `Engine/Source/Runtime/Engine/Public/Subsystems/WorldSubsystem.h` — callback and filter signatures.
+- `Engine/Source/Runtime/Engine/Private/Subsystems/WorldSubsystem.cpp` —
+  `ShouldCreateSubsystem` forwards the outer world's type to `DoesSupportWorldType`;
+  the base `OnWorldBeginPlay` maintains lifecycle state.
+- `Engine/Source/Runtime/Engine/Classes/Engine/EngineBaseTypes.h` — `ENetMode` ordering.
+- `Engine/Source/Runtime/Engine/Classes/Engine/EngineTypes.h` — `EWorldType` values.
+- `Engine/Source/Runtime/Engine/Classes/Engine/World.h` and
+  `Engine/Source/Runtime/Engine/Private/World.cpp` — per-world net mode and begin-play dispatch.
+
+The replaced null-context predicate was not a world-authority filter:
+`Engine/Source/Runtime/Engine/Private/KismetSystemLibrary.cpp` implements
+`UKismetSystemLibrary::IsServer`; `Engine/Source/Runtime/Engine/Private/UnrealEngine.cpp`
+handles null world contexts in `UEngine::GetWorldFromContextObject`.
 
 ## Version notes
 
 - World subsystem `DoesSupportWorldType` (added alongside `UWorldSubsystem`) is the cleanest
   way to exclude a subsystem from editor preview worlds — prefer it over `ShouldCreateSubsystem`
-  for world-type gating, since it is called per-world rather than once on the CDO.
+  for world-type gating. `ShouldCreateSubsystem` is evaluated on the CDO for each candidate
+  owner, and the world-subsystem base calls `DoesSupportWorldType` for that world.
 - Dynamic subsystems (`UEngineSubsystem`, `UEditorSubsystem`) support late module loading; if
   your plugin is loaded after engine init, the subsystem is still created correctly.
