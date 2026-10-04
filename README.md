@@ -39,7 +39,7 @@ unreal-engine-skills/
 ├── scripts/
 │   └── check-citations.mjs    # verifies every cited Engine/Source path exists on disk
 └── skills/
-    ├── <category>/            # core, ultra-dynamic-sky, ultra-dynamic-weather
+    ├── <category>/            # core, metahuman, ultra-dynamic-sky, ultra-dynamic-weather
     │   ├── category.md        # category description
     │   └── <skill-name>/
     │       ├── SKILL.md       # required: frontmatter + instructions
@@ -94,6 +94,11 @@ Status: ✅ built · 🟡 planned. (Planned skills are tracked as tasks and buil
 - ✅ `ue-animation-system` — skeletal meshes, AnimInstance/AnimBP, state machines, montages, notifies
 - ✅ `ue-control-rig-and-ik` — Control Rig, IK Rig/Retargeter
 - ✅ `ue-sequencer-and-cinematics` — Sequencer, cameras, cinematics
+
+### MetaHuman (`skills/metahuman/`)
+- ✅ `ue-metahuman-creator` — MetaHuman Character asset, editor subsystem API (body/face/skin/eyes/makeup), wardrobe palette, cloud auto-rig and texture sources, build/assembly, Python scripting
+- ✅ `ue-metahuman-animator` — capture data ingest (mono video, Live Link Face takes, archives), Identity (Mesh to MetaHuman), Performance processing (depth, mono, audio), AnimSequence/LevelSequence export
+- ✅ `ue-metahuman-live-link` — MetaHuman Video/Audio and Live Link Face sources, subject calibration and smoothing, binding to the assembled MetaHuman face AnimBP, Take Recorder, runtime notes
 
 ### World building
 - ✅ `ue-levels-and-world-partition` — levels, World Partition, data layers, streaming
