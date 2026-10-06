@@ -8,7 +8,7 @@ metadata:
 
 # Niagara renderers and materials
 
-Use `ue-niagara-vfx` for the system, emitter, component, and gameplay parameter model. This skill addresses how simulated particles become visible. Choose the renderer from the shape and camera behavior the effect needs; no particular texture, mesh, material, or course asset is required.
+Use `ue-niagara-vfx` for the system, emitter, component, and gameplay parameter model. Choose the renderer from the shape and camera behavior the effect needs; no particular texture, mesh, material, or course asset is required.
 
 ## Renderer choice
 
