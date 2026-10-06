@@ -20,7 +20,7 @@ metadata:
 
 # UDS modifiers, configurations, state, and misc features
 
-The "extras" layer of UDS: packaging, saving, and applying state; per-context post-processing; interior detection; water; sounds; on-screen UI; and the sun lens flare. Each system is independent — pick the section that applies.
+Each system is independent — pick the section that applies.
 
 | System | Category on UDS | Mental model |
 | --- | --- | --- |
