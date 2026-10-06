@@ -20,7 +20,7 @@ metadata:
 
 # UDW material and screen effects
 
-Everything UDW renders into materials (per-object) and the camera (screen/post) in response to weather, plus helper actors/components for placing the effects.
+
 
 | Effect | Type | Driven by |
 | --- | --- | --- |
