@@ -18,16 +18,6 @@ UDS renders clouds via one of four mutually exclusive systems plus a shared move
 | 2D Dynamic Clouds | Panning 2D textures on the sky sphere | Cheap | — |
 | Voxel Clouds | Hard cubic voxel render of Volumetric Clouds | Heavy | Same tools as Volumetric Clouds |
 
-## When to use this skill
-
-- Tuning the look (altitude, scale, density, color, second layer) of any cloud type.
-- Cutting cloud-rendering GPU cost.
-- Painting localised cloud coverage (gaps over mountains, clouds in a basin).
-- Authoring a custom cloud shape profile, or generating a custom static cloud texture.
-- Configuring volumetric cloud light rays (god rays through cloud gaps).
-- Making the clouds loop seamlessly for a film render.
-- Diagnosing dark clouds, hard mesh intersections, blurry-when-moving, or in-layer artifacts.
-
 ## Volumetric Clouds
 
 Richest and most expensive cloud option. Category: **Volumetric Clouds**.
