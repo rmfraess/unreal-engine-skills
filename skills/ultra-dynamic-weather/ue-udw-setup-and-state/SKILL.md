@@ -9,7 +9,6 @@ metadata:
 
 # UDW setup and weather state
 
-The foundation of Ultra Dynamic Weather: getting the actor in place, the weather state model, presets, runtime transitions, the manual state for sequencer/per-value control, sampling weather from gameplay code, and event dispatchers.
 
 | Concept | Mechanism |
 | --- | --- |
