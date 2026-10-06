@@ -254,8 +254,7 @@ Engine > Interchange** or pass it via `FImportAssetParameters::OverridePipelines
 ## Version notes
 
 - Interchange is the default importer for glTF/GLB and most textures since UE 5.0; it has
-  expanded each release. In 5.8 FBX imports through Interchange by default; the legacy
-  importer remains available by disabling `Interchange.FeatureFlags.Import.FBX`.
+  expanded each release.
 - `UInterchangeAssetImportData` replaces per-format import data classes for Interchange-
   handled assets; legacy paths still produce `UFbxAssetImportData` etc.
 - `UInterchangeFbxTranslatorSettings::bUseUfbxParser` (still experimental in 5.8) enables the
