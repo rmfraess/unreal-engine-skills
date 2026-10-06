@@ -229,8 +229,7 @@ For targets to be perceivable, add `UAIPerceptionStimuliSourceComponent` to them
 register the relevant senses. Affiliations (enemy/neutral/friendly) are set via
 `IGenericTeamAgentInterface` — Blueprint-only projects detect neutrals then filter by tag.
 
-See [references/perception-and-statetree.md](references/perception-and-statetree.md) for
-all senses, forget behavior, `UAIPerceptionStimuliSourceComponent`, and debugging.
+For AI Perception details, see [references/ai-perception.md](references/ai-perception.md) for senses, forget behavior, `UAIPerceptionStimuliSourceComponent`, and debugging.
 
 ## StateTree (modern alternative to Behavior Trees)
 
@@ -257,8 +256,7 @@ StateTree tasks are C++ structs (not `UObject`s) implementing `FStateTreeTaskBas
 weight and data-oriented. State data lives in typed instance structs. For Behavior Tree
 projects, StateTree can be adopted incrementally — the two systems coexist.
 
-See [references/perception-and-statetree.md](references/perception-and-statetree.md) for
-StateTree C++ task authoring, schema setup, and the BT-vs-StateTree decision guide.
+For StateTree AI authoring and BT comparison, see [references/statetree-ai.md](references/statetree-ai.md) for C++ tasks, schema setup, and the decision guide.
 
 ## Gotchas
 
@@ -346,7 +344,7 @@ Deep-dive references in this skill:
   query filters, avoidance (RVO/Detour Crowd), nav links, NavInvokers, World Partition nav.
 - [references/eqs-deep-dive.md](references/eqs-deep-dive.md) — generators, tests, contexts,
   run modes, C++ query pattern, EQS Testing Pawn.
-- [references/perception-and-statetree.md](references/perception-and-statetree.md) — all
-  senses, forget behavior, stimuli source, StateTree task authoring, BT vs StateTree guide.
+- [references/ai-perception.md](references/ai-perception.md) — senses, forget behavior, stimuli source, and debugging.
+- [references/statetree-ai.md](references/statetree-ai.md) — StateTree C++ tasks, schema, and the BT-vs-StateTree guide.
 
 Related skills: `ue-character-and-movement`, `ue-gameplay-tags`, `ue-gameplay-framework`.
