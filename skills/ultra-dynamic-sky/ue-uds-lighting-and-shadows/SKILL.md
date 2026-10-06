@@ -1,6 +1,6 @@
 ---
 name: ue-uds-lighting-and-shadows
-description: Configure lighting in Ultra Dynamic Sky — Sun and Moon directional light components, Cloud Shadows (volumetric and 2D), Sky Light modes (Capture Based / Custom Cubemap / Cubemap with Dynamic Color Tinting), Exposure (auto exposure / manual), static/stationary lighting setup, Screen Space Light Shafts, the Light Day/Night Toggle component for lights that come on at night, and the day-to-night material utility functions. Use any time the user mentions UDS lighting, shadows, sky light, ambient light, sun shadow softness, light angle, exposure problems, scene rendering black or wrong at night, baked lighting with UDS, god rays/light shafts, lights that come on at sunset, cubemap recapture cost, or making a child of UDS to override sun color.
+description: Configure lighting in Ultra Dynamic Sky — Sun and Moon directional light components, Cloud Shadows (volumetric and 2D), Sky Light modes (Capture Based / Custom Cubemap / Cubemap with Dynamic Color Tinting), Exposure (auto exposure / manual), static/stationary lighting setup, Screen Space Light Shafts, the Light Day/Night Toggle component for lights that come on at night, and the day-to-night material utility functions. Use any time the user mentions UDS lighting, shadows, sky light, ambient light, sun shadow softness, light angle, exposure problems, scene rendering black or wrong at night, baked lighting with UDS, god rays/light shafts, lights that come on at sunset, cubemap recapture cost, or making a child of UDS to override sun color, or configuring a Custom Sun/Moon Light Actor and its Cloud Scattered Luminance Scale.
 metadata:
   asset: Ultra Dynamic Sky (marketplace)
   category: lighting
@@ -19,17 +19,6 @@ UDS owns three lights (sun, moon, sky light) as components on the actor, and a c
 | Cloud Shadows | Effect on the directional lights | **Cloud Shadows** | Works with every Sky Mode |
 | Screen Space Light Shafts | Engine `Light Shaft Bloom` toggle | **Screen Space Light Shafts** | Cheap; only when facing the light |
 | Exposure | Auto / Manual auto-exposure control | **Exposure** | Drives the whole image brightness |
-
-## When to use this skill
-
-- Configuring or limiting the sun/moon directional lights.
-- Choosing or tuning the sky light mode (capture / cubemap / tinted).
-- Diagnosing black, too-dark, or unresponsive ambient light.
-- Setting up baked / static / stationary lighting with UDS.
-- Enabling Light Shaft Bloom god rays for the sun/moon.
-- Making placed lights in the level (lamps, neon) turn on at sunset.
-- Making emissive materials switch on at night without writing blueprint.
-- Working with a Custom Sun/Moon Light Actor (and the Cloud Scattered Luminance Scale gotcha that comes with it).
 
 ## Light components on UDS
 
