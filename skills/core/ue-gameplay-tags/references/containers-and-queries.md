@@ -83,20 +83,6 @@ bool bMatches = Container.MatchesQuery(SomeQuery);  // delegates to FGameplayTag
 The bytecode is evaluated at runtime by `FQueryEvaluator` (friend class) without
 allocating. This makes `Matches` (`:803`) very fast for common cases.
 
-### Building queries in C++
-
-Fluid builder syntax using `FGameplayTagQueryExpression`:
-
-```cpp
-// "Has Damage.Fire but not State.Immune"
-FGameplayTagQuery Q = FGameplayTagQuery::BuildQuery(
-    FGameplayTagQueryExpression()
-    .AllExprMatch()
-    .AddExpr(FGameplayTagQueryExpression().AnyTagsMatch().AddTag(TAG_Damage_Fire))
-    .AddExpr(FGameplayTagQueryExpression().NoTagsMatch() .AddTag(TAG_State_Immune))
-);
-```
-
 Available expression types (`EGameplayTagQueryExprType`, `:690`):
 
 | Type | Tests |
