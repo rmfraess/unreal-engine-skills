@@ -2,8 +2,9 @@
 name: ue-material-graph-effects
 description: >-
   Author animated and interactive Unreal Engine 5.8 material graph effects. Use for scrolling UVs,
-  periodic motion, World Position Offset (WPO) vertex animation, masked dissolves, emissive edges,
-  bounds/collision mismatches, or per-actor graph-effect parameters driven by gameplay.
+  periodic motion, World Position Offset (WPO) vertex animation, reactive foliage or seaweed WPO,
+  masked dissolves, emissive edges, bounds/collision mismatches, or per-actor graph-effect
+  parameters driven by gameplay.
 metadata:
   engine-version: "5.8"
   category: content-assets
@@ -34,6 +35,12 @@ When the dissolve also releases mesh-sampled particles, use `ue-niagara-mesh-dis
 Create a dynamic material instance per affected component or actor, retain it, and change its exposed parameters at meaningful state transitions or along a gameplay timeline. Initialize values before the first visible frame. Use a Material Parameter Collection only for a value that truly should affect all consumers. Material animation does not change gameplay collision or physics; coordinate those separately if an object becomes intangible or disappears.
 
 For World Position Offset, test maximum displacement against mesh bounds, shadows, and any attached effects. Material-driven movement does not move the collision shape. Avoid making the visual rise or dissolve while gameplay still treats the old shape as present unless that mismatch is intentional.
+
+## Reactive foliage and seaweed
+
+For plants bending around a passing character or vehicle, read [Rooted plant interaction](references/rooted-plant-interaction.md). It covers instance-space root masks, coherent stalk proximity, preserving existing wind, and separating missing runtime input from an ineffective displacement mask. A surface fluid simulation only helps submerged vegetation when its input and output actually cover that vegetation.
+
+When the project already uses Prismatiscape, read [Prismatiscape interaction notes](references/prismatiscape-interaction.md) for the inspected component-to-material path and version limits.
 
 ## Review
 
