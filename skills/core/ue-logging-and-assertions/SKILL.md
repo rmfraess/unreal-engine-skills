@@ -20,14 +20,6 @@ Good diagnostics make UE bugs findable in minutes rather than hours. Use **log c
 (not `LogTemp`), pick the right **verbosity** so logs stay scannable, and choose **check vs
 ensure** deliberately — one halts, the other reports and continues.
 
-## When to use this skill
-
-- Defining a log category for a new game module or feature subsystem.
-- Adding `UE_LOG` / `UE_LOGFMT` calls with the right verbosity for the context.
-- Choosing between `check`, `verify`, and `ensure` for a given assumption.
-- Deciding whether a bad state should crash the program or just report.
-- Filtering or silencing verbose logs per-category at runtime or in builds.
-
 ## Log categories
 
 Every `UE_LOG` call names a category. Use the built-in `LogTemp` for quick prototyping;
