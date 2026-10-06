@@ -40,8 +40,7 @@ game and can't travel without it; plugins drop into any project's `Plugins/` fol
 | Can bundle content? | No (content lives in project `Content/`) | Yes (`CanContainContent: true`) |
 | Multiple modules? | One `.Build.cs` per module | Many modules, each with its own `.Build.cs` |
 
-Choose a plugin when: the feature will be used in more than one project, it is optional, or it
-is an editor-only tool you want to ship separately.
+
 
 ## Plugin folder structure
 
