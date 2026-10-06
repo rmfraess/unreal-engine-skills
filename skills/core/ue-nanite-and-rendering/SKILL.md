@@ -1,13 +1,12 @@
 ---
 name: ue-nanite-and-rendering
-description: Configure Nanite virtualized geometry (FMeshNaniteSettings on static and skeletal
-  meshes, fallback mesh, displacement/tessellation, WPO distance threshold) and reason about
-  the broader UE rendering pipeline — deferred vs forward, GPU Scene instancing, Virtual
-  Shadow Maps, Virtual Textures, TSR/temporal upscaling, post-process (FPostProcessSettings),
-  scene capture to render targets, and key r.* cvars. Use when enabling Nanite on a mesh,
-  diagnosing Nanite support failures, choosing anti-aliasing or upscaling method, configuring
-  post-process in code or volumes, rendering to a texture (minimap, mirror, portal), tuning
-  scalability cvars, or understanding the deferred/forward rendering split.
+description: Configure UE 5.8 Nanite virtualized geometry (`FMeshNaniteSettings` for static/skeletal meshes,
+  fallback mesh, displacement/tessellation, WPO distance threshold) and rendering
+  (deferred/forward, GPU Scene instancing, Virtual Shadow Maps, Virtual Textures,
+  TSR/temporal upscaling, `FPostProcessSettings`, scene capture/render targets, `r.*` cvars).
+  Use when enabling Nanite or diagnosing support failures, choosing anti-aliasing/upscaling,
+  configuring post-process in code/volumes, rendering to textures (minimap, mirror, portal),
+  tuning scalability, or comparing deferred/forward.
 metadata:
   engine-version: "5.8"
   category: world-building
