@@ -222,7 +222,6 @@ streaming.
   async and gate on the latent callback or `IsStreamingCompleted`.
 - **OFPA + source control** — thousands of tiny files; configure VCS ignore rules for
   generated directories and never commit from outside the editor.
-- **World Composition for new projects** — deprecated path; use World Partition instead.
 - **`UDataLayerSubsystem` in 5.3+** — fully deprecated; all paths must use
   `UDataLayerManager` from `UWorld::GetDataLayerManager()`.
 - **Level Blueprint actors in WP** — any actor referenced from a Level Blueprint is
@@ -236,7 +235,6 @@ streaming.
 - World Partition and OFPA are the default for all Games-category project templates in
   UE 5.0+. Streaming *can* be disabled (World Settings → Enable Streaming) while keeping
   the WP architecture (useful for small games that still want OFPA).
-- `UDataLayerSubsystem` deprecated 5.3; `UDataLayerManager` is the API for 5.3+.
 - `TargetHLODLayers` on `UWorldPartitionStreamingSourceComponent` deprecated 5.4; use
   `TargetGrids` instead.
 - `ECurrentState` on `ULevelStreaming` deprecated 5.2; use `ELevelStreamingState`.
