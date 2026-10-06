@@ -25,14 +25,6 @@ UDS replaces Unreal's stock sky/lighting stack with one actor and four cross-cut
 | Project Mode | `Project Mode` | Runtime perf vs offline quality tradeoff | Cinematic / Offline Mode category |
 | Feature Level | `Feature Level` | Renderer feature-level fallback policy | Mobile category |
 
-## When to use this skill
-
-- Dragging UDS into a fresh level for the first time, or getting "missing/dark scene" on a level that just got UDS.
-- Choosing between Volumetric, Static, 2D Dynamic, Voxel, Aurora, or Space cloud modes.
-- Targeting mobile/console — making sure incompatible features are swapped out.
-- Switching to/from Cinematic Project Mode before rendering a film.
-- Anything in the **Basic Controls** category of UDS.
-
 ## Adding UDS to a level
 
 Before dragging the actor in, remove from the level:
