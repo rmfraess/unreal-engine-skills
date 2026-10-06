@@ -9,7 +9,7 @@ metadata:
 
 # UDW particles, lightning, wind, sounds
 
-All the rendered/heard weather effects: particles, lightning, wind systems, and sounds. For per-material weather (wetness/snow coverage on surfaces), see `ue-udw-material-and-screen-effects`.
+For per-material weather (wetness/snow coverage on surfaces), see `ue-udw-material-and-screen-effects`.
 
 | System | Driven by | Category on UDW |
 | --- | --- | --- |
