@@ -28,15 +28,6 @@ UDS can position the sun, moon, and stars using real-world coordinates and dates
 | `Simulate Real Moon` | Moon Yaw / Pitch / Vertical Offset / Moon Phase | Phase is driven by simulated date |
 | `Simulate Real Stars` | Default tiling stars texture → 360° star map | Both textures exposed in **Stars** category |
 
-## When to use this skill
-
-- Need sunrise/sunset times accurate for a real location and date.
-- Setting the sky for a specific city — Tokyo at noon on Aug 3rd, etc.
-- Star positions matching real constellations.
-- Moon phases matching a real date.
-- Time of Day should reflect the player's actual wall-clock time.
-- Defining what "north" means in the level (level rotation vs world rotation).
-
 ## Location setup
 
 | Setting | Notes |
@@ -48,7 +39,7 @@ UDS can position the sun, moon, and stars using real-world coordinates and dates
 
 ### City presets
 
-A **city preset** applies latitude, longitude, time zone, and daylight savings in one step. The fastest path for "set the sky correctly for City X."
+A **city preset** applies latitude, longitude, time zone, and daylight savings in one step. It is the fastest way to set location for a city-specific scene (e.g., Tokyo at noon on Aug 3).
 
 ## Date
 
