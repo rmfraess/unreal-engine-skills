@@ -16,7 +16,7 @@ metadata:
 
 # Physics & collision (Chaos)
 
-Chaos is the physics engine in UE. Most gameplay needs three things from it: **collision**
+Most gameplay needs three things from it: **collision**
 (what blocks/overlaps what), **queries** (traces/sweeps to ask about the world), and
 occasionally **simulation** (rigid bodies, ragdolls, constraints). Collision setup mistakes
 are the most common source of "my overlap/hit never fires" bugs.
