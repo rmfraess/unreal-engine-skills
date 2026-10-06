@@ -19,7 +19,7 @@ metadata:
 
 # UDS performance, mobile, updates, and troubleshooting
 
-This skill covers GPU/CPU performance levers, mobile configuration, the update workflow, modifying UDS safely, the runtime cache system, and the bulk of common runtime issues. For SKILL.md size reasons the deepest troubleshooting tables live here (intentionally consolidated rather than scattered across the other skills).
+Deep troubleshooting tables are consolidated here, not scattered across the other skills.
 
 | Concern | Where to look |
 | --- | --- |
