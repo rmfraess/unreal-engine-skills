@@ -8,7 +8,7 @@ metadata:
 
 # Sequenced Niagara effects
 
-Use `ue-niagara-vfx` for spawning, attachment, and User parameters, and `ue-niagara-renderers-and-materials` for sprite, mesh, and ribbon choices. This skill covers temporal composition and gameplay ownership. Effect examples are patterns, not required meshes, textures, or starter content.
+Use `ue-niagara-vfx` for spawning, attachment, and User parameters, and `ue-niagara-renderers-and-materials` for sprite, mesh, and ribbon choices. Effect examples are patterns, not required meshes, textures, or starter content.
 
 ## Design the event before the layers
 
