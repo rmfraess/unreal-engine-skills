@@ -143,14 +143,6 @@ static getters that Blueprint graph searches surface.
 
 ## Dependency ordering
 
-```cpp
-void UMySubsystem::Initialize(FSubsystemCollectionBase& Collection)
-{
-    // Template form — preferred, type-safe:
-    Collection.InitializeDependency<UOtherSubsystem>();
-    Super::Initialize(Collection);
-}
-```
 
 `InitializeDependency` only works within the same collection (same owner). You cannot declare a
 `UWorldSubsystem` dependency on a `UGameInstanceSubsystem` — they live in separate collections.
