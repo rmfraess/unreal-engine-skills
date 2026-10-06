@@ -96,9 +96,7 @@ stutter, input lag, or hitchy gameplay even when the average FPS looks acceptabl
 
 ### 5. Tune expectations for high-FPS targets
 
-At 120 FPS, the full frame budget is only 8.33 ms. At 240 FPS, it is 4.16 ms.
-If your game thread consumes 5 ms of that at 120 FPS, you are already spending most of the
-budget before rendering starts. This is why high-refresh targets are unforgiving.
+At 120 FPS, a 5 ms game-thread cost already consumes most of the 8.33 ms frame budget before rendering; high-refresh targets are unforgiving.
 
 ## Example: safe game-thread reduction
 
