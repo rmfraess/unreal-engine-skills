@@ -1,6 +1,6 @@
 ---
 name: ue-uds-fog-and-atmosphere
-description: Configure fog, volumetric fog, dust, and atmospheric coloring in Ultra Dynamic Sky. Covers Fog Density (base + cloud/fog/dust contributions, height falloff, start distance), Fog Color (and the `Support Sky Atmosphere Affecting Height Fog` project setting), Volumetric Fog with light scattering, the Global Volumetric Material (3D noise, ground fog, water-level fog), Dust, the Sky Atmosphere settings (Rayleigh scattering, absorption, overcast luminance), and Simplified Color mode for cheaper sky shading. Use whenever the user mentions UDS fog, height fog, volumetric fog, atmospheric scattering, sky color tinting, dust/sand haze, ground fog, fog below water, or sees a "hard line where fog suddenly starts" issue.
+description: Configure fog, volumetric fog, dust, and atmospheric coloring in Ultra Dynamic Sky. Covers Fog Density (base + cloud/fog/dust contributions, height falloff, start distance), Fog Color (and the `Support Sky Atmosphere Affecting Height Fog` project setting), Volumetric Fog with light scattering, the Global Volumetric Material (3D noise, ground fog, water-level fog), Dust, the Sky Atmosphere settings (Rayleigh scattering, absorption, overcast luminance), and Simplified Color mode for cheaper sky shading. Use whenever the user mentions UDS fog, height fog, volumetric fog, atmospheric scattering, sky color tinting, dust/sand haze, ground fog, fog below water, per-weather fog, fog performance, or sees a "hard line where fog suddenly starts", sky flickering black, or pixelated/invisible volumetric fog.
 metadata:
   asset: Ultra Dynamic Sky (marketplace)
   category: atmosphere
@@ -20,17 +20,6 @@ UDS owns three air-shading systems — height fog, volumetric fog, and the globa
 | Dust | **Dust** | Imitates dust/smoke/particulates in the air (affects fog density + color) | Cheap |
 | Sky Atmosphere | **Sky Atmosphere** | Realistic atmospheric scattering (default Color Mode) | Costlier than Simplified |
 | Simplified Color | **Simplified Color** | LUT-based sky coloring with adjustable color values | Cheap |
-
-## When to use this skill
-
-- Tuning how thick fog gets with cloud coverage / weather / dust.
-- Making fog look different per weather (cloudy, foggy, dusty).
-- Enabling volumetric fog and dealing with its cost.
-- Adding ground fog or 3D noise variation to the fog.
-- Setting up underwater fog tinting/extinction.
-- Picking between Sky Atmosphere and Simplified Color for sky shading.
-- Tuning sunset/twilight color, Rayleigh scattering, or overcast luminance.
-- Diagnosing a hard fog line, sky flickering black, or pixelated volumetric fog.
 
 ## Fog Density
 
