@@ -1,17 +1,7 @@
 ---
 name: ue-metahuman-live-link
-description: Streams real-time facial animation onto a MetaHuman in Unreal Engine 5.8 through
-  Live Link — the MetaHuman Live Link plugin's three sources (MetaHuman Video from a webcam,
-  MetaHuman Audio from a microphone, Live Link Face from an iPhone in MetaHuman Animator or
-  ARKit mode), programmatic source/subject creation (ILiveLinkClient::AddSource,
-  ULiveLinkSourceFactory, ULiveLinkPreset, ULiveLinkBlueprintLibrary,
-  UMetaHumanLocalLiveLinkSourceBlueprint, ULiveLinkFaceSourceBlueprint), subject settings
-  (UMetaHumanLiveLinkSubjectSettings calibration, smoothing, head pose), binding a subject to
-  an assembled MetaHuman (LiveLinkSetup / LLink_Face_Subj, FAnimNode_LiveLinkPose,
-  ULiveLinkComponentController), Take Recorder (UTakeRecorderLiveLinkSource,
-  UTakeRecorderActorSource) and packaged-game behaviour. Use when wiring a live performer to a
-  MetaHuman face, debugging a subject with no data or the wrong role (Basic vs Animation
-  Role), tuning latency/smoothing, or recording a live take to an AnimSequence.
+description: >-
+  Real-time MetaHuman facial animation in UE 5.8. Use for MetaHuman Video webcam, MetaHuman Audio microphone, or iPhone Live Link Face (MetaHuman Animator/ARKit) streaming; C++/Python source/subject creation or presets; calibration, smoothing, head pose and latency; assembled-character LiveLinkSetup/LLink_Face_Subj binding; missing data, Basic vs Animation Role or doubled head motion; Take Recorder raw-curve/baked AnimSequence recording; and packaged-game behavior. Offline take processing: ue-metahuman-animator.
 metadata:
   engine-version: "5.8"
   category: metahuman
