@@ -1,6 +1,6 @@
 """PIE A/B GPU timing at a fixed camera (UE 5.8 + VibeUE PerformanceService).
 
-Run inside execute_python_code:
+Run inside execute_python:
     exec(open(PATH).read())
     pie_ab(configs, cam=(x, y, z, pitch, yaw), out='C:/.../pie_ab.json')
 then poll for the JSON from a separate call (the run is tick-driven; never sleep in the Editor).

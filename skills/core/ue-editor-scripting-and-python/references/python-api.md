@@ -70,7 +70,7 @@ print(json.dumps({key: env.get(key) for key in (
 )}))
 ```
 
-Verify that declaration in the installed version before relying on it. Run the probe through the existing Python MCP entrypoint with `auto_save=False`; check the current world and dirty packages separately because an environment response does not prove a clean scene. Retain the full diagnostic result locally and print only the identity fields needed for the gate.
+Verify that declaration in the installed version before relying on it. Run the probe through the existing Python MCP entrypoint; check the current world and dirty packages separately because an environment response does not prove a clean scene. Retain the full diagnostic result locally and print only the identity fields needed for the gate.
 
 ---
 

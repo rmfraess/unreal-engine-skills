@@ -238,7 +238,7 @@ judge faces. Epic's `EditorAppToolset.CaptureAssetImage` rejects `MetaHumanChara
    editor restart came back wearing its preset grooms).
 3. Light neutrally: if nothing is dirty, `LevelEditorSubsystem.load_level("/MetaHumanCharacter/LightingEnvironments/Studio")`
    (key/fill/bounce aimed at the origin, grey backdrop). It brings `L_BaseEnvironment` along as a
-   sublevel, so VibeUE lists it under `resident_maps`; that is the open world, not a leak.
+   sublevel, so `unreal.PythonTools.get_resident_maps()` lists it; that is the open world, not a leak.
    Review one candidate at a time at the origin: `end_edit` the previous one (destroys its
    preview), then spawn the next transient (`spawn_in_level(c, origin, rot, True)`). In a game
    map instead, spawn far above the level (z=30000) so foliage never occludes; either way
@@ -251,8 +251,8 @@ judge faces. Epic's `EditorAppToolset.CaptureAssetImage` rejects `MetaHumanChara
    `UnrealEditorSubsystem.set_level_viewport_camera_info`; `select_nothing()` hides gizmos;
    capture the editor viewport. Keep these helpers in one small module under
    `Saved/` and `importlib.reload` it per call rather than re-sending the code.
-5. Run every scratch-touching call with VibeUE `execute_python_code(auto_save=false)`: the default
-   pre-run save sweep persists every dirty package, scratch characters included.
+5. `execute_python` saves nothing by itself: never save while a scratch character is dirty, and
+   check `unreal.PythonTools.get_dirty_packages()` before any save.
 6. Present the candidates as one labelled contact sheet (crop each capture to the head, paste
    side by side with Pillow via `uv run --no-project --with pillow`) plus a one-line fit verdict
    each and a recommendation.

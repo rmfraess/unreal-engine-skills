@@ -195,13 +195,13 @@ To iterate a PCG graph in a smaller dedicated level (a forest-only bench copied 
 1. **Inventory what the graph reads from the world before deleting anything.** List every node's actor selector (`actor_selection`, tag, `select_multiple`) and read custom elements' source for `TActorIterator` lookups by tag **or by actor name/label** (e.g. `GetActorNameOrLabel() == Settings->SomeLandscape`), ground-mesh tags, clearing/exclusion tags and hard-coded asset loads. Keep exactly those actors plus lighting; everything else can go.
 2. **Copy by Save As, then relaunch on the copy** (see `ue-editor-scripting-and-python` → map copy): `save_map(world, NewPath)`, quit with nothing dirty, relaunch with `-Map NewPath`, then delete the unused actors and save.
 3. **Record the source's saved output first:** ISM instance totals per mesh and `InstancedSkinnedMeshComponent` instance totals (skinned spawner output is not in the ISM count).
-4. **Generate in the copy with `auto_save=false`,** wait, and compare per-mesh totals. Read the custom nodes' own log lines (accepted/removed counts) to find which node lost input; a mesh family dropping to 0 with no PCG error means an input lookup silently found nothing.
+4. **Generate in the copy without saving,** wait, and compare per-mesh totals. Read the custom nodes' own log lines (accepted/removed counts) to find which node lost input; a mesh family dropping to 0 with no PCG error means an input lookup silently found nothing.
 5. **Check side effects before saving:** list dirty content packages after Generate. Custom nodes can write shared assets (masks, textures, landscape relief); save only the level package and restore any shared asset the copy wrote.
 6. **Judge the look after a cold load,** not right after Generate: freshly generated masked foliage can render as opaque squares until streaming settles.
 
 ## Common pitfalls
 
-- **Verify a graph by running Generate, not by comparing saved output.** Generated resources persist in the map, so a rename or input change that breaks the graph is invisible until someone regenerates. After any rename/move/input change, regenerate (in a copy or with `auto_save=false`) and compare per-mesh totals.
+- **Verify a graph by running Generate, not by comparing saved output.** Generated resources persist in the map, so a rename or input change that breaks the graph is invisible until someone regenerates. After any rename/move/input change, regenerate (in a copy, or without saving) and compare per-mesh totals.
 - **Name-based actor lookups in node settings break on label renames.** A setting holding an actor label string (`RoadLandscape`, `ReliefLandscape`) is not a reference, so redirectors and reference fix-ups miss it and the lookup silently returns null. Prefer tags; when a name field exists, include node settings in the rename's text sweep.
 
 - **Large-volume synchronous generation** — calling `Generate()` on a 1 km² PCG volume at

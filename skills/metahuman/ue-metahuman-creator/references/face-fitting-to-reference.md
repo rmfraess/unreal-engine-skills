@@ -14,7 +14,7 @@ preset must be chosen for 3D form (see SKILL.md). Tell the user this ceiling bef
    (about ±3 cm in X).
 2. **Long-lens front camera.** Spawn a transient `CameraActor` at `(0, 160, eye_z - 2)`, yaw -90,
    `field_of_view` 15, `constrain_aspect_ratio` False, and `LevelEditorSubsystem.pilot_level_actor`
-   it; capture with `capture_image source=editor max_width=1600`. A long lens keeps perspective
+   it; capture with `SceneCaptureToolset.CaptureEditorViewport` (it returns the viewport's own size). A long lens keeps perspective
    close to a portrait photo's, and a known camera makes the sculpt points projectable.
 3. **Project the sculpt landmarks** with the camera *as actually piloted*: read the camera actor's
    location, yaw and FOV in the same call that dumps the landmarks, never a constant (an orbit

@@ -8,7 +8,7 @@ opinion. Use the stated height as the scale and fit every visible measurement nu
 
 1. **Captures.** Spawn the preview (grooms and `Outfits` cleared), `Studio` lighting map, viewport
    camera at the same distance for every capture: front `(0, 330, 100)` yaw -90, side
-   `(330, 0, 100)` yaw 180, then `capture_image source=editor`. Same camera for every iteration,
+   `(330, 0, 100)` yaw 180, then `SceneCaptureToolset.CaptureEditorViewport`. Same camera for every iteration,
    so captures are comparable.
 2. **Scale by height, calibrate by method.** Align reference and render at neck row and sole row
    (excludes hair and floor). Measure both images *the same way*, then
