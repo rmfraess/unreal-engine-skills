@@ -206,7 +206,7 @@ compiles out of runtime targets. See `ue-logging-and-assertions` for `verify` vs
 
 ## Gotchas
 
-- **Editor-only API in runtime code** — cook/link errors; gate with `#if WITH_EDITOR`.
+- **Editor-only API in runtime code** — Editor builds compile it happily, and only a Game-target build fails (`C2039: not a member`). Before a long BuildCookRun, compile the game target alone: `Build.bat <Project> Win64 Development -project=<uproject> -waitmutex` (seconds, not minutes). To fix, read the engine header's `#if WITH_EDITOR` guards *before* choosing a replacement; neighbouring APIs are often editor-only too (`ULandscapeInfo::GetLandscapeExtent` and `ALandscape::GetCompleteBounds` are, `ALandscape::GetLoadedBounds` is not). Keep the exact editor call under `#if WITH_EDITOR` and add an `#else` runtime fallback, so editor-generated output stays identical; re-run the module's automation tests.
 - **Content not reachable** — not cooked → missing at runtime. Hard-ref or add to
   `DirectoriesToAlwaysCook`. Use the Asset Audit window to inspect chunk assignments.
 - **Works in PIE, broken packaged** — typically editor-only deps, uncooked assets, or
@@ -273,6 +273,8 @@ Deep-dive references in this skill:
   config overrides), compression, encryption.
 - [references/platform-and-dlc.md](references/platform-and-dlc.md) — platform targets,
   Device Profiles, Client/Server split, IoStore On-Demand / content-on-demand, patching.
+- [references/size-audit.md](references/size-audit.md) — measuring shipped size with a
+  one-map package build, and safely shrinking local disk and the git/LFS repo.
 
 Related skills: `ue-module-and-build-system`, `ue-asset-management`, `ue-logging-and-assertions`,
 `ue-networking-and-replication`, `ue-project-structure`.

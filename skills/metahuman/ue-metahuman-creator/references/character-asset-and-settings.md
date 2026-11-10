@@ -154,6 +154,25 @@ Eye presets in `Content/Tools/EyePresets/` (`EyePresets` data + `T_EyePreset_001
 
 ---
 
+## Look-dev recipes
+
+Verified starting values (VibeMetaHumans `set_skin_tone` / `set_settings`; patch keys are
+PascalCase, `get_settings` returns camelCase):
+
+- **Fair, young, lightly sunned:** `set_skin_tone(c, 0.22, 0.40)`; face-only sun via
+  `{"Accents":{"Forehead":{"Redness":0.58,"Saturation":0.55},"Nose":{"Redness":0.6,"Saturation":0.55},"Cheeks":{"Redness":0.58,"Saturation":0.55}}}`.
+  `U` 0.28+ already reads tanned/olive under `Studio` light.
+- **Light visible freckles:** `{"Freckles":{"Density":0.4,"Strength":0.35}}` (preset defaults
+  around 0.3/0.2 barely show at close-up distance).
+- **Gray (not blue) iris:** both eyes `{"Iris":{"PrimaryColorU":0.2,"PrimaryColorV":0.62,"SecondaryColorU":0.15,"SecondaryColorV":0.45,"GlobalSaturation":0.12}}`.
+  At `GlobalSaturation` 0.35 it still reads blue. Sample the iris pixels of a close capture
+  (neutral R≈G≈B) and recheck in the target scene lighting: `Studio` light still tints it
+  blue-gray.
+- There is no per-region body tone: tan lines, paler torso or darker hands need a body texture
+  override (`TextureMaterialOverrides`); say so before promising canon-specific skin.
+
+---
+
 ## Makeup settings
 
 `FMetaHumanCharacterMakeupSettings`:

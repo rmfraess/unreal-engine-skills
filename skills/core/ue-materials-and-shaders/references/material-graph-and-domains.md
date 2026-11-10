@@ -73,6 +73,21 @@ Gradients, Math, Texturing, World Position Offset, etc.).
 Source: `Public/Materials/MaterialFunctionInterface.h` — `UMaterialFunctionInterface`:58
 (stores the function graph; `GetInputs`, `GetOutputs`).
 
+## View-dependent UV relief
+
+Use this sequence for a bounded surface-depth experiment, not as proof that a whole asset is realistic.
+
+1. Inspect the saved broad-face UVs and every shared material user, including backing and reveals. Derive physical distance per UV unit on each axis; a plank face and a square test plane rarely share the same mapping. Record approximations where clipped widths or secondary projections differ.
+2. Prepare a bounded scalar height input sampled in linear space from its declared channel. Keep authored height distinct from measured scan data or an inferred normal-to-height reconstruction. Preserve repeat boundaries and neutral seam margins; verify that the chosen offset cannot sample unintended neighbouring regions.
+3. Probe native pins before creating package assets. In UE 5.8, create expressions on a transient `unreal.Material()` and call `MaterialEditingLibrary.get_material_expression_input_names(expression)` with one argument. `MaterialExpressionBumpOffset` exposes `Coordinate`, `Height`, `HeightRatioInput`; the native Texture Sample coordinate pin is `UVs`. Verify the installed names instead of wiring an editor display label by guess.
+4. Start with the native BumpOffset node when a simple parallax test answers the question. Sample height at unshifted UV0, feed R into `Height`, and use one scalar ratio with zero as the OFF control. Its reference plane defaults to 0.5. In UE 5.8 the node adds tangent-camera XY multiplied by `(height - reference) * ratio`; it does not divide by view Z. Treat the ratio as an artistic UV control, not calibrated centimetres or raymarched POM.
+5. Correct anisotropy on the **offset**, not the original mapping. If one U unit spans `L_u` metres and one V unit spans `L_v`, use `UV_final = UV0 + (UV_bump - UV0) * float2(1, L_u / L_v)`. Sample the same BaseColor, Normal and Roughness through `UV_final` on both controls. This nominal correction remains approximate where a shared slot has different UV metrics.
+6. Finish instance usage/shader/resource readiness using the main skill's verification sequence. Compare matched player-height, detail and oblique views under existing lighting. Texture displacement between stills proves neither convincing cupping nor the absence of motion swimming; test camera motion separately when that claim matters.
+
+A technically working BumpOffset test may yield little visible benefit. Report that negative result without promoting it or concluding all PBR relief is impossible. POM, displaced self-shadowing, silhouettes and collision are separate mechanisms and acceptance claims; choose a further experiment only under the next agreed scope.
+
+Installed-source entry points: `Runtime/Engine/Public/Materials/MaterialExpressionBumpOffset.h`, `Runtime/Engine/Private/Materials/MaterialExpressions.cpp`, and `Editor/MaterialEditor/Public/MaterialEditingLibrary.h`.
+
 ## Static Switch parameters
 
 A `StaticSwitchParameter` node chooses between two input paths at **compile

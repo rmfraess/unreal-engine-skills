@@ -78,6 +78,8 @@ Additional useful function specifiers:
 
 Full specifier table and advanced meta tags: [references/ufunction-specifiers.md](references/ufunction-specifiers.md).
 
+For agent-facing Editor tools, return actionable failure and risk information in a reflected result, not only in `UE_LOG`: UE 5.8's ToolsetRegistry serializes the reflected return value, so a boolean alone does not carry the native log warning. Identify affected objects and run non-mutating hard-failure checks before offering risk acceptance; report the actual blocker rather than requesting approval that cannot resolve it. If adding a deliberate-risk option, default it off, preserve existing callers where needed, retain the warning after an opted-in success, and never treat the option itself as proof of human approval. Explain unverified side effects and ask the developer before opting in. Verify the actual registry schema and a real external MCP call; reflection or a Python call alone does not establish transport behavior.
+
 ## Exposing properties (UPROPERTY)
 
 ```cpp

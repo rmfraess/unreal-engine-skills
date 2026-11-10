@@ -171,7 +171,38 @@ resources are destroyed. If you want to detach generated content from the PCG co
 (so `Cleanup` no longer affects it), call `ClearPCGLink(TemplateActorClass)` which moves
 managed resources to a new standalone actor.
 
+## Per-point material overrides
+
+To give one Static Mesh Spawner different materials per mesh (for example, project-local instances over shared vendor meshes), write a `FSoftObjectPath` (or `FString`) attribute per point in the producing node. Then on the spawner's `PCGMeshSelectorByAttribute` set `bUseAttributeMaterialOverrides = true` and `MaterialOverrideAttributes = ["<AttrName>"]` (one name per material slot).
+
+- When a data set lacks the attribute, PCG logs only a Warning (`Attribute '<X>' for material overrides is not present`) and spawns with mesh defaults. Treat that warning as "the override never reached this data" and check the producer, because the Generate still completes.
+- A point with an empty path gets a null override, and a null override falls back to the mesh's own material. Unrelated items on the same pin (logs next to rocks) can therefore leave the attribute empty.
+- Verify the result by reading `ISMComponent.get_material(0)` per mesh after Generate. The settings readback alone proves nothing.
+
+## Exclusion zones and attached dressing
+
+- **Test the whole footprint, not the pivot.** A pivot-only test against a road or other exclusion lets wide meshes (boulders, logs, root plates) overlap it. The *visible* road mesh can also be wider than the spline width plus margin. Sample the mesh bounds 3x3 at the final placement transform, and cache bounds per asset. Exempt small floor litter that should bank against the edge.
+- **Verify against what the player sees.** Trace or overlap only the visible, colliding road components. Hidden placeholder splines give false hits. Run a control count of samples that should hit, so you know a zero result isn't a broken check.
+- **Attached base dressing (root flares, collars):** emit the companion point in the same accept pass as its parent, on a separate pin. Put it at ground Z rather than the parent's sunk pivot, and use the parent's yaw only, so a leaning trunk keeps its flare flat. Scale it by the parent scale × (measured trunk radius / authored radius).
+- **Shrink before dropping.** When a companion fails the exclusion test, retry at a smaller spread (for example 1.0 → 0.7 → 0.45 in XY only) before skipping it, since a short flare reads better than a bare trunk.
+- **Measure source meshes before sizing companions.** Read vertices with `GeometryScript_MeshQueries.get_all_vertex_positions`, then `GeometryScript_List.convert_vector_list_to_array`, and take a near-ground Z band. On low-poly trunks with one sparse ring per band, use the band's XY extent / 4; a median distance from the centre is meaningless with that few vertices.
+- **Prove determinism.** Run Cleanup and Generate twice at fixed settings and compare an instance digest (mesh + rounded transforms). Equal digests mean later before/after comparisons are trustworthy.
+
+## Isolating a graph in its own test level
+
+To iterate a PCG graph in a smaller dedicated level (a forest-only bench copied from a busier test map):
+
+1. **Inventory what the graph reads from the world before deleting anything.** List every node's actor selector (`actor_selection`, tag, `select_multiple`) and read custom elements' source for `TActorIterator` lookups by tag **or by actor name/label** (e.g. `GetActorNameOrLabel() == Settings->SomeLandscape`), ground-mesh tags, clearing/exclusion tags and hard-coded asset loads. Keep exactly those actors plus lighting; everything else can go.
+2. **Copy by Save As, then relaunch on the copy** (see `ue-editor-scripting-and-python` → map copy): `save_map(world, NewPath)`, quit with nothing dirty, relaunch with `-Map NewPath`, then delete the unused actors and save.
+3. **Record the source's saved output first:** ISM instance totals per mesh and `InstancedSkinnedMeshComponent` instance totals (skinned spawner output is not in the ISM count).
+4. **Generate in the copy with `auto_save=false`,** wait, and compare per-mesh totals. Read the custom nodes' own log lines (accepted/removed counts) to find which node lost input; a mesh family dropping to 0 with no PCG error means an input lookup silently found nothing.
+5. **Check side effects before saving:** list dirty content packages after Generate. Custom nodes can write shared assets (masks, textures, landscape relief); save only the level package and restore any shared asset the copy wrote.
+6. **Judge the look after a cold load,** not right after Generate: freshly generated masked foliage can render as opaque squares until streaming settles.
+
 ## Common pitfalls
+
+- **Verify a graph by running Generate, not by comparing saved output.** Generated resources persist in the map, so a rename or input change that breaks the graph is invisible until someone regenerates. After any rename/move/input change, regenerate (in a copy or with `auto_save=false`) and compare per-mesh totals.
+- **Name-based actor lookups in node settings break on label renames.** A setting holding an actor label string (`RoadLandscape`, `ReliefLandscape`) is not a reference, so redirectors and reference fix-ups miss it and the lookup silently returns null. Prefer tags; when a name field exists, include node settings in the rename's text sweep.
 
 - **Large-volume synchronous generation** — calling `Generate()` on a 1 km² PCG volume at
   runtime blocks the game thread; use async paths and `GenerateAtRuntime` with the scheduler.

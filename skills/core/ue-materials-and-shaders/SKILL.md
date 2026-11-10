@@ -7,12 +7,11 @@ description: >-
   Process/UI/Volume), shading models (Default Lit/Unlit/Subsurface/Clear Coat/Hair/Cloth/Eye),
   blend modes (Opaque/Masked/Translucent/Additive), scalar/vector/texture parameters,
   material functions, material parameter collections (global values), and
-  the material C++ API (CreateDynamicMaterialInstance, SetScalarParameterValue,
-  SetVectorParameterValue, SetTextureParameterValue, UKismetMaterialLibrary). Use when
+  the material C++ API (CreateDynamicMaterialInstance, Set*ParameterValue, UKismetMaterialLibrary). Use when
   creating materials, making parameterized variants, changing material parameters at runtime,
   setting global weather or world-state parameters, fixing material shader permutation count
   or translucency overdraw, cross-referencing the UMaterial/instance hierarchy, or diagnosing
-  default-material fallback caused by a missing usage flag.
+  default-material fallback from a missing usage flag. Also for Volumetric Cloud materials.
 metadata:
   engine-version: "5.8"
   category: content-assets
@@ -85,7 +84,7 @@ for a full parameter-type breakdown and a worked C++ example.
 | `MD_LightFunction` | modifies a light's intensity/color pattern |
 | `MD_PostProcess` | custom post-process pass |
 | `MD_UI` | UMG/Slate widgets |
-| `MD_Volume` | volumetric materials (Heterogeneous Volumes) |
+| `MD_Volume` | volumetric materials: Volumetric Cloud (with `used_with_volumetric_cloud`; see [volumetric cloud materials](references/volumetric-cloud-materials.md)), Heterogeneous Volumes |
 
 ### Blend mode (`EBlendMode`, `Engine/Classes/Engine/EngineTypes.h`:245)
 
@@ -206,8 +205,19 @@ Enable only what the content actually uses; extra usages silently grow compile t
 - Use the **Material Analyzer** (Windows → Material Analyzer) to find redundant
   materials and duplicate parameter overrides.
 
+## Verifying a visual material change in the Editor
+
+1. **Prove the edit drives the intended region first.** Inspect the actual component slot, effective instance and graph bindings. When a mask or injection point is uncertain and the mutation scope permits it, temporarily output a diagnostic colour such as `lerp(Prev, float3(1,0,0), mask)`, capture once, then restore the real code. Reuse already-conclusive binding evidence instead of adding a diagnostic edit to protected materials.
+2. **Separate dependency readiness, shader compilation and capture.** Load all referenced textures/materials first and return to the Editor for async resource work before a cold check. Retain exact GPU dimensions and formats; registry source sizes alone do not exclude placeholder resources. Call `unreal.MaterialEditingLibrary.get_statistics(material)` after `recompile_material` to finish its current-platform shader map; zero pixel instructions flags failure, but a positive count does not prove ready textures, correct wiring or runtime cost. Verify effective usage flags on the actual A/B instances before their first assignment. Then queue one `take_high_res_screenshot` per real frame and wait for fresh output before switching variants. For temporally accumulated effects such as clouds, use settled PIE frames instead of history-free high-resolution rerenders (see the cloud reference).
+3. **Frame the surface you changed.** Pick cameras where that surface fills the lower frame; road or boulders in the frame hide a floor change. Compare same-camera crops side by side, A/B/C variants included.
+4. **Don't judge albedo by frame brightness under auto exposure.** Eye adaptation cancels brightness changes of a surface that dominates the frame, so a 30% albedo cut can measure identical. Compare hue (for example R−B) and texture detail. To make a surface read darker, reduce its contrast relative to its neighbours, or fix the exposure. Fixed exposure is a scene-wide lighting decision, so ask the user before changing it.
+5. **Choose the correct comparison.** For an effect OFF/ON test, hold the PBR maps, non-target shading terms, lighting, exposure and cameras identical; updating an old imported finish only on the ON side confounds the claimed effect. When the user prefers an earlier version or engine default, compare that look separately in the same session before changing it, then inspect its effective textures and parameter recipe. Judge the requested visible cue, not merely changed pixels or higher shader complexity.
+
 ## Gotchas
 
+- **Verify instance details against Unreal's effective values before relying on a material-info wrapper.** A wrapper can faithfully serialize a legacy reader's wrong blend mode, defaults, or override flags. Check the installed implementation and test a real instance with a local override and a nested parent override; see [instance inspection](references/material-instances-and-parameters.md#inspecting-effective-instance-values). Report rounded values and omitted parameter types or layer identities as limits, not complete material diagnostics.
+- **Detach nested editor structs before editing or comparison.** Use `.copy()` on a material instance's `base_property_overrides` and its nested `DisplacementScaling`, enable the intended override, assign the edited copies back, then verify the actual magnitude/centre before saving and after clean reload. Do not normalize a live readback struct merely to compare it: local-looking edits can affect its owner or preserve an inherited value unexpectedly.
+- **Keep shallow displacement and grain shading coherent.** A depth-only magnitude change holds the authored normal map fixed and may barely change face lighting. For a stronger tactile candidate, derive or tune the normal for the chosen height amplitude and UV metric; record approximate mapping on clipped/reveal faces. If both depth and normal change, label the comparison a coupled appearance pass, not a displacement-only A/B, and preserve the prior finish.
 - **Parameter name typos** in `Set*ParameterValue` silently no-op — verify names
   match the parameter nodes exactly.
 - **Changing a `UMaterial` directly at runtime** (e.g. swapping its texture
@@ -216,6 +226,10 @@ Enable only what the content actually uses; extra usages silently grow compile t
   only `Set*EditorOnly` functions exist. Use MID for any runtime mutation.
 - **Missing usage flag** — the mesh shows the default material with no error in
   the log by default. Enable the flag and re-save the material.
+- **Declare Nanite usage before an instance A/B test.** In UE 5.8, first assignment can automatically add a Nanite usage override to a material instance and leave it dirty. Set `MaterialEditingLibrary.set_base_material_usage(parent, MaterialUsage.MATUSAGE_NANITE, True)` before creating the instances; verify `has_material_usage` on both. If an owned test instance already gained an automatic override, reconcile it with `set_material_usage_override(instance, usage, False)` and save only the verified owned assets. Keep both controls on the same effective usage flags.
+- **Treat cold placeholder resources as a readiness diagnosis.** Use the dependency-load/frame-separated checks above; keep source metadata distinct from the eventual exact GPU readback rather than redefining the expected dimensions or format.
+- **An inspector can omit a real hidden output.** Some loaded bridge versions serialize the common material outputs but omit Displacement even though their writer connected it. `EMaterialProperty::MP_Displacement` is hidden in UE 5.8, so its Python enum member can be absent and passing its integer ordinal can fail conversion. Do not drop output verification or rebuild unrelated plugin work just to inspect it. Export the owned material through `AssetExportTask` + `ObjectExporterT3D` to a task-local `.copy`, verify its native `Displacement=(Expression=...)` entry, then inspect that expression's defaults, connected height/strength nodes and sampler settings. Release the export task's object afterward, retain the actual exported text/hash and recheck dirty packages.
+- **A copy of an engine base material loses its shipped instance's look.** Engine content often ships a base material whose texture parameters default to placeholders, plus an `*_Inst` that sets the real textures. A copy of the base renders blank until your instance copies the shipped instance's `texture_parameter_values` (and any scalar or vector overrides).
 - **Two-collection limit**: a single material graph can reference at most two
   `UMaterialParameterCollection` assets.
 - **Static switch combinations**: each unique combination is a separate compiled
@@ -291,3 +305,12 @@ Deep-dive references in this skill:
 - [references/material-cpp-and-collections.md](references/material-cpp-and-collections.md) —
   full C++ API reference: `UKismetMaterialLibrary`, `CopyScalarAndVectorParameters`,
   MID gotchas, collection constraints.
+- [references/volumetric-cloud-materials.md](references/volumetric-cloud-materials.md) —
+  sky vs terrain-pinned clouds, crash-safe custom cloud material procedure (detach before
+  compiles and texture reimports), conservative density, shared-base cumulus and summit-cap
+  recipe matched to Epic's soft look, engine cloud-material facts (incl. Epic's noise proportions),
+  A/B against a preferred reference look, grain/flicker fixes (Tracing Max Distance 20 km, then 3×
+  samples) and the levers that measured worse, reproducing the user's view, PIE verification and cost.
+- [scripts/pie_cloud_flicker.py](scripts/pie_cloud_flicker.py) — PIE probe that grabs frame
+  bursts per config (cvars, sample scale, MID parameters, component setters; still, slow or panning
+  camera) and reports grain, flicker and GPU ms. Copy it onto the Editor's Python path.

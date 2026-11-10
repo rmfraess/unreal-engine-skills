@@ -220,6 +220,15 @@ On `ULocalLightComponent`:
   shadow cost; keep count per-area ≤ 4.
 - **Auto-exposure surprise** — scenes look inconsistent as the camera moves; use
   manual exposure for cinematic or stylized work.
+- **Milky mid-distance haze** — with volumetric fog enabled, `VolumetricFogExtinctionScale` usually drives the washed-out middle distance more than `FogDensity` does. Lowering density alone barely changes the view. Change one at a time and compare same-camera captures. For crisp air, drop extinction first (for example 0.6 → 0.2), then density.
+- **Sun direction is the light's travel direction** — a `DirectionalLight`'s forward vector points where the light goes, so the sun sits at `-forward`. Map that to the project's world compass (which axis is north or east) before placing a sun by bearing, and print the forward vector to confirm.
+- **Auto exposure normalises frame brightness** — with default auto exposure, neither scaling the sun nor darkening the albedo of a surface that fills much of the frame changes image brightness much, because metering re-targets the frame mean. Light trials change the sun-to-sky ratio, the colour and the shadow length; albedo trials change hue and contrast. Only exposure (bias, or a manual/clamped range) moves overall brightness. If a region stays too bright under every light and material trial, go to exposure.
+- **Prove what a measured region contains** — before blaming a material for a region's brightness or colour, confirm that material actually covers the region: temporarily return a flat colour (e.g. red) from the suspect node and capture. A lower-frame crop of a road-side view is often mostly road, not the surface being tuned.
+- **Default exposure bias is 1.0, not 0** — `FPostProcessSettings::AutoExposureBias` defaults to 1.0 in UE5 (`unreal.PostProcessSettings().auto_exposure_bias`). Overriding it to 0 is already −1 EV; quote trials relative to 1.0.
+- **Exposure trial procedure** — add one unbound `PostProcessVolume` with only `override_auto_exposure_bias` set (read `settings`, set fields, assign the struct back). Capture the same fixed views and report, per view, full-frame mean luma, lower-frame mean luma and clipped-pixel % against the reference frames. Sunlit and shaded views respond differently (sky in frame drags a shaded view darker), so one bias is a trade-off: show both groups. To check whether short-settle captures had converged, run once with `auto_exposure_speed_up/down` overridden high, then remove those overrides before showing the real result. Present before/after and keep the volume unsaved until the user accepts.
+- **A low sun turns golden** — at low elevation `SkyAtmosphere` transmittance warms the direct light. For a pale or cold low sun, enable `bUseTemperature` and raise `Temperature` (about 8,000–8,500 K) to offset it.
+- **Systems that read the sun** — procedural placement that samples the directional light (shade or slope-aspect bias) goes stale when the sun moves. Regenerate it and re-measure after a sun change.
+- **Volumetric clouds: stock material for the sky, trial in PIE** — configure sky clouds through a material instance of `m_SimpleVolumetricCloud_Inst` (parameter changes never recompile under the renderer), zero the x/y of `Layout_WindControls` because horizontal wind slides the whole layout, and judge only PIE or game captures, since one-shot Editor captures smear clouds. The stock material cannot shape summit-sized clouds: its world mask is added after the profile and noise (flat-sided boxes), and km-scale pattern features are erased or turn into columns, so a crest cap is custom-material work. A custom cloud material needs the Volume domain and `used_with_volumetric_cloud` set before it is ever assigned. Toggling that flag or recompiling while it is on a live cloud component crashed the renderer. Trial every cloud change on transient PIE actors first. Setup, mechanisms, graph reading and the PIE/cost recipe: [references/volumetric-clouds.md](references/volumetric-clouds.md).
 - **Sky Light not recapturing** — with `bRealTimeCapture = false`, the sky light bakes
   once; call `RecaptureSky()` or set `bRealTimeCapture = true` when the sky changes.
 - **VSM invalidation cost** — moving or spawning many Movable meshes near shadowed
@@ -288,5 +297,8 @@ Deep-dive references in this skill:
   Lumen architecture, settings table, hardware vs software RT, emissive GI, sky integration.
 - [references/shadows-and-postprocess.md](references/shadows-and-postprocess.md) —
   VSMs, CSMs, shadow bias, post process volume exposure, color grading, Lumen PPV overrides.
+- [references/volumetric-clouds.md](references/volumetric-clouds.md) — stock sky cloud setup (layer,
+  wind, judging captures), what the stock material cannot place and why, reading its graph, custom
+  cloud material order, PIE trial and in-PIE cost A/B recipe.
 
 Related skills: `ue-nanite-and-rendering`, `ue-materials-and-shaders`.

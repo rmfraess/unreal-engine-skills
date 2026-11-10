@@ -203,6 +203,16 @@ See [references/world-partition-streaming.md](references/world-partition-streami
 the full WP streaming lifecycle, console commands for debugging, and notes on server-side
 streaming.
 
+## Isolated test/bench levels
+
+To iterate one feature (e.g. a PCG forest) without a crowded shared map:
+
+1. **Find what the feature reads from the level before stripping anything.** Dump the generator's node settings: actor selectors (`actor_selection_tag`, `select_multiple`) and any custom settings that name actors or landscapes by label. Note the tagged landscape that actually covers the generation volume.
+2. **Copy the source map with Save As + relaunch** (see `ue-editor-scripting-and-python`; duplicate-then-load crashes the Editor).
+3. **Keep only** the inputs from step 1, the generation volume and the sky/lighting actors; destroy the rest and save. Keep the generator pointing at the **same graph asset**, not a copy, so the bench and the main map stay one feature.
+4. **Verify against the source:** Generate with `auto_save: false`, then compare per-mesh instance totals (ISM + instanced skinned) and the generator's own logged counts with the source map's saved output, and capture the same camera view in both maps. A large drop means a removed actor was an input, or the graph's inputs are already broken in the source too; test the source before blaming the copy.
+5. Save only the bench map; discard any shared asset the Generate dirtied.
+
 ## Decision guide
 
 | Scenario | Recommended approach |

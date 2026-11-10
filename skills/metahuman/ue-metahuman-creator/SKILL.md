@@ -52,6 +52,115 @@ Three rules drive almost every gotcha:
    pending cloud request, `EMetaHumanCharacterRigState::Rigged` (face DNA present), and
    `HasHighResolutionTextures()` (texture sources downloaded).
 
+## Plan a character before authoring
+
+Settle these with the user before creating the asset; get facts (plugin tools, LFS rules,
+engine enums) yourself and put only the decisions to them.
+
+- **One asset, many builds.** Game vs cinematic is not two models: the character asset is
+  authored once and assembled any number of times (`NameOverride` / `AbsoluteBuildPath` keep
+  builds apart). Pick the pipeline at build time; table in
+  [references/palette-pipeline-assembly.md](references/palette-pipeline-assembly.md#choosing-a-build-target).
+- **Two choices live on the character, not the build:** face rig type (`JointsAndBlendShapes`
+  when close-ups matter: the LOD0 blendshapes carry expression and correctives) and texture
+  source resolution (re-downloadable). Ask about them up front.
+- **Story-point variants** (older, more muscular): duplicate the character and change only the
+  body, so the face stays identical; each copy needs its own rig and build. Never pick a fixed
+  `set_body_type` for a character that will get variants — it locks the body sliders.
+- **Body method:** overall sliders first (masc/fem, fat, muscle, height), then named
+  measurements (`Across Shoulder`, `Chest`, `Waist`, `Hip`, `Neck`, `Knee`, `Thigh`, `Calf`, ...
+  `Height` in cm) fitted *numerically* to front + side references scaled by the stated height —
+  never approved by eye. Present an outline overlay and a per-level % table, and name the
+  regions the reference hides (shorts, hair, arms in A-pose). Procedure and pitfalls:
+  [references/body-fitting-to-reference.md](references/body-fitting-to-reference.md). Conform to a mesh only when a real scan/sculpt exists: a mesh built from
+  uncalibrated generated images adds false precision. Never use an image-to-3D head (Meshy) as a
+  face-shape target: every generation (haired, buzz-cut and shaved inputs) scored worse than the
+  fitted MetaHuman on every view and drifted to a generic, older face, and a gap measured only
+  against it pointed the wrong way. At most it is a rough skull/ear proportion cross-check; for
+  shape, sculpt against a hairless (buzz-cut) edit of the reference set (image-prompt-engineer,
+  "Hairless sculpt set"). Scoring recipe under "Generated 3D reference head" in the face-fitting
+  reference.
+- **Face fit:** front-view MediaPipe landmark fitting with a long-lens piloted camera, then depth
+  from the profiles; procedure, projection math and its ceiling in
+  [references/face-fitting-to-reference.md](references/face-fitting-to-reference.md), along with
+  the face-shape levers table (use it to answer "how much control do we have?"), the
+  coefficient-mix recipe for swapping the base after a fit, and hand sculpt passes for jaw,
+  cheeks, eyes and ears (ears need `bAllowEars`). When the user says a feature is "off",
+  do not sculpt that feature yet: run a full deficiency review (pupil-aligned side-by-side sheets
+  per view under reference-matched light, IPD-normalised eye and mouth/chin crops, the profile pair) and present a numbered table: area,
+  reference vs ours **with a measured number**, proposed fix, how likely the lever lands it. Every
+  row needs a measurement (IPD-normalised landmark distance, or nasion-aligned profile depth in cm)
+  before it goes to the user: impressions from comparison sheets get the direction wrong (a mouth
+  that "looks wider" measured narrower; a nose that "projects further" matched within 0.1 cm once
+  profiles were aligned at the nasion). Re-measure an approved item before sculpting it, and drop
+  or resize it when the number disagrees, telling the user. Recipes in
+  [references/face-fitting-to-reference.md](references/face-fitting-to-reference.md#measuring-a-deficiency).
+  Sculpt only the items the user approves, broad shapes first. A flagged feature often reads wrong because of a neighbour (an
+  over-projecting nose makes the chin look weak in profile), and the user's "weak" may mean a
+  shape detail (a chin cleft, squareness) rather than projection. Show the user the %
+  error trend and a side-by-side with the reference each round. The user wants parity in
+  front, three-quarter *and* profile before any texture work. Matched feature numbers are not a
+  matched feature either: a nose within 0.1 cm on length, projection and width still looked "very
+  different" (round tip, flared wings, nostril show); after two brush tries on such a form, move to
+  a preset feature transplant (face-fitting reference). A converged front number is not
+  parity, so run the multi-view fit, measure the references' own consistency floor, and show
+  pupil-aligned side-by-side sheets per view. Never show a warped 50/50 photo-over-render blend as
+  evidence: the similarity warp absorbs feature errors and the high-contrast photo dominates the
+  blend, so it reads as parity while the user plainly sees chin, nose, jaw and eyes off. Never call
+  matched landmarks "parity" either; say "positions match, form does not". Surface form between sculpt points (jaw line into the neck,
+  cheek hollows) is beyond landmark passes: first rule out lighting and skin texture with
+  throwaway renders, then edit the whole surface on a test copy via the head template round-trip
+  (export preview face mesh -> edit -> skin-only static mesh -> `import_from_template`).
+  Copy the character `.uasset` (hash-check the copy) before every template import: restoring the
+  pre-import face coefficients leaves the head ~0.1 cm mean / ~0.9 cm max off, so the file copy is
+  the only undo. Restore it with the character's edit session ended (or the Editor closed), or the
+  in-memory copy is saved back over it. Judge
+  every pass by eye in before/after sheets, not only by the landmark number, which saturates at
+  the reference floor while the face still looks unchanged. Template imports keep face-surface
+    brushes almost whole (0.17-0.6 cm moves at 1.1-2.4 cm radius landed 94-98%; a 0.2 cm chin cleft
+    landed 100%; a continuous brow-ridge band landed 99%; a smooth forehead displacement field driven
+    by the profile gap landed 95%) but strip the face/neck border: a throat
+    bump (Adam's apple) landed ~15% and under-jaw / jaw-angle brushes 23-46% across passes. Plan
+    throat, under-jaw and jaw-angle anatomy as a post-build mesh edit; after one failed try there,
+    stop and tell the user.
+    Count each method's attempts per feature and stop at two, offering a different method rather
+    than a third strength. Passes that measure correctly can still look unchanged: say so with the
+    sheet. Neck width is the body `Neck` constraint, not the face, and measure it (neck width over
+    cheekbone width, front view) before proposing a change: a neck that read "too thick" by eye
+    measured 17% narrower than the reference's. Hair does not
+    gate face work (no "freeze the face" step); custom hair is an artist/paid-groom decision, not a
+    script generator (see "Groom preview timing" in the face-fitting reference).
+- **Canon beats generated reference** on traits the source states (eye colour, hair colour,
+  height); the reference images govern only what canon leaves open (face, cut). Point out the
+  conflict rather than matching the image.
+- **Likeness:** for adaptations, confirm the face is an original design, not a real person,
+  screen actor or published cover art, before sculpting.
+- **Starting preset:** pick it from bald front captures of scratch copies under the `Studio`
+  lighting map, not thumbnails; recipe in [references/python-scripting.md](references/python-scripting.md#comparing-presets-or-look-dev-states-with-front-captures).
+  Rank presets on what fitting cannot change: **3D form** (cheek fullness, cheekbone and jaw
+  definition, soft tissue under the jaw; judge in three-quarter and profile captures, not front
+  only), age and skin detail texture, ears. Front-view landmark fitting only moves feature
+  positions, so a heavy preset stays heavy after a converged fit.
+  Delete the scratch copies (with the user's OK) once the real asset exists.
+- **Skin and eyes before body/face approval:** offer them early — a preset's tan and colouring
+  make a correct body read wrong. Present 2–3 tone options as face close-ups beside the
+  reference. State limits up front: skin tone is **one tone for the whole body** (regional sun
+  only via face `Accents`; tanned forearms or a paler torso need a custom body texture), and a
+  "gray" iris needs `GlobalSaturation` near 0.1 — a cool hue alone still renders blue. Values:
+  [references/character-asset-and-settings.md](references/character-asset-and-settings.md#look-dev-recipes).
+  Keep fitting and scouting previews bald: strip and re-verify grooms in the same call as every
+  spawn (earlier groom clears do not survive a save/reload, and landmark moves refuse with grooms
+  on). The strip writes the wardrobe selection on the character itself, so a later save persists
+  the bald state: record the stripped slots (with full asset paths) when stripping, reselect them
+  before any save of that character, and check `get_summary(...)['wardrobe_selections']` after
+  every save. `select_wardrobe_item` needs the full object path; summaries list only short item
+  names, so map them through `get_wardrobe(...)['items']`. When hair/brows are judged, use a test copy, `assemble_for_preview`, and wait >= 3 min per
+  groom change before capturing; see "Groom preview timing" in
+  [references/face-fitting-to-reference.md](references/face-fitting-to-reference.md).
+- **Repository:** before the first save, check `.gitattributes` covers the character and
+  build folders with LFS; a Cine build is 1–2 GB and would bloat plain Git permanently. Keep
+  review-only comparison builds uncommitted.
+
 ## Core workflow
 
 1. **Create** the asset with `UMetaHumanCharacterFactoryNew` through Asset Tools
@@ -318,6 +427,12 @@ board), `LightingEnvironments/` (`Studio`, `Split`, `Fireside`, `Moonlight`, `Tu
 
 ## Gotchas & edge cases
 
+- **Texture synthesis status is lazy.** In UE 5.8.4, `IsTextureSynthesisEnabled()` only tests `FaceTextureSynthesizer.IsValid()`; `TryAddObjectToEdit` initializes it asynchronously. A false VibeMetaHumans `texture_synthesis_enabled` before any character edit session does not prove missing Core Data or a broken installation. Check optional-content status separately and verify synthesis after opening an authorized character before diagnosing failure.
+- **Reloading a character from disk.** Call `end_edit` (Python service) / `RemoveObjectToEdit`
+  before `EditorLoadingAndSavingUtils.reload_packages` on a `UMetaHumanCharacter`; reloading while
+  its edit session and preview actor are live can access-violate the editor's Python and leave it
+  unstable for later calls. After such a crash, stop Editor work, verify the saved `.uasset` from
+  outside (hash, exported verts), and have the user restart the Editor without saving.
 - **"Unable to edit asset"** — `TryAddObjectToEdit` returns false when the character is
   already registered (asset editor open). Either use that session (it is the same subsystem)
   or close the editor. Never call `RemoveObjectToEdit` after a false return.
@@ -445,5 +560,8 @@ Deep-dive references in this skill:
   project settings, build output layout.
 - [references/python-scripting.md](references/python-scripting.md) — Python naming rules,
   grooms/clothing, conforming, export, spawn, batch patterns, MetaHumanGenerator toolset.
+- [references/body-fitting-to-reference.md](references/body-fitting-to-reference.md) and
+  [references/face-fitting-to-reference.md](references/face-fitting-to-reference.md) — measured
+  body and face fitting to reference pictures.
 
 Related skills: `ue-control-rig-and-ik`, `ue-animation-system`.

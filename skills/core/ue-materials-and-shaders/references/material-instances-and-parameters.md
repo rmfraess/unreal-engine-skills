@@ -151,6 +151,15 @@ MID's override table is written — the parent MIC is never mutated.
 `UMaterialInstance::GetMaterial()` (on `MaterialInstance.h`:626) returns the
 root `UMaterial` regardless of chain depth.
 
+## Inspecting effective instance values
+
+When implementing or verifying a material-information reader, establish whether each field means the asset's authored base property, effective instance property, inherited default, or local override. Confirm the engine version's signatures and behavior in source, then:
+
+1. Read effective blend mode, shading models and two-sidedness from the material interface/instance (`GetBlendMode`, `GetShadingModels`, `IsTwoSided`), rather than from `GetMaterial()`'s root asset. Use the effective blend getter for base materials too, so instance/base comparisons use the same semantics. A single shading-model field cannot represent a multi-model material.
+2. Preserve the full `FMaterialParameterInfo` (name, association, index) in `FHashedMaterialParameterInfo`. Use the type-specific `Get*ParameterValue` for current values and `Get*ParameterDefaultValue` for the inherited value excluding this instance's own override. The inherited value may itself be an ancestor instance override, not the root expression's default.
+3. For a local override flag, call `UMaterialInstance::GetParameterOverrideValue` with the parameter type and full identity; comparing values misses equal-valued overrides, and searching the inheritance chain can mislabel a parent's override as local. For a parameter group, use type-specific `GetParameterDefaultValue(..., FMaterialParameterMetadata&)`: `GetGroupName` searches types and can select a different parameter with the same identity.
+4. Exercise scalar, vector and texture values with real engine fixtures: local override, inherited-only parameter, equal-valued override, and a child of an overriding instance. Check effective base-property overrides independently. Test the actual consumer's serialized output, not only direct C++ parity with the old reader. Disclose untested cases and any omitted switch types, layer identity, counts or precision; do not infer complete correctness from a passing wrapper test.
+
 ## MID lifetime gotchas
 
 - A MID created by `CreateDynamicMaterialInstance` is automatically given the

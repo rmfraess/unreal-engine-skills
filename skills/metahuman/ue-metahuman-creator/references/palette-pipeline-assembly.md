@@ -141,6 +141,24 @@ build quality (preview = the asset editor); `EMetaHumanQualityLevel { Low, Mediu
 is the *target* quality of the Optimized/UEFN pipelines (`FWriteBlueprintSettings::QualityLevel`,
 `UMetaHumanCharacterPaletteProjectSettings::DefaultCharacterLegacyPipelines[Quality]`).
 
+### Choosing a build target
+
+From Epic's Assembly / Materials and Textures / Platform-LOD docs (5.6+):
+
+| | UE Cine | UE Optimized High (Medium/Low below it) |
+|---|---|---|
+| Disk per character | ~1–2 GB | < 100 MB |
+| Textures | full res, normal/spec baked up to 8K | max 2K, compressed, cheaper materials |
+| LODs | quality-first | more aggressive |
+| Hair | strands at LOD0 | High: strands on current-gen, "for close-up shots", all correctives/physics/facial animation on |
+| Epic's verdict | High vs Cinematic "somewhat noticeable"; main difference is file size | |
+
+For a game with real-time close-up cutscenes, default to Optimized High for gameplay and
+cutscenes, build Cine once from the same asset, and compare close-ups side by side; keep a
+second (Cine) Blueprint only if the difference shows — two Blueprints double costume/dressing
+upkeep. LOD0 head reference: ~24k verts, 669 blendshapes (blendshapes exist only at LOD0 and
+only with a `JointsAndBlendShapes` rig).
+
 ### Assembly output of the default pipelines
 
 ```cpp

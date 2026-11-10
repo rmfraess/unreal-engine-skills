@@ -264,6 +264,18 @@ hardcode `GConsoleManager->FindTConsoleVariableDataFloat` calls in game logic.
 
 ## Gotchas
 
+- **Dense scatter of vendor meshes that are not Nanite** — marketplace rock and prop packs often ship
+  with Nanite off, at 10–25k triangles and one LOD. Thousands of ISM instances of them can cost several
+  times the frame budget. Check `nanite_settings.enabled` before scattering any mesh densely. Prove the
+  cost by hiding just those ISM components in PIE and re-sampling GPU ms. Fix it with project-local
+  copies rather than by editing the vendor asset:
+  `unreal.EditorAssetLibrary.duplicate_asset(src, dst)`, then set the copy's `static_materials` to
+  project-owned materials *before* enabling Nanite with `sub = unreal.get_editor_subsystem(unreal.StaticMeshEditorSubsystem)`,
+  `ns = sub.get_nanite_settings(sm); ns.enabled = True; sub.set_nanite_settings(sm, ns, True)`. The
+  Nanite rebuild dirties every material package the mesh still references. Reverting those vendor
+  packages through `reload_packages` raises a modal dialog that stalls the Editor (see
+  `ue-editor-scripting-and-python`). Repoint the placement palette to the copies, then confirm that
+  vendor files show no `git status` change.
 - **Nanite on translucent material** — silently falls back to the fallback mesh; no error
   in log unless you enable `r.Nanite.ShowMaskedMaterialWarnings`.
 - **Nanite + Forward rendering** — Nanite is not supported in forward; the mesh renders
@@ -284,6 +296,10 @@ hardcode `GConsoleManager->FindTConsoleVariableDataFloat` calls in game logic.
   `ue-profiling-and-optimization`.
 - **Mismatched shadows** — Nanite + Lumen expect VSM; mixing Nanite with shadow maps can
   produce shadow resolution mismatches. Prefer VSM for Nanite-heavy scenes.
+
+### Runtime cvar discovery
+
+Check the installed engine's registered controls rather than requiring an older-version enable flag. In UE 5.8, `r.Nanite.Tessellation` is registered in `NaniteCullRaster.cpp`; the legacy `r.Nanite.AllowTessellation` can be absent, and Kismet's missing-variable lookup returns zero. That zero is not evidence that runtime tessellation is disabled. Verify the current registered cvar and mesh/material settings before changing configuration or proposing a relaunch.
 
 ## Version notes
 

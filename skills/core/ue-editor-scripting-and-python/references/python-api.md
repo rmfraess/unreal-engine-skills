@@ -33,6 +33,8 @@ It runs in isolated mode by default — `PYTHONPATH`/`PYTHONHOME` are ignored; o
 | `TMap<K,V>` | Python dict (transparent) | Auto-converted |
 | `FString` / `FName` / `FText` | `str` | Transparent bidirectional |
 
+**`unreal.Rotator` positional order is `(roll, pitch, yaw)`**, not the C++ `FRotator(Pitch, Yaw, Roll)` order. Always pass keywords, `unreal.Rotator(roll=0, pitch=-28, yaw=150)`, especially for viewport cameras, where a swapped pitch silently points the capture at the sky.
+
 Override the generated Python name with `meta = (ScriptName = "my_name")`
 (`ObjectMacros.h:1285`).
 
@@ -50,6 +52,25 @@ level_sub  = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
 util_sub   = unreal.get_editor_subsystem(unreal.EditorUtilitySubsystem)
 ue_sub     = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
 ```
+
+---
+
+## Resolve integration shorthand
+
+After the project's Editor ownership gate, resolve shorthand commands from older integration instructions against the installed service declaration or reflection. A documentation label is not necessarily a top-level MCP tool name; do not keep replaying the alias or treat its absence as a listener failure.
+
+For VibeUE installations exposing `UWorkflowService::GetEnvironment()` in `Source/VibeUE/Public/PythonAPI/UWorkflowService.h`, this reflected Python form has been exercised successfully:
+
+```python
+import unreal, json
+
+env = json.loads(unreal.WorkflowService.get_environment())
+print(json.dumps({key: env.get(key) for key in (
+    "projectFile", "engineRoot", "engineVersion", "editorPid"
+)}))
+```
+
+Verify that declaration in the installed version before relying on it. Run the probe through the existing Python MCP entrypoint with `auto_save=False`; check the current world and dirty packages separately because an environment response does not prove a clean scene. Retain the full diagnostic result locally and print only the identity fields needed for the gate.
 
 ---
 

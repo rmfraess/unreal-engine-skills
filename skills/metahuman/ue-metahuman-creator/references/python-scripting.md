@@ -220,6 +220,60 @@ cls = bp.generated_class()
 unreal.get_editor_subsystem(unreal.EditorActorSubsystem).spawn_actor_from_class(cls, unreal.Vector(0, 0, 100))
 ```
 
+### Comparing presets or look-dev states with front captures
+
+Use this to pick a starting preset or to review a sculpt against a reference image. Content
+Browser preset thumbnails (`EditorAssetLibrary.sync_browser_to_objects(paths)` + a window
+capture) are only good for a first cut (skin tone, apparent age); they are ~80 px, too small to
+judge faces. Epic's `EditorAppToolset.CaptureAssetImage` rejects `MetaHumanCharacter` assets
+("Asset type does not support image capture"), so faces need a spawned preview.
+
+1. Shortlist from the thumbnails, then for each candidate create a **scratch copy** in a
+   throwaway folder (VibeMetaHumans: `create_character("/Game/.../_Scout", "Scout_<Preset>",
+   "/MetaHumanCharacter/Optional/Presets/<Preset>")`). Never edit or preview the plugin preset itself.
+2. Clear every groom slot (`Hair`, `Eyebrows`, `Beard`, `Mustache`, `Eyelashes`, `Peachfuzz`)
+   **in the same call that spawns**, and assert the remaining selections are only `Character`
+   and `Outfits`: a preview that wears grooms can hang the editor for minutes, and a clear made
+   in an earlier edit session does not survive a save/reload (a scratch copy saved during an
+   editor restart came back wearing its preset grooms).
+3. Light neutrally: if nothing is dirty, `LevelEditorSubsystem.load_level("/MetaHumanCharacter/LightingEnvironments/Studio")`
+   (key/fill/bounce aimed at the origin, grey backdrop). It brings `L_BaseEnvironment` along as a
+   sublevel, so VibeUE lists it under `resident_maps`; that is the open world, not a leak.
+   Review one candidate at a time at the origin: `end_edit` the previous one (destroys its
+   preview), then spawn the next transient (`spawn_in_level(c, origin, rot, True)`). In a game
+   map instead, spawn far above the level (z=30000) so foliage never occludes; either way
+   `get_dirty_map_packages()` must stay empty.
+4. Frame from the head socket, not a fixed height (presets differ by >10 cm). The transient
+   preview is invisible to `EditorActorSubsystem.get_all_level_actors()`; find it with
+   `GameplayStatics.get_all_actors_of_class(world, unreal.Actor)` filtered on a class name
+   containing `MetaHuman`, take the `SkeletalMeshComponent` with socket `head`, and put the
+   viewport camera at `(head.x, head.y + 75, head.z + 3)`, yaw -90 (previews face **+Y**) via
+   `UnrealEditorSubsystem.set_level_viewport_camera_info`; `select_nothing()` hides gizmos;
+   capture the editor viewport. Keep these helpers in one small module under
+   `Saved/` and `importlib.reload` it per call rather than re-sending the code.
+5. Run every scratch-touching call with VibeUE `execute_python_code(auto_save=false)`: the default
+   pre-run save sweep persists every dirty package, scratch characters included.
+6. Present the candidates as one labelled contact sheet (crop each capture to the head, paste
+   side by side with Pillow via `uv run --no-project --with pillow`) plus a one-line fit verdict
+   each and a recommendation.
+7. Clean up: `end_edit` each scratch character; scratch packages stay dirty and unsaved. If they were
+   saved anyway, they are untracked task-owned scratch: delete them (with the user's go-ahead) once
+   the real character exists.
+8. **Editor restart during look-dev:** first `end_edit`, save every task-owned asset you want to
+   keep (test copies, template static meshes), delete approved scratch, and confirm
+   `get_dirty_content_packages()` is empty; only the `Studio` map (transient previews/cameras) may
+   stay dirty. Relaunch with VibeUE `BuildAndLaunchGame.ps1 -SkipBuild -Map /MetaHumanCharacter/LightingEnvironments/Studio`.
+   The script force-quits the old Editor, so the next launch opens a modal **Restore Packages**
+   dialog: the health heartbeat's `gameThreadStallSeconds` keeps climbing, `mcpListening` stays
+   false and the log stops after font loading. Confirm it by listing the Editor PID's visible
+   window titles (Win32 `EnumWindows` from a PowerShell script file), then ask the user to click
+   **Skip Restore**: restoring can put an older autosave over saved work. After the restart,
+   recreate transient fit cameras and call `assemble_for_preview` before judging grooms.
+
+Creating a character from a preset can take ~15–60 s; a call can report `timed_out` with full
+output and a dirtied package. Read the output and the dirty list before retrying, or you create
+a duplicate.
+
 ---
 
 ## Batch / headless notes

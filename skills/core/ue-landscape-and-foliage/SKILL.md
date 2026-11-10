@@ -67,7 +67,9 @@ sections, each `SubsectionSizeQuads` quads wide. Total landscape quads in one ax
 `NumComponents × ComponentSizeQuads`. The corresponding heightmap vertex count is
 `(NumComponents × ComponentSizeQuads) + 1`. Common valid size: 8129 × 8129 vertices
 (32 × 32 components, 4 sections/component, 63 quads/section). Heights are stored as 16-bit
-values mapping to ±256 m at default Z scale 100.
+values, `h_cm = (v − 32768) × ZScale / 128`: ±256 m at default Z scale 100, ±2,048 m at 800.
+Raising terrain past that range needs a new Z scale, which re-encodes every height. On
+terrain with protected or accepted areas, keep new relief inside the existing range.
 
 ### Material layers and `ULandscapeLayerInfoObject`
 
@@ -84,11 +86,17 @@ material. Layer weights are stored per-component in weightmap textures.
 **Edit Layers** (`LandscapeEditLayer.h`) allow non-destructive stacking of sculpt/paint
 operations — each edit layer renders additively/subtractively into the final heightmap.
 
+Before a whole-Landscape paint-identity replacement, reconcile the native component map, LandscapeInfo proxy inventory and live world actors in both directions; inspect matching World Partition descriptors too. Fail before a transaction if any affected proxy or component is unavailable or unregistered: an unloaded proxy can remain resident, so descriptor `IsLoaded()` and the engine's unloaded-component query alone can falsely report completeness. Check effective blend method and group, physical material and collision threshold before replacement; preserve edit, rendered, mobile, collision, allowlist and edit-layer blend metadata identities. Preserve the existing target's reimport filename across native `ULandscapeInfo::ReplaceLayer`: it recreates target settings with an empty path. Snapshot the filename before replacement and restore it inside the transaction through `UpdateTargetLayer` with property change notification so inherited proxy settings are synchronized. Preflight metadata conflicts and snapshot affected edit-layer UObjects before the public native blend-status mover: it can overwrite a destination entry and its internal `Modify()` occurs after mutation. When opting into custom layers, snapshot each custom layer before native replacement or stale-cache blend repair, because the engine dispatches blend-move virtuals to every edit layer; do not promise Undo for a plugin's transient state or mutations to other objects. Verify sampled data and references after save/reload. Audit compatibility before choosing a custom-layer guard: an exact-class allowlist also rejects subclasses and Epic Landscape Patch layers, even height-only ones. Do not allow the Epic patch layer solely by class: custom patch components can retain LayerInfo references the layer scan misses. Treat registered patches and the World Partition `AffectsLandscape` tag as discovery hints, not complete inventories: unloaded actors, unresolved Landscape pointers and multiple components overwriting a single tag can hide targets. A same-world resident scan also misses World Composition tiles, dormant child-actor templates and cross-world bindings; treat uninspected actors or nested containers as unknown rather than safe. Exercise both real built-in height/paint patches and a reference-holding custom component before widening support. Distinguish an installed plugin from an affected Landscape that actually contains its layer, and identify the specific operation blocked rather than implying the plugin or all Landscape tools stop working. Do not assert how many users are affected without evidence. A standard layer can host Blueprint brushes and a Landscape Patch layer can host custom patch components; direct UObject reference scans may miss their soft, indirect or external references, so neither an edit-layer class allowlist nor the native picker proves complete reference repair. Inspect every edit layer's serialized `FLandscapeLayer::Brushes` via `ALandscape::ForEachLayerConst` before replacement; default to rejecting nonempty brush lists before mutation unless reference handling is proven safe. When an explicit risk-acceptance path is authorized, identify the affected brush and custom layers in the caller-visible result, obtain the user's informed approval before opting in, and retain the uncertainty after success rather than claiming unknown references were repaired. Keep inventory, incompatible-data and conflicting-reference failures non-overridable and report their actual reason, so approval is never presented as a remedy for a hard failure. Native replacement can succeed while a custom brush retains the old LayerInfo, and an edit-layer UObject scan does not inspect the sibling brush list. This inventory covers attached brushes, not detached actors or arbitrary external references; do not claim global reference safety. Balance useful support for real workflows against data safety: explain unknown reference risks and retain safe defaults while allowing an explicitly authorized risk-acceptance path where appropriate. Test that path in a disposable project; do not claim full plugin compatibility or reference repair without evidence. Distinguish existing API regressions from restrictions on a new operation. See the Landscape fixtures reference linked from `gd-tdd` for resident- and partially-loaded-proxy regressions and loaded controls.
+
 ### Landscape splines
 
 `ALandscapeSplineActor` (`LandscapeSplineActor.h`:14) owns a `ULandscapeSplinesComponent`
 containing control points and segments. Splines deform terrain beneath them (raise/lower)
 and optionally spawn static meshes along their length as decoration or road surfaces.
+
+When repairing a null control-point slot, do not create an Undo transaction that snapshots the invalid slot: UE 5.8 `ULandscapeSplinesComponent::PostEditUndo` calls `CheckSplinesValid`, which removes null entries and emits an ensure. Remove the slot as a non-Undo sanitation, mark the owning package dirty, and test that Undo/Redo still reaches the preceding valid edit. Scope-guard test-injected nulls so fixture cleanup also works when the assertion fails; engine component cleanup can otherwise dereference the null.
+
+When a shared Landscape identifier lookup rejects ambiguous or inactive targets, propagate the specific reason into each structured caller's error result and make legacy caller logs non-contradictory. Test refusal without mutation, genuine missing targets and a unique active positive control; an accurate internal warning alone may not reach an MCP client.
 
 ### Nanite landscape
 
@@ -263,6 +271,14 @@ graph to, for example, restrict scatter to slope ranges below a threshold.
 - **Foliage in World Partition** — foliage instances live in `AInstancedFoliageActor`s that
   load per cell; painting across cell boundaries splits instances. Keep foliage within cells
   or use PCG for cross-cell content.
+- **PCG verified from saved output** — generated resources persist in the map, so a broken input (a renamed label in a node's name-lookup setting, a deleted tagged actor) stays invisible until someone presses Generate. Verify graph changes, renames and test-level copies by regenerating and comparing per-mesh totals; isolating a graph in its own level: `references/pcg.md` → "Isolating a graph in its own test level".
+- **Pivot-only exclusion tests** — wide scattered meshes overlap roads or paths whose visible mesh is wider than the spline. Test the whole mesh footprint against visible colliding geometry. See `references/pcg.md` → "Exclusion zones and attached dressing".
+- **Procedural relief finer than ~2 landscape quads renders as pyramid tips and knife-edge crests** — the grid draws flat triangles between vertices, so a crest or bump curving over less than ~2 quads bends 20–40° from one triangle to the next. A 3×3 blur is not enough for crest/bank terms: low-pass noise detail at the grid spacing (lumps 3×3, ridges/banks 5×5 binomial, offsets = quad size), but **widen** point features such as pit/mound bumps (radius ≥ ~2.5 quads) instead of blurring them, because a blur flattens a narrow mound to a third of its height. Put it behind an opt-in setting when the generator is shared, and verify with a full-grid scan of tips **and** crease bends, not by eye: see `references/landscape.md` → "Procedural relief: finding and fixing sharp points".
+- **Mountains judged by eye or by height alone.** Gaussian-blob-plus-noise ranges can match a real range's apparent height and still read fake: slopes are uniformly steep, and there are no valley floors, cliffs or drainage. Before proposing more height, benchmark them against a real DEM: slope distribution, flat fraction, max slope, skyline angle from story viewpoints, and a same-scale hillshade. Before warping a real DEM into the range at a uniform scale, check that the real relief within `band width / scale` of its crest gives the height you need: broad ranges gain most of their relief across wide foothills, so they fall short in a narrow game band. Then use separate along/across/vertical scales; never restore height by matching the old placeholder's peak envelope, because it lifts smooth shoulders that hide the real crest. Judge every variant by skyline peaks per 10° as well as angle. See `references/terrain-realism-benchmark.md`.
+- **Mountain detail finer than the Landscape grid:** before placing asset-pack peak meshes, bake a detail normal and surface masks from a finer real DEM through the terrain's own warp. Pack meshes read as a patchwork against grid terrain. See `references/terrain-realism-benchmark.md` → "Sub-grid detail from a finer real DEM".
+- **Landscape displacement is scaled by the actor's Z scale** — material `DisplacementScaling.magnitude` is multiplied by the landscape Z scale (100 by default), so give it centimetres / Z scale. Full recipe (height source, centre vs flat collision, cvar cost A/B): `references/landscape.md` → "Material displacement on a Nanite landscape".
+- **Full-resolution scanned height maps displace into choppy cliffs** — sharp pebble/leaf edges become walls with the albedo stretched down them. Start at a few cm with the height sampled at a fixed coarse mip (`TMVM_MIP_LEVEL`, mip ~4), and judge from a very low camera at 1:1, not only a standing view.
+- **Moving or renaming a map with a Nanite landscape fails to save** ("Illegal reference to private object … LandscapeNaniteMesh … belongs to an external map"): the generated Nanite mesh lives inside the map package and still points at the old one. Turn `bEnableNanite` off and save before the move; turn it on and save afterwards, because `ALandscapeProxy::PreSave` rebuilds the mesh in the new package.
 - **Nanite landscape + LOD materials** — per-LOD material overrides (`PerLODOverrideMaterials`
   on `ALandscapeProxy`) do not apply to the Nanite mesh; use a single material that works
   at all distances.
@@ -320,7 +336,18 @@ Deep-dive references in this skill:
   setup, edit layers, splines, Nanite landscape, runtime queries.
 - [references/foliage-and-hism.md](references/foliage-and-hism.md) — HISM internals, foliage
   type hierarchy, procedural foliage volumes, scalability, World Partition foliage.
+- [references/terrain-realism-benchmark.md](references/terrain-realism-benchmark.md) — realism gap
+  analysis of terrain/mountains against a real DEM: offline height decode and orientation, terrain-tile
+  fetch, slope/flat/cliff metrics, skyline angles, same-scale hillshade, on-screen size of a grid cell
+  per view (the by-scale split), USGS 3DEP projected-crop fetch, fitting a real range's profile into the
+  game band, an offline real-DEM warp onto a crest arc (separate along/across/vertical scales, valley
+  floor, protected blend, sightline buffer check), surface rules under vertical exaggeration, the
+  the heightmap import round-trip check, crest cloud caps (volumetric first, cards as stopgap), placed peak
+  meshes from asset packs (summit picking, sinking the flat tile base, patchwork/snow/cloud-cap integration), sub-grid detail
+  normal and surface masks baked from a finer real DEM through the same warp, physical causes
+  cloud caps and treeline, and turning the gaps into a plan.
 - [references/pcg.md](references/pcg.md) — PCG graph authoring, element/settings subclassing,
-  landscape data queries, runtime generation, partitioned generation.
+  landscape data queries, runtime generation, partitioned generation, per-point material overrides,
+  exclusion-zone footprint tests, attached base dressing (root flares), determinism digests.
 
 Related skills: `ue-meshes-static-and-skeletal`, `ue-levels-and-world-partition`, `ue-nanite-and-rendering`.
