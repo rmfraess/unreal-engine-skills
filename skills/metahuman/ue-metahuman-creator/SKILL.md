@@ -72,14 +72,19 @@ engine enums) yourself and put only the decisions to them.
   `Height` in cm) fitted *numerically* to front + side references scaled by the stated height —
   never approved by eye. Present an outline overlay and a per-level % table, and name the
   regions the reference hides (shorts, hair, arms in A-pose). Procedure and pitfalls:
-  [references/body-fitting-to-reference.md](references/body-fitting-to-reference.md). Conform to a mesh only when a real scan/sculpt exists: a mesh built from
-  uncalibrated generated images adds false precision. Never use an image-to-3D head (Meshy) as a
-  face-shape target: every generation (haired, buzz-cut and shaved inputs) scored worse than the
-  fitted MetaHuman on every view and drifted to a generic, older face, and a gap measured only
-  against it pointed the wrong way. At most it is a rough skull/ear proportion cross-check; for
-  shape, sculpt against a hairless (buzz-cut) edit of the reference set (image-prompt-engineer,
-  "Hairless sculpt set"). Scoring recipe under "Generated 3D reference head" in the face-fitting
-  reference.
+  [references/body-fitting-to-reference.md](references/body-fitting-to-reference.md). Conform to a mesh when a real scan/sculpt exists, **or when the user has looked at a generated
+  3D head and approved it as the character**. Their by-eye approval makes that head the shape
+  target, whatever a landmark score against the flat references says (that metric cannot see
+  form). So when the user brings or mentions a generated head, ask for that verdict first, before
+  listing the mesh's defects: a conform can only lose detail, so the raw head must already read as
+  the character. An approved head supplies proportions and the body's height supplies absolute
+  size; a mesh that is not life-size needs a resize, which is never an objection to the route.
+  Without that approval, do not propose an image-to-3D head (Meshy) for face shape: unreviewed
+  generations drifted to a generic, older face and a gap measured only against one pointed the
+  wrong way; use one as a skull/ear cross-check and sculpt against a hairless (buzz-cut) edit of
+  the reference set (image-prompt-engineer, "Hairless sculpt set"). Planning notes under
+  "User-approved generated head as the conform target" and the scoring recipe under "Generated 3D
+  reference head", both in the face-fitting reference.
 - **Face fit:** front-view MediaPipe landmark fitting with a long-lens piloted camera, then depth
   from the profiles; procedure, projection math and its ceiling in
   [references/face-fitting-to-reference.md](references/face-fitting-to-reference.md), along with
@@ -114,7 +119,10 @@ engine enums) yourself and put only the decisions to them.
   Copy the character `.uasset` (hash-check the copy) before every template import: restoring the
   pre-import face coefficients leaves the head ~0.1 cm mean / ~0.9 cm max off, so the file copy is
   the only undo. Restore it with the character's edit session ended (or the Editor closed), or the
-  in-memory copy is saved back over it. Judge
+  in-memory copy is saved back over it. If the Editor turns out to have been closed mid-trial,
+  hash the character file against the committed one before relaunching: a close with Save writes
+  the unapproved trial to disk. Copy both versions aside, tell the user, and leave it uncommitted
+  until they give a verdict. Judge
   every pass by eye in before/after sheets, not only by the landmark number, which saturates at
   the reference floor while the face still looks unchanged. Template imports keep face-surface
     brushes almost whole (0.17-0.6 cm moves at 1.1-2.4 cm radius landed 94-98%; a 0.2 cm chin cleft
@@ -128,11 +136,141 @@ engine enums) yourself and put only the decisions to them.
     sheet. Neck width is the body `Neck` constraint, not the face, and measure it (neck width over
     cheekbone width, front view) before proposing a change: a neck that read "too thick" by eye
     measured 17% narrower than the reference's. Hair does not
-    gate face work (no "freeze the face" step); custom hair is an artist/paid-groom decision, not a
-    script generator (see "Groom preview timing" in the face-fitting reference).
+    gate face *sculpting* (no "freeze the face" step), but it gates the likeness verdict: with hair
+    and brows unlike the reference's the user cannot see the similarities, so once they accept the
+    bald shape "for now", move on to hair and brows instead of proposing more shape passes. When no
+    library style fits, custom hair and brows are a user decision between an own generated groom
+    (free; [references/custom-grooms.md](references/custom-grooms.md)), a hand-groomed or paid
+    one, and a stand-in; take the generated route when the user rules out spending. **Put the
+    whole library in front of the user before calling it exhausted.** A few styles rejected from
+    captures is not a verdict on the rest: the user judges a stock style in seconds, and a custom
+    groom costs a build and a review per pass. List the styles on disk (`find
+    <engine>/Plugins/MetaHuman/MetaHumanCharacter/Content/Optional/Grooms/Bindings/Hair -name
+    'WI_*.uasset'`: 38 hair styles in 5.9, with `Eyebrows`, `Beards`, `Mustaches`, `Eyelashes` and
+    `Peachfuzz` folders beside it), say which were already tried, and offer the user the browse
+    themselves: open the character asset, **Hair & Clothing**, then **Wardrobe**, then the Hair
+    slot (labels read from the 5.9 editor source; say so if you have not seen the screen). Tell
+    them to close without saving so the trial does not replace the saved selection, that a newly
+    chosen groom can take minutes to appear on a conformed head, and to judge the cut, not the
+    default colour. Hand the Editor over while they browse and ask for the style names they like.
 - **Canon beats generated reference** on traits the source states (eye colour, hair colour,
   height); the reference images govern only what canon leaves open (face, cut). Point out the
   conflict rather than matching the image.
+- **Proportion questions get measurements.** When the user asks whether something is the right
+  size (head for the body, neck, shoulders), measure it against each reference separately and
+  against human norms, say where the references disagree with each other or with a stated
+  height, then give a recommendation. Recipe: "Is the head the right size?" in the body-fitting
+  reference.
+- **Review hand-off:** same-camera sheet beside the target or reference, a measured table, what
+  still differs by eye, every setting chosen by eye named as such, then numbered decisions for
+  the user. A close-up crop of one feature goes out together with a whole-face sheet beside the haired
+  reference (front and three-quarter, hair and brows on) **in every trial report, every round**:
+  the user judges a cleft, cheek or nose root in the context of the face and asks for the full
+  face each time they get only the crop, which costs a round per change. A verdict given on that
+  full-face sheet ("keep this") covers every unsaved trial visible in it: save them all, then list
+  what was saved and how to revert each, and say plainly that the keep was read as covering all
+  of them so the user can object. "Looks better" is progress, not a keep. When the user asks how
+  to see the model better in the Editor, give the viewport steps first (view-mode menu,
+  Exposure, untick Game Settings, lower EV100 to the captures' value) and offer a multi-light
+  lighting map second; a front-only booth map leaves the sides of the nose in shadow. The two-pass
+  limit is on your own retries; a further pass the user asks for is theirs to spend. Before sending, zoom every capture at the head/body join (neck, collarbones, back of
+  the shoulders): the user spots a seam you skimmed past. A defect that is gone on the next
+  capture is unexplained, not fixed: repeat the edit that preceded the bad capture to reproduce
+  it (a body commit leaves the preview head offset; body-fitting reference). Skin, eyes and build are judged against the character's life (a farm worker is tanned
+  and defined), so ask or infer that before the first look-dev pass.
+- **Captures must show what the Editor shows.** A whole head from a long-lens distance puts the
+  face on only ~550 px of a viewport-sized capture, and a comparison sheet shrinks it again, so
+  freckles, pores and small blemishes vanish and the skin reads smooth and shiny. Render at 2x the
+  viewport size or more (same camera, same perspective) before judging skin, freckles, shine or
+  tone, and never report a skin difference from a small capture. When the user sees something in
+  the Editor that your pictures lack, the pictures are wrong: test the cause (shoot close, force
+  the LOD, `r.TextureStreaming 0`, compare a fine-detail number) before naming one; a guessed
+  "engine drops detail with distance" had to be retracted a turn later.
+- **Profile gaps without landmarks.** Once the nose root has been filled or hair covers the
+  forehead, nasion-anchored profile alignment has nothing to hold. Trace the picture's front edge
+  (figure mask, first figure pixel per row, face span from under the fringe to where the chin
+  turns back), then fit our midline side-view line to it by size, turn and shift with a trimmed
+  closest-point fit (drop the worst sixth so one real gap does not drag the rest; seed the scale
+  from several sizes with the nose tips together; self-test on a turned, resized copy of our own
+  line). Report the gap per height in mm, run every profile picture available and state how far
+  they disagree with each other (2-4 mm at brow and tip is normal); move towards their average,
+  not one picture. Even the gap over a few mm of height before turning it into a move: a
+  correction that is narrow in height raises a ridge.
+- **Local fills beside a feature** (hollow next to a nose wing): a tight, strong fill makes a
+  round lump in the clay preview; spread it wider and lower before raising the amount, and expect
+  part of a dark band to be colour in the skin map, not depth.
+- **A nose that reads "pinched" near the tip** is the groove between the ball of the tip and each
+  wing, just above the nostril, not the overall width (landmark widths stay within noise). Find it
+  in horizontal cross-sections (forward position by distance from the midline, every 2 mm of
+  height): the depth under a straight line from tip side to wing is the pinch. Rounding the tip
+  deepens it, so check after any tip swell. Fill it with one push direction for the whole patch
+  (~1.5 mm over ~0.8 cm radius to start) and print the normal at the patch centre first: a centre
+  on the facet above the nostril rim faces downward and pushes the wrong way, so move the centre
+  2 mm up until the normal points out and forward. Go past ~2.5 mm only after viewing the nostrils
+  from below.
+- **A speck, bump or "pimple" the user points at: locate it before blaming the sculpt.** Ray-cast
+  the pixel from the capture camera onto the exported face mesh to get its position and UV; check
+  how far each nearby vertex sits off its neighbours in every saved head version (a smooth result
+  clears the shape edits); then look at that UV in the colour map and in the preview material's
+  `Normal` and `Cavity` textures (`MID_MI_Skin_Head_*` on the face component). Those are
+  transient: `export_texture2d` writes an empty file, so draw the texture to a render target with
+  a canvas and `export_render_target`. An outlier well above the face's 99.9th percentile at that
+  UV, absent on the mirrored side, is a blemish in the synthesized skin sample
+  (`FaceTextureIndex`, skin U/V). Offer the user the choice between healing those pixels through
+  texture overrides and picking another skin texture (which changes pores and freckles
+  everywhere and needs any painted map redone).
+- **Healing a blemish through overrides.** Copy only the fine detail of a clean patch 2-3 radii
+  away (patch minus its ~9 px median) onto the spot's own median, faded over the outer third of
+  the radius: a plain clone, even level-matched at the rim, shows as a patch because shading
+  differs a few mm away. Use the same patch offset for colour, `Normal` and `Cavity` so bump,
+  pores and colour stay in step. Import the healed maps (`normal` kind for Normal, `mask` for
+  Cavity) and add them to `texture_material_overrides.texture_overrides.face` under
+  `FaceTextureType.NORMAL` / `CAVITY`, starting from the existing dict: assigning a one-entry dict
+  drops the other overrides. Prove the round-trip left the rest alone (fine-detail rms and mean
+  colour away from the spot, before against after, same camera). Tell the user the override pins
+  those maps at the exported preview size (1024), whatever the build would otherwise use.
+- **Freckles are a live material layer, not part of the synthesised colour map.** Changing
+  `skin_settings.freckles` and `commit_skin_settings` updates the face at once even with a
+  colour-map override on (`FrecklesDensity` etc. on the skin material); the exported synthesised
+  map is byte-identical before and after, so no re-export or repaint is needed. Faint freckles
+  in the map itself belong to the skin sample.
+- **Groom colour is read and set on the preview collection.** `character.internal_collection
+  .default_instance.get_instance_parameters(item_path=...)` returns an empty list; use
+  `subsystem.get_preview_collection(character).default_instance` with
+  `MetaHumanPaletteItemPath(item_key=<slot selection's selected_item>)`, `set_float` on `Melanin`
+  / `Redness`, then `assemble_for_preview` and the groom wait. That shows the colour but does
+  **not** store it: a save keeps the character's old values. Before saving, read
+  `character.internal_collection.default_instance.get_instance_parameter_overrides(path)` and, if
+  it still holds the old numbers, write them on the character (a project service such as
+  `set_wardrobe_item_parameters`, or the same `set_float` on the character's own instance once
+  its parameters are listed), then re-read the overrides. Read the hair's values first when
+  brows should match it, and change a painted brow underlay to the same hue in the same pass or
+  the dark paint shows through. Before recolouring, sample the reference's brow and hair colour
+  and tell the user when the request moves away from it (reference brows are often darker than
+  the hair); a lighter brow colour also reads thinner.
+- **A verdict on a close-up covers that item only.** When other trials share the unsaved
+  character, save what can be saved alone (textures, grooms), leave the character unsaved, and
+  say that the kept item is locked in on the character only once the open trials are decided.
+- **Judge neck and shoulders out of the A-pose.** The A-pose lifts the shoulder muscles towards
+  the jaw, so the neck reads short and the build bulky. Hold the preview in a standing idle frame
+  before proposing any neck or muscle change: on the preview body component
+  `set_update_animation_in_editor(True)` and `override_animation_data(anim, True, True, 0.5, 1.0)`
+  (`play_animation` alone did not move it), then `face.set_leader_pose_component(body, True)` or
+  the head stays behind (4 cm gap at `neck_01`). Idle clips ship under
+  `/MetaHumanCharacter/Optional/Animation/TemplateAnimations/Technical_Loops/Idle/`. Preview only;
+  switching the animation off again does not restore the A-pose, so destroy the preview actor and
+  reassemble. Captures taken posed do not line up with A-pose ones.
+- **Proportions against survey men, when the user distrusts the body pictures.** Fit each
+  ANSUR II male measure (`https://tools.openlab.psu.edu/publicData/ANSUR_II_MALE_Public.csv`;
+  lengths in mm, weight in 0.1 kg, pupil distance in 0.1 mm) on stature and weight, predict at the
+  character's height and weight, and report ours in residual spreads (under 1 is noise; few very
+  tall men in the sample). Mesh volume (body plus head skin, signed tetrahedra) times 1.03-1.07
+  checks the stated weight. The survey has no chin height: build it from `sittingheight -
+  eyeheightsitting` plus `mentonsellionlength`. Take the top of the breastbone from the mesh (the
+  midline point where the neck's front is furthest back), not from the `clavicle_l` joint, which
+  sat 5 cm lower and reversed the finding. When the user says "head too short" or "neck too
+  long", check skull breadth against head height and whether the hairline was lowered before
+  touching neck length.
 - **Likeness:** for adaptations, confirm the face is an original design, not a real person,
   screen actor or published cover art, before sculpting.
 - **Starting preset:** pick it from bald front captures of scratch copies under the `Studio`
@@ -146,7 +284,10 @@ engine enums) yourself and put only the decisions to them.
   make a correct body read wrong. Present 2–3 tone options as face close-ups beside the
   reference. State limits up front: skin tone is **one tone for the whole body** (regional sun
   only via face `Accents`; tanned forearms or a paler torso need a custom body texture), and a
-  "gray" iris needs `GlobalSaturation` near 0.1 — a cool hue alone still renders blue. Values:
+  "gray" iris needs `GlobalSaturation` near 0.1 — a cool hue alone still renders blue. A light
+  gray iris still reads blue beside tanned skin and red hair even when its pixels are neutral:
+  sample the iris ring's RGB before retuning and tell the user whether the blue is in the pixels
+  or in the contrast. Values:
   [references/character-asset-and-settings.md](references/character-asset-and-settings.md#look-dev-recipes).
   Keep fitting and scouting previews bald: strip and re-verify grooms in the same call as every
   spawn (earlier groom clears do not survive a save/reload, and landmark moves refuse with grooms
@@ -154,8 +295,9 @@ engine enums) yourself and put only the decisions to them.
   the bald state: record the stripped slots (with full asset paths) when stripping, reselect them
   before any save of that character, and check `get_summary(...)['wardrobe_selections']` after
   every save. `select_wardrobe_item` needs the full object path; summaries list only short item
-  names, so map them through `get_wardrobe(...)['items']`. When hair/brows are judged, use a test copy, `assemble_for_preview`, and wait >= 3 min per
-  groom change before capturing; see "Groom preview timing" in
+  names, so map them through `get_wardrobe(...)['items']`. When hair/brows are judged, use a test copy or an unsaved trial on the
+  real character (discard recipe in that section), `assemble_for_preview`, and wait 4-7 min per
+  groom change (check a hair pixel) before capturing; see "Groom preview timing" in
   [references/face-fitting-to-reference.md](references/face-fitting-to-reference.md).
 - **Repository:** before the first save, check `.gitattributes` covers the character and
   build folders with LFS; a Cine build is 1–2 GB and would bloat plain Git permanently. Keep
@@ -394,6 +536,22 @@ Grooms/clothing, conforming, export and the `MetaHumanGenerator` toolset wrapper
   with code ..."; textures: "User not logged in, please autorig before downloading source
   face textures"), the rig state stays `Unrigged`/`RigPending`, and `CanBuildMetaHuman`
   returns false ("Character is not rigged" / "The Character is missing textures").
+- A failed request logs only a result code. To read the service's reason, set the console variable
+  `http.UrlPatternsToInspect <part of the service host>` before the request: the JSON error body
+  then appears in the log as `LogHttp: Warning`. Clear it afterwards.
+- 'Invalid Arguments' (HTTP 400) on a conformed face usually means stacked vertices: the service
+  refuses any triangle with two vertices at one place, in its own triangulation, so separate every
+  coincident pair, not only those your triangle list shows as flat. `ImportFromTemplate` with UV
+  matching creates such stacks when the template is copied from the render mesh, whose UVs are
+  rounded (lip corners, tear ducts). Copy the template from `GeometryScriptLODType.SOURCE_MODEL`:
+  same triangles in the same order, exact UVs.
+- Auto-rigging rebuilds the face mesh with a different render-vertex order (same positions): exports
+  indexed by render vertex taken before the rig no longer line up with the mesh after it.
+- `synthesized_face_textures` stream in: drawn to a render target straight away they export as a
+  blurred low mip. Set `r.TextureStreaming 0`, wait, export, restore. The animated maps (CM1-3,
+  WM1-3) are near-white and mid-grey modifiers on top of the base maps, not full maps.
+- The Optimized pipeline at High bakes the head colour to 2K (normal and roughness stay 4K) and
+  builds a joints-only face mesh with no morph targets, whatever rig type was requested.
 - Everything else (sculpting, skin preview via local texture synthesis, body solve,
   conforming, wardrobe, preview assembly) is local. Local texture synthesis needs the
   optional content below (`IsTextureSynthesisEnabled()`).
@@ -563,5 +721,7 @@ Deep-dive references in this skill:
 - [references/body-fitting-to-reference.md](references/body-fitting-to-reference.md) and
   [references/face-fitting-to-reference.md](references/face-fitting-to-reference.md) — measured
   body and face fitting to reference pictures.
+- [references/custom-grooms.md](references/custom-grooms.md) — generating own hair and brow
+  grooms, mapping them to the groom head, import and wardrobe-item wiring, offline preview.
 
 Related skills: `ue-control-rig-and-ik`, `ue-animation-system`.

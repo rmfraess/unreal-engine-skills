@@ -267,6 +267,9 @@ ecosystem, leader-pose setup, bone queries, and `ue-animation-system` cross-refe
   a default material with a log warning; test in the renderer's Nanite visualization.
 - **`SetSkeletalMesh` resets pose** — pass `bReinitPose = false` to preserve the
   current animation state when hot-swapping mesh assets at runtime.
+- **`SetStaticMesh` returns false when the component already uses that mesh** — a false
+  return is not a failure there. Skip unchanged assignments, and verify with
+  `GetStaticMesh()` rather than the return value.
 - **ISM materials are component-level** — you cannot set a different material per
   instance; use Per-Instance Custom Data to vary appearance in the material.
 

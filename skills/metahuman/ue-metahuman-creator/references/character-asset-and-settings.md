@@ -156,18 +156,31 @@ Eye presets in `Content/Tools/EyePresets/` (`EyePresets` data + `T_EyePreset_001
 
 ## Look-dev recipes
 
-Verified starting values (VibeMetaHumans `set_skin_tone` / `set_settings`; patch keys are
-PascalCase, `get_settings` returns camelCase):
+Starting values, written as the service's JSON patches (`set_skin_tone` / `set_settings`; patch
+keys PascalCase, `get_settings` camelCase). Where the service has no such tool, apply the same
+values natively: `ss = character.get_editor_property('skin_settings')`, set the snake_case members
+on the copies, write each nested struct back (`ss.set_editor_property('skin', sk)`, same for
+`accents`, `freckles`; eyes: `eyes_settings` -> `eye_left`/`eye_right` -> `iris`), then
+`commit_skin_settings` / `commit_eyes_settings`, and read the values back.
 
-- **Fair, young, lightly sunned:** `set_skin_tone(c, 0.22, 0.40)`; face-only sun via
+- **Pick skin tone from a sweep, never from a remembered number.** How dark a `U` reads changes
+  with the capture path and face texture: one run read 0.28 as already tanned, another (blank
+  template, `Studio`, SceneCapture) read 0.22-0.32 as pale pink, 0.50 as a light outdoor tan and
+  0.60 as clearly tanned. In one call commit three values 0.1 apart, capture the face front after
+  each, then show a labelled strip beside the reference with the sampled forehead RGB.
+- **Fair, young, lightly sunned:** `U` 0.22, `V` 0.40; face-only sun via
   `{"Accents":{"Forehead":{"Redness":0.58,"Saturation":0.55},"Nose":{"Redness":0.6,"Saturation":0.55},"Cheeks":{"Redness":0.58,"Saturation":0.55}}}`.
-  `U` 0.28+ already reads tanned/olive under `Studio` light.
-- **Light visible freckles:** `{"Freckles":{"Density":0.4,"Strength":0.35}}` (preset defaults
-  around 0.3/0.2 barely show at close-up distance).
+  A character who works outdoors wants a visible tan: start the sweep around `U` 0.4-0.6.
+- **A few freckles:** `Mask` `Type1` (the default `None` shows nothing at any density), `Density`
+  0.3, `Strength` 0.45: visible in a face close-up, gone at full-face distance. `Strength` 0.35
+  barely showed. Preview-resolution freckles can look like blocky patches; recheck after the
+  texture-source download before retuning.
+- **Base judged in underwear:** `skin.show_top_underwear = False` bares the torso.
 - **Gray (not blue) iris:** both eyes `{"Iris":{"PrimaryColorU":0.2,"PrimaryColorV":0.62,"SecondaryColorU":0.15,"SecondaryColorV":0.45,"GlobalSaturation":0.12}}`.
   At `GlobalSaturation` 0.35 it still reads blue. Sample the iris pixels of a close capture
   (neutral R≈G≈B) and recheck in the target scene lighting: `Studio` light still tints it
-  blue-gray.
+  blue-gray, and warm or tanned skin makes a pixel-neutral iris read blue by contrast. Report
+  the sampled value with the impression rather than re-tuning on the impression alone.
 - There is no per-region body tone: tan lines, paler torso or darker hands need a body texture
   override (`TextureMaterialOverrides`); say so before promising canon-specific skin.
 

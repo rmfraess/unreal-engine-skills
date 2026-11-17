@@ -82,12 +82,117 @@ converges, switch to the multi-view fit below rather than reporting the front nu
 | Mesh conform (`import_from_custom_mesh`, `import_from_template`) | Any sculpted head | Custom mesh must be a full MetaHuman-frame body (feet z=0, facing +Y, A-pose, bald) or head + body pair. Template import needs MetaHuman topology but a **head-only** static mesh is enough (body constraints survive); the preview's own face mesh is a ready template, see "Head template round-trip" |
 | Skin texture / accents / custom textures | Apparent age, pores, wrinkles | Much of an "older" read is the texture, not the shape |
 
-A generated image-to-3D head (e.g. Meshy) is **neither a conform base nor a face-shape target**:
-it uploads the references to a third-party service (needs the user's explicit OK), costs credits,
-its hair is solid mesh, and it rebuilds a generic face that scores worse than a fitted MetaHuman.
-Do not propose it for face shape; if the user asks for it anyway, score it first (step 6 below)
-and use it only as a cross-check where it agrees with the flat references. The shape reference is
-a hairless buzz-cut edit of the user's reference set.
+A generated image-to-3D head (e.g. Meshy) is a face-shape target **only once the user has looked
+at it and approved it as the character**; then follow "User-approved generated head as the conform
+target" below. Do not propose generating one for face shape yourself: it uploads the references to
+a third-party service (needs the user's explicit OK), costs credits, hair in the inputs becomes
+solid mesh, and an unreviewed generation tends to a generic face. For a head the user has not
+approved, score it first ("Generated 3D reference head" step 6), use it only as a cross-check where
+it agrees with the flat references, and take shape from a hairless buzz-cut edit of the reference
+set.
+
+## User-approved generated head as the conform target
+
+Run end to end once (UE 5.9, blank-template character, textured bald bust): the wrap matched the
+target to 0.02 cm on face and skull, and after `import_from_template` (0.6 s, default params) the
+MetaHuman sat 0.05 cm mean / 0.15 cm p95 from the target on the face. Landed share of the asked
+move: face 87%, ears 77%, skull 45%, upper neck 18%. The import also applies a small global
+transform (scale 1.003, ~0.1 cm), so measure the gap to the target, not only to the template.
+
+Order of work that converged: wrap and import on a **scratch** character -> user judges the bald
+shape beside the target -> before any further attempt, keep the judged one (hash-checked copy of
+the `.uasset`, exported positions, measure report, sheet) so the user can pick between attempts
+-> show target | attempt 1 | attempt 2 columns (front, three-quarter, profile, plus eye and mouth
+zooms) with the per-region gap table -> on approval create the real character with the scratch as
+`create_character`'s preset (it copies the fitted face; confirm by exporting and diffing
+positions) -> body, skin and eyes on the real one. When the user calls a first attempt "very
+close", spend the second attempt only on the features they named.
+
+Wrap recipe that worked (numpy/scipy/trimesh outside the Editor, ~20 s):
+
+- Correspondence: MediaPipe on textured/material-coloured **front ortho** renders of both heads,
+  each landmark ray-cast onto its mesh for a 3D pair. Keep only the central face (front-facing
+  hits, inside the cheekbones, below the brow): cheek, jaw-oval and forehead points are not
+  anatomical and their depth is unreliable, and as constraints they shear a crease into the cheek.
+  Lid-margin points fall through the eye opening on the MetaHuman, so snap those to the nearest
+  front skin vertex.
+- Similarity from the pairs for rotation and position; take scale from chin-to-crown height so the
+  head keeps the size the body gave it (pupil-distance and landmark scales differed by 2-6%).
+- Fit: weld the UV-seam duplicate vertices first, then solve one smooth displacement field
+  (bi-Laplacian) pulled to the target by point-to-plane on the nearest normal-compatible vertex
+  plus the landmark pairs, stiff to soft. Stop at a moderate stiffness: the softest stages only
+  add flipped triangles at lips and lids. No landmark-only stage (it swings ears and skull).
+  Fit the ears in the stiffest stage only, then hold them, or folds snap to the wrong fold.
+  Mask clothing on the target by texture colour, give occluded skin (mouth bag, nostrils, lid
+  insides) no data term, and pin everything below about chin - 10 cm for the body seam.
+- **Paint the MetaHuman before running a landmark detector on it.** On bare geometry MediaPipe
+  misplaces lip borders by ~1.5 mm and eye corners by ~2.5 mm, and on blank eyeballs it reads the
+  eye half closed (0.16 opening/width where the painted render reads 0.34). Colour the lips from the
+  engine's lip make-up mask (`/MetaHumanCharacter/Textures/ArtistDelights/LipsMakeup/T_LipsMakeup_Natural`,
+  exported with `AssetExportTask`, sampled at the head's UVs with no V flip) and paint an iris disc
+  (r 0.59 cm) around each eyeball's front-most vertex. Drop brow points: a bald head has no brows.
+- Check correspondence, not just the gap: colour the wrapped mesh with the target's texture (nearest
+  target vertex) and draw the lip-mask border on it; the border must sit on the textured lip edge.
+- Lid margins: spline the 16 eye-contour points to ~64 per eye, pair each with the nearest skin
+  vertex the front camera can see, hold those stiff in the image plane only (the target's depth
+  jumps between lid and eyeball at the margin and makes it ragged), and give no data term to target
+  points inside the eye opening.
+- Front landmarks fix the head's nod poorly (2.5 deg swing with the choice of points): after the
+  landmark similarity, settle rotation and position with rigid ICP over face, skull and ears.
+- Finish with a detail pass: slide each fitted vertex along its own normal onto the target (step
+  smoothed once, clamped 0.15 cm), then even out the displacement across the border between fitted
+  and hidden skin (lip seam) and wherever a triangle folded. This took the template to ~0.005 cm
+  and the imported face from 0.149 to 0.090 cm p95 with crisper lips.
+- Asking the import for more than the template (template + what the last import missed, three
+  rounds) moved the result 2%: the residual is the face model's limit, not a gain to chase.
+- Unreal's exported winding gives inward cross-product normals in Unreal coordinates: reverse it
+  before any normal test (the Blender note in step 2 below is the same fact seen after the y flip).
+- Check the wrapped head on clay renders **without the lash cards** before importing; lashes dragged
+  along with the lids look like torn eyelids.
+- Blender resolves a relative `render.filepath` against the drive root, not the working directory:
+  pass absolute output paths.
+- A blank-template preview renders dark grey topology until the asset's preview material is
+  switched (see the body-fitting reference); use the clay
+  renders of the exported mesh for shape evidence, not Editor captures.
+
+1. **Inspect the supplied file read-only before saying anything about it.** Headless Blender
+   (`--background --factory-startup <file> --python <script>`): objects, triangle count, UV layers,
+   images, bounding box; then Workbench clay renders through an orthographic camera at yaw 0, 35
+   and 90. Look at the renders for bald skull vs hair shell, uncovered ears, where the neck ends,
+   clothing and the resting expression. State only what those renders show: limits recorded for
+   other generations or for the flat reference set (hidden skull, hair shell, "rejected") do not
+   transfer to this file, and file dates do not identify which generation it is. Ask the user where
+   it came from.
+2. **Get the user's by-eye verdict in the first round.** If the raw head is the character to them,
+   it is the target and the plan is built around it, not offered as one candidate in a preset
+   lineup. The starting preset then only supplies skin detail and whatever the conform does not
+   carry, so pick it yourself.
+3. **Explain it in plain words.** The head sets every proportion; the body's height sets absolute
+   size (the mesh cannot say whether the head is 23 or 25 cm tall). Say "it is not life-size;
+   resizing fixes that" rather than "arbitrary scale", and keep fixable mechanics apart from real
+   obstacles. The engine's conform alignment can scale too
+   (`MetaHumanAlignmentOptions.SCALING_ROTATION_TRANSLATION`).
+4. **The real obstacles, in the order they bite:**
+   - Topology: a MetaHuman needs its own vertex layout, so the head cannot be imported directly.
+   - Correspondence: eye, nostril and mouth corners must be located on the target. An untextured
+     head with blank eyes gives only geometry, and the custom-mesh face tracker fails on eyeless
+     heads, so ask for the textured download.
+   - Regions: plan the whole head (face, skull, ears) and measure what lands per region after the
+     import. Thin folded ears may tangle; where a region does not land, keep the MetaHuman's own
+     and say so. The upper neck is head mesh but the import strips most edits at the jaw border and
+     throat; the lower neck is the body, matched by the `Neck` measurements; throat and
+     neck-muscle detail is a post-build mesh edit.
+   - Expression: a furrow or frown in the target becomes the neutral under every rig expression.
+     Make the resting brow an explicit approval check for the user.
+5. **Route:** resize to the target-height body's head, wrap an exported MetaHuman-topology head
+   onto the surface in Blender, then the head template round-trip below. Two attempts at the wrap;
+   if it fails, report it and try the engine's Mesh to MetaHuman route (Identity ->
+   `import_from_identity`; needs a textured head with eyes and the user's Epic sign-in) before
+   falling back to presets. An approved target is not dropped after one failed method.
+6. **Evidence a 3D target makes possible:** the surface gap between the conformed MetaHuman and the
+   target per region (face, skull, ears, neck) plus untextured renders of both, side by side from
+   one camera. The user approves shape bald beside the generated head, and the haired likeness
+   beside the haired references. Warn that skin, eyes and hair change how an approved shape reads.
 
 ## Generated 3D reference head (Meshy, measured in Blender)
 
@@ -187,6 +292,9 @@ sculpting. Sheets mislead on size and even direction.
   face that shows as a brow shelf and bulging far cheek. Convert to depth with `/ sin(yaw)`. Front
   widths can match exactly while this is off. The two generated three-quarters disagree with each
   other, so act only on offsets with the same sign in both views or confirmed by eye in both.
+  The read needs the picture's head turn from something other than the cheek outline itself; a few
+  degrees of turn move the far outline as much as cheek fullness does (likeness-measurement-limits,
+  cheeks).
 - **Neck:** narrowest silhouette row 0.25-0.6 eye-to-chin heights below the chin (skin chroma
   `R - B > 25` mask, not background difference), divided by cheekbone width `234-454`, reference vs
   render. Measure before calling a neck thick or thin; the by-eye read has been backwards.
@@ -206,10 +314,94 @@ sculpting. Sheets mislead on size and even direction.
   For forehead work extend the rows to ~6 cm above the nasion and trust them only up to the
   reference's hairline (on a buzz-cut reference the stubble adds 0.1-0.3 cm above it; on a haired
   one the fringe adds centimetres).
+- **Profile without a landmark (haired picture, or a nose root that has been sculpted):** the
+  nasion anchor fails when hair covers the forehead or a fill has made the dip too shallow to
+  find. Fit the whole line instead; see "Profile trace by line fit" below.
 - **Mesh coordinates for brushes:** read them from the exported vertices, not from guesses. Plot the
   midline (`|x| < 0.12`) as y-vs-z with a 1 cm grid to locate nasion, tip, subnasale, lips, groove,
   chin and menton, and snap each brush centre to the surface (`max y` of vertices near the target
   x/z).
+
+### Profile trace by line fit
+
+Lays the head's side-view line on a profile picture with no anchor point, then lists the gap per
+0.5 cm of height (ours in front of / behind the picture, in mm on our head).
+
+1. **Our line:** the midline's most forward skin point per height, from the exported positions,
+   with height counted from the pupils (front-most vertex of each eyeball section).
+2. **Picture line:** mask the figure by skin chroma (`R - B` above a threshold that the background
+   stays under: check a corner patch), keep the largest blob, take the first figure pixel per row.
+   Keep only the face part: find the nose tip as the most forward edge point with bright skin just
+   inside it (a fringe sticks out further but is dark), walk up until hair overhangs and down until
+   the chin turns back to the neck.
+3. **Fit** size, turn and shift by closest-point iteration, our points onto the picture's line:
+   - Resample the picture line finely first (8 points per pixel row); closest *vertex* matching on
+     a one-point-per-row line stalls short of the answer.
+   - Leave the worst-fitting sixth out of every round, so one real difference (a nose) does not
+     drag the rest off, and ignore matches to the trace's two end points.
+   - Start from many sizes with the tips together, and pick the start by left-over in cm divided
+     by the squared share of our line that landed on the trace. Left-over in pixels alone picks a
+     tiny copy, which fits anywhere.
+   - Self-test on a turned, resized copy of our own line (size and left-over recovered) before
+     trusting any picture.
+4. **Look at the overlay** (picture with its trace and our line drawn on it) before reading the
+   table: a trace that ran down the fringe or the neck gives a plausible table.
+5. **Run every profile picture in the set, not only the one asked about.** Generated profiles
+   disagree by 2-4 mm at the brow and nose tip. Report per place the range across pictures, say
+   where they agree on direction, and note that a haired or browed picture's brow row includes
+   brow hair the bald mesh lacks.
+
+### Local shape edits on the user's verdict (target files)
+
+Use once positions and sizes measure within noise and the user names what still looks wrong ("too
+hard", "gaunt", "divot", "nose is off"). One edit per named feature:
+
+1. Export the head as saved; a script writes a full-head target from it (only skin moves) and
+   prints how far it moves what, plus guards: nothing moves outside the patch, no triangle flips.
+2. Clay preview of the target, before / after / move map, then apply by isolated template import
+   (round-trip step 9), first asserting the Editor's head equals the base the target was made
+   from; check out-versus-target (0.01 mm is normal).
+3. Hair off, assemble, wait for the brows to rebind, capture under flat front light at the fixed
+   camera, hair back on. Sheet: reference | before | now, front and three-quarter.
+4. Report measured facts apart from by-eye impressions, say which pass of the two this is, end
+   with what was not checked, and offer the verdict words (keep / revert / more). Save and commit
+   only on "keep"; re-export the saved head as the next edit's base.
+
+Rules that held across features:
+
+- **Measure which way a feature is off before moving it.** A brow read by eye as low measured
+  4 mm high; the hooded lid under it made the read.
+- **Fill a dip forward only.** Smoothing the step at its top by pushing the higher side back makes
+  the dip read deeper. Even the step with a few forward-only rounds; many rounds fill it to the brim.
+- **A front-view fix can undo the profile.** Filling the nose-to-brow dip until no shadow shows
+  from the front left the profile's brow step 2-4 mm shallower than the pictures. Say so when
+  proposing the fill, and correct on the midline only so the side fill stays.
+- **Moving the side-view line:** move a share (0.7) of the gap to the average of the pictures,
+  full on the midline and faded out before the lids and nose wings, so the front widths stay.
+  Smooth the gap over ~3 mm of height first: closing a gap that is narrow in height exactly
+  raises a ridge (a visible line under the nose).
+- **Stop a patch above anything that does not move with the skin.** The upper lip moved back goes
+  through the teeth; check lip vertices against the teeth section before choosing the lower limit.
+- **One push direction for a patch with hidden folds.** Per-vertex normals flip inside the mouth
+  corner; push a cheek fill along the normal at the patch centre, with a smooth falloff. Cutting
+  the hidden skin out of the patch flips triangles at the cut.
+- **A chin cleft must end on the front of the chin pad.** Run to the chin's lower edge it notches
+  the outline and reads far stronger than its depth; 2 mm was "way too strong", 0.8 mm invisible,
+  1.3 mm accepted.
+- **"Too hard, too old" on a young character:** first undo any earlier pass that strengthened jaw,
+  chin and cheekbone (keep what it did to eyes and lids), then fill the hollow under the
+  cheekbone ~2.5 mm.
+- **Lowering or rounding a nose tip hides the nostrils from the front**; check the front view
+  against the reference's visible nostrils before offering it.
+- **Smooth along the normal only** (each round half way to the neighbours' average, on welded
+  seam vertices), inside a hand-set patch; free smoothing shrinks the feature.
+- **When an edit removes a measuring tool's landmark, measure against an anchor head** that is
+  identical except for that spot, or switch to the line fit above.
+- **Flat front light hides shallow grooves and leaves a profile half lit**: a groove judged
+  "barely visible" there may be right; say which light the verdict was made in.
+- **Forehead height is often the hairline, not the skull.** Measure the hair edge above the pupil
+  line at mid-forehead in pupil distances on reference and render before touching the forehead;
+  lowering the groom's front roots closed a 1.7 cm gap (custom-grooms.md, moving a hairline).
 
 ## Hand sculpt passes (form the front fit cannot reach)
 
@@ -320,6 +512,34 @@ the test copy afterwards syncs its face for groom tests.
    `EditorLoadingAndSavingUtils.reload_packages(<the character and template packages>,
    ReloadPackagesInteractionMode.ASSUME_POSITIVE)`, respawn, re-export and confirm max difference 0
    against the saved base. Never save between a trial import and its verdict.
+   - **An unsaved trial does not survive the user's Editor.** Asking them not to close or save is not
+     a safeguard: an Editor closed with Save writes the trial, the scratch template meshes and any
+     cleared wardrobe slot to disk. When a verdict arrives after a gap, check first that the Editor
+     still answers and that the character file's hash equals the committed one. If it differs, copy
+     both the on-disk file and the committed version to a backup folder, leave the file uncommitted,
+     relaunch, confirm the loaded head equals the last trial export and the wardrobe selections are
+     whole, and tell the user what is now on disk without their verdict.
+9. **For small edits of a head that already sits on its body, isolate the import** (UE 5.9):
+   `ImportFromTemplateParams` with `isolate_head_from_body = True` and
+   `alignment_options = MetaHumanAlignmentOptions.NONE` reproduced the template to 0.00 mm on skin,
+   neck and seam included. The default import re-solves the neck against the body: asked for no
+   change at all it moved jaw and throat up to 3 mm, and again on every repeat, so feeding the
+   shortfall back makes the neck worse, not better.
+   - Pass the eyeballs and the teeth as their own templates (material sections 3 = his left eye,
+     4 = his right eye, 1 = teeth, each cut from the same face mesh). Eyeballs then land exactly;
+     without a teeth mesh the isolated import refits the teeth (1.7 mm lower).
+   - The engine still places the eye shell, wet line and lash cards itself, from the lids. Move an
+     eyeball 1 mm sideways with the lids left alone and it comes through the wet line at the outer
+     corner (a hard pale wedge on the white of the eye). Move the lid skin with it wherever the ball
+     comes closer: keep each vertex's distance to the ball centre, fading out by 9 mm.
+   - Because the result equals the template, render the template to judge an edit before importing.
+   - The preview's `FACIAL_L_Eye` / `FACIAL_R_Eye` sockets do not follow the fit; check eye joints
+     on the built rig.
+10. **A surface conform does not place the pupils.** The engine centres each eyeball in its lids; a
+   target with painted eyes can have its irises elsewhere (2.5 mm further apart in one case, which
+   read as pinched, slightly crossed eyes). Measure it by warping the target's textured front render
+   into the MetaHuman's frame (affine fit over shared vertices) and comparing pupil positions in
+   millimetres. Ratios in units of pupil distance cannot show this: the unit is the thing in error.
 
 ### Feature transplant from a preset (nose, philtrum: form brushes cannot reach)
 
@@ -425,8 +645,9 @@ preview timing" below. Library brows read much thinner than thick generated-refe
    `Melanin`/`Redness`), then call `assemble_for_preview(c)`. A preview spawned after an Editor
    restart has **no groom components at all** until this runs, even though `get_summary` lists the
    selections.
-2. Every groom add or colour change hides the grooms until their binding rebuilds: **2-3 minutes**,
-   with nothing in the log. Wait >= 3 min (check the health heartbeat meanwhile), then capture.
+2. Every groom add or colour change hides the grooms until their binding rebuilds: **4-7 minutes**
+   (longest in a fresh Editor session or with a dense own groom), with nothing in the log. Wait,
+   check the health heartbeat meanwhile, and sample a hair pixel before capturing for a verdict.
    A bald capture before that is not a failure; do not clear/re-select slots or recolour to "fix" it,
    each change restarts the wait. Brows can bind minutes before the hair (hair took ~5 min), so
    judge each groom only once its own strands render. Change hair and brows in the same call so
@@ -435,22 +656,82 @@ preview timing" below. Library brows read much thinner than thick generated-refe
    front after the brows rebind before the user's verdict or a commit, and label early shots.
 3. Verify wiring read-only if still bald: the preview actor's `GroomComponent`s should have
    `groom_asset` and a transient `binding_asset`, attached to `Face`. If they are wired and still
-   bald well past 3 min (log stuck at `Waiting for groom bindings to be ready 0/1`), restart the
-   Editor, then step 1 again. If brows are still bald after two such routes, stop re-selecting
+   bald well past 7 min (log stuck at `Waiting for groom bindings to be ready 0/1`), restart the
+   Editor, then step 1 again. Discard or save the trial before that restart (step 7): an Editor
+   closed with dirty packages opens a restore prompt on the next launch, and a modal prompt
+   blocks every scripted call until a person clicks it. If brows are still bald after two such routes, stop re-selecting
    (two-attempt rule): shape work does not need brows, so capture anyway, label the sheet
    "brows not rendering", and discount brow landmark scores until the brows show again.
 4. Canon-dark auburn-brown hair: `Melanin` ~0.72, `Redness` ~0.62 (0.55/0.5 reads golden-brown).
+   On a dense brush cut, 0.85/0.9 rendered dark crimson and 0.85/0.6 near-black brown: `Melanin`
+   above ~0.8 is black-brown whatever the redness.
+   **Never judge grooms or skin look through a hand-made `SceneCapture2D`** (UE 5.9): it drew no
+   hair strands (styles looked thin, sparse or absent, brows faint or white) and rendered skin
+   paler and pinker with fainter freckles than the Editor. A whole hair review and a skin approval
+   were made on those wrong pictures. Capture through the level viewport instead
+   (`ViewportService.capture_with_view` at the viewport's own size, fixed exposure; or
+   `SceneCaptureToolset.Capture`), and confirm hair shows in the first shot before comparing styles.
+   **Every groom change re-binds all grooms**: a wardrobe pick, `set_wardrobe_item_parameters`
+   or `assemble_for_preview` leaves the head bald for 4-7 minutes (longest in a fresh Editor
+   session), and the grooms come back one by one. A capture taken early shows a bald head or old
+   brows, and a landmark detector will still report brow positions for it. Check a hair pixel
+   before measuring anything. Editing the preview groom's material instances or `hair_width`
+   directly changed nothing visible.
+   **Measure where a brow sits by hiding it**: capture, `set_visibility(False)` on the `Eyebrows`
+   groom component, capture again, and take the changed pixels as the brow band. Compare its
+   lower edge, centre and upper edge with the reference's in a pupil-aligned frame. On a head
+   conformed by surface wrap the brow topology can sit several millimetres high, because a wrap
+   matches surfaces and the target's brows are only paint.
+   **Library brows read pale** in a face-filling shot whatever `Melanin` says (1.0 still looked
+   sandy): they are sparse strands over lit skin. Three styles (`M_Wide`, `M_Shaded`, `M_Thick`)
+   all missed a dark, dense, low, straight brow.
+   **`head_model_settings.eyelashes.type` picks the lash groom** and carries the lash colour
+   (`melanin`, `redness`); do not also pick a lash wardrobe item.
+   **Look at the albedo before blaming light for dark eye sockets**: `SceneCaptureToolset.Capture`
+   with `mode: "Unlit"` shows base colour only. The synthesized face albedo carries a dark ring
+   around the eyes and a painted brow at the topology's brow position. `face_texture_index`
+   (nine tried), the `under_eye` accent and foundation concealer (under the eye only, and it
+   whitens) did not remove the ring.
+   A transient light spawned for a test marks the lighting map dirty and it cannot be cleared from
+   Python: never save that map.
+   **Creator takes a groom you made yourself** (UE 5.9), which is the way out when no library brow
+   or hair style fits: strands generated on the character, mapped by UV to the head library grooms
+   are bound to, imported as Alembic and wired into a wardrobe item. Procedure, brow and hair
+   recipes and the settings that must be copied from a library groom:
+   [custom-grooms.md](custom-grooms.md).
+   Judge colour on a dense style only: a thin style shows scalp and highlights through the
+   strands, so the same values read light copper beside a dark-auburn reference. Compare the mean
+   RGB of a hair patch with the reference's before changing the values.
 5. **Pick styles from the full list against the cut in every reference view.** Describe the
    reference cut from front, three-quarter *and* profile (length at sides/nape, ear coverage,
    volume on top, wave, fringe) before naming a candidate, then read `list_wardrobe_items('Hair')`
-   and shortlist by those traits; names like `M_`/`S_` say length, not shape. If no library style
-   matches, say so early and offer a custom groom as a user decision instead of cycling styles at
-   ~3 min each.
-6. **Custom hair is an artist task, not a generator.** A rule-based Blender generator (strands grown
-   from the scalp inside a generated head's hair shell, clumped and curled) and the free Fab head
-   grooms were both judged visibly bad by the user. Do not offer more generator passes or another
-   free-listing sweep as the route; present the options as hand-placed guide curves (a person in
-   Blender), a paid groom the user picks, or pausing hair, and keep face work going meanwhile.
+   and shortlist by those traits; names like `M_`/`S_` say length, not shape. Scout the whole
+   library from its thumbnails first (seconds, not ~3 min per style): every
+   `MetaHumanWardrobeItem` under `/MetaHumanCharacter/Optional/Grooms/Bindings/<Hair|Eyebrows|...>`
+   has a `thumbnail_image` (soft reference: `.load()` it), which `AssetExportTask` writes as a
+   512 px PNG; tile them into one labelled contact sheet and send it with the verdict so the user
+   can pick too. (`CaptureAssetImage` refuses wardrobe items.) The engine library has no thick
+   wavy or loosely curly short-to-medium cut: its short styles are flat and straight and its only
+   curls are tight coils, and a thin short style reads as thinning hair on a real head. If no
+   library style matches, say so early and offer a custom groom as a user decision instead of
+   cycling styles at ~3 min each.
+6. **Custom hair is a user decision, and a generated groom is a draft until they have judged
+   it.** The routes are: own generated groom ([custom-grooms.md](custom-grooms.md); free, Creator
+   accepts it, expect several rounds), hand-placed guide curves (a person in Blender), a paid
+   groom the user picks, or a library stand-in while other work continues. Ask which, and take
+   the generated route when the user rules out spending or asks for own tools. Be honest about
+   its ceiling: an earlier generator (strands grown inside a generated head's hair shell) and the
+   free Fab head grooms were judged visibly bad, and big smooth waves are the hardest thing to
+   generate. Show each Editor round beside the reference in four views with the differences
+   listed, stop at the attempt cap, and ask which trait matters most (size, fringe, wave) before
+   the next round.
+7. **A groom trial needs no test copy if nothing is saved.** Hash the character `.uasset`, select
+   the grooms and colours on the real character, capture, then discard: destroy the preview
+   actor, `remove_object_to_edit`, `reload_packages([package], ASSUME_POSITIVE)`. Confirm
+   `get_summary(...)['wardrobe_selections']` lists only `Character` again, no package is dirty and
+   the file hash is unchanged. Set head-model changes made for the trial (eyelash type) in the
+   same unsaved state so the reload drops them too. Apply the chosen style for real only after
+   the user's pick.
 
 ## Pitfalls
 

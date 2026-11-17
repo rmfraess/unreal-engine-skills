@@ -86,9 +86,10 @@ character = unreal.load_asset("/Game/Characters/MetaHumans/MH_Pilot.MH_Pilot")
 hair_item = unreal.load_asset("/MetaHumanCharacter/Optional/Grooms/Bindings/Hair/WI_Hair_L_StraightBangs.WI_Hair_L_StraightBangs")
 
 collection = character.internal_collection                      # UMetaHumanCollection (BlueprintReadOnly)
-ok, item_key = collection.try_add_item_from_wardrobe_item("Hair", hair_item)   # -> (bool, FMetaHumanPaletteItemKey)
-if not ok:
+r = collection.try_add_item_from_wardrobe_item("Hair", hair_item)   # 5.8 headers: (bool, key); UE 5.9 returned the key alone
+if isinstance(r, tuple) and not r[0]:
     raise RuntimeError("item not compatible with slot Hair")
+item_key = r[1] if isinstance(r, tuple) else r   # never write `ok, key = ...`: the unpack raises after the item was added
 
 selection = unreal.MetaHumanPipelineSlotSelection(slot_name="Hair", selected_item=item_key)
 collection.default_instance.try_add_slot_selection(selection)   # or set_single_slot_selection("Hair", item_key)
@@ -110,6 +111,62 @@ internal collection does not need a session, but `assemble_for_preview` does.
 Listing what is in a palette: `unreal.MetaHumanCollectionBlueprintLibrary.get_slot_names(collection)`,
 `get_item_keys_for_slot(collection, "Hair")`, `get_item_display_name(collection, key)`;
 `unreal.MetaHumanCharacterInstanceBlueprintLibrary.get_allowed_item_keys_for_slot(instance, "Hair")`.
+
+The library's styles can be listed without the Editor: `WI_*.uasset` files under
+`<Engine>/Plugins/MetaHuman/MetaHumanCharacter/Content/Optional/Grooms/Bindings/<Slot>/`
+(UE 5.9: 38 `Hair`, 18 `Eyebrows`, 16 `Beards`, 16 `Mustaches`, 6 `Eyelashes`, 1 `Peachfuzz`).
+When the user wants to browse them by hand, point them at the character's own editor window
+(double-click the character asset; the source names the section `Hair & Clothing` and its tools
+`Wardrobe` and `Costume`) and tell them to close it without saving, or to browse on a copy: a
+saved pick replaces the character's hair.
+
+### Trying library grooms on a character without saving
+
+The code for "A groom trial needs no test copy if nothing is saved" ("Groom preview timing" in
+[face-fitting-to-reference.md](face-fitting-to-reference.md)). It uses Epic's collection API
+only, so it also works when the project's MetaHuman service has no wardrobe helpers
+(`add_wardrobe_item`, `select_wardrobe_item`, `get_wardrobe`).
+
+```python
+sub = unreal.get_editor_subsystem(unreal.MetaHumanCharacterEditorSubsystem)
+lib = unreal.MetaHumanCollectionBlueprintLibrary
+col = character.internal_collection
+assert not sub.is_object_added_for_editing(character)             # select before the session opens
+for slot, path in (("Hair", HAIR_WI_PATH), ("Eyebrows", BROWS_WI_PATH)):
+    name = path.rsplit("/", 1)[-1].replace("WI_", "")            # display names look like Hair_S_SweptUp_Binding
+    keys = {str(lib.get_item_display_name(col, k)): k for k in lib.get_item_keys_for_slot(col, slot)}
+    key = next((k for n, k in keys.items() if name in n), None)
+    if key is None:                                               # add once: an earlier failed call may already have added it
+        r = col.try_add_item_from_wardrobe_item(slot, unreal.load_asset(path))
+        key = r[1] if isinstance(r, tuple) else r
+    col.default_instance.set_single_slot_selection(slot, key)
+# then: try_add_object_to_edit, spawn the preview, sub.assemble_for_preview(character=character),
+# set the colours (parameters exist only after an assembly), assemble again, wait for the bind, capture.
+
+# discard
+for actor in preview_actors: actor.destroy_actor()
+sub.remove_object_to_edit(character)                              # before the reload, or the Editor can crash
+unreal.EditorLoadingAndSavingUtils.reload_packages(
+    [character.get_outermost()], unreal.ReloadPackagesInteractionMode.ASSUME_POSITIVE)
+```
+
+- **Hash the character `.uasset` before the trial and compare after the discard.** Collection
+  edits and wardrobe colour changes did not mark the package dirty, so an empty dirty list proves
+  neither that nothing changed nor that the discard worked. Also read the selections back: they
+  must name the items the character had before.
+- **Colour the trial grooms with the character's own hair and brow values**, not the style's
+  defaults, so the user judges the cut and not a colour change.
+- **Frame hair wider and higher than a face shot**: aim about 3 cm above eye height with a
+  field about 40 cm tall (14 degrees at 160 cm), or a swept-up style is cut off at the top. Add
+  a brow close-up (5 degrees at 160 cm, front and three-quarter) when brows are being judged.
+  Take one front shot first and look at it before the full set.
+- **Say what is still underneath.** Brows painted into the face colour map stay under a trial
+  brow groom; check the close-ups for a double edge and tell the user either way.
+- When the trial comes from a purchased head, show the listing's own picture beside the result
+  and name the stock items, so the user sees which part of its look the grooms carry.
+- After a context compaction, read the scripting tool's schema again before the first call. A
+  guessed argument name or shape spends the two-attempt limit on the call format, and the
+  question the user asked stays unanswered.
 
 ---
 
@@ -269,6 +326,12 @@ judge faces. Epic's `EditorAppToolset.CaptureAssetImage` rejects `MetaHumanChara
    window titles (Win32 `EnumWindows` from a PowerShell script file), then ask the user to click
    **Skip Restore**: restoring can put an older autosave over saved work. After the restart,
    recreate transient fit cameras and call `assemble_for_preview` before judging grooms.
+   An Editor the user closed normally opens no restore prompt: the last log ends with
+   `LogExit: Exiting.` and `Saved/Autosaves/PackageRestoreData.json` says `RestoreEnabled` false.
+   Check both before a launch to know whether to expect the dialog. Compare the newest plugin
+   source file with the plugin binaries too: when the source is newer through a checkout that is
+   not yours, `-SkipBuild` starts the session on the binaries that last ran instead of compiling
+   someone else's change, and the report must say the plugin was not rebuilt.
 
 Creating a character from a preset can take ~15–60 s; a call can report `timed_out` with full
 output and a dirtied package. Read the output and the dirty list before retrying, or you create

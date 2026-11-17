@@ -251,6 +251,10 @@ Flags:
 - `-ReportExportPath` — writes JSON + HTML for a report server.
 - `-ResumeRunTest` — resume an interrupted run from a saved JSON report.
 
+**From an MCP agent in a running Editor:** call `AutomationTestToolset.DiscoverTests` first and wait a few seconds; `ListTests` returns an empty list until discovery has run, which looks like "no tests". `RunTestsByFilter` returns before the run ends; poll `GetTestStatus` until `numComplete` matches, then read `GetTestResults` for per-test state and errors.
+
+**Proving a guard fails on the old mistake (mutation run):** temporarily reintroduce the old code, rebuild, run the narrow test headless, then restore and rebuild. Before reading the result, check that the module DLL's timestamp is newer than the mutated source: a build that never ran reports the mutation as passing. Read the outcome from `Saved/Logs/<Project>.log` (`Test Completed. Result=`), and if the run ended in a crash, the crash itself is the failure but no assertion message was flushed; that run can't show which assertion would have caught it. Stop after two attempts; report what the mutation did prove.
+
 Parse the exit code and log for pass/fail in your CI pipeline. A non-zero exit code
 indicates test failures when `-unattended` is set. Check the discovered test names and completed count for any documented filter: a narrow name can omit sibling regression tests while still producing a passing run.
 
@@ -267,7 +271,9 @@ In a disposable, clean Editor fixture, protect a potentially successful guard pr
 - For VibeUE suite runs in a disposable host, seed a harmless `Config/DefaultGame.ini` before launch and unset `PYTHONUNBUFFERED` in the Editor process environment. Otherwise settings persistence tests can lack a loaded config layer, and Python output-capture tests can fail when write-through splits `print` arguments. Use a fresh disposable host for a full-suite run: an earlier auto-save can leave a `Saved/Untitled_*.umap` package that collides with a newly created temporary world and triggers unrelated save and cleanup failures. Preserve prior evidence and do not delete the saved map without authorization. Distinguish setup failures from plugin regressions.
 - **Missing both a context and a filter flag** → the test never appears in the browser.
 - **Using `check`/`ensure` instead of `TestTrue`/`AddError`** → crashes the whole run
-  instead of recording a failure.
+  instead of recording a failure. The same applies to indexing generated output (`Out[0]`)
+  that a regression can leave empty: gate it with `if (!TestTrue(...)) { /*clean up*/ return false; }`
+  so the regression reports instead of crashing before any assertion is logged.
 - **Functional test with no timeout** → CI hangs indefinitely.
 - **Non-deterministic tests** (frame timing, RNG, network) → flaky; seed or mock inputs.
 - **Spec variable capture inside `Describe`** — local variables captured by lambda go
