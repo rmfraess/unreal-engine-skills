@@ -1,17 +1,6 @@
 ---
 name: ue-sequencer-python
-description: >
-  Author Level Sequences (Sequencer, MovieScene, cutscenes) from UE 5.9 editor Python and
-  scrub them at runtime - binding proxy vs MovieSceneObjectBindingID, display rate vs tick
-  resolution, camera cuts, CineCamera lens properties, animation play rate
-  (MovieSceneTimeWarpVariant), easing, 5.9 mark ranges, replaceable bindings with
-  set_binding_by_tag, audio sections, LevelSequencePlayer playback params. Use before Python
-  touches unreal.LevelSequence, tracks, sections or bindings, and on the errors "has no
-  attribute 'guid'", "Cannot find the requested movie scene binding", "Cannot nativize
-  'float' as 'MovieSceneTimeWarpVariant'", "Failed to find property
-  'manual_ease_in_duration'", "frame_number is read-only", "no attribute
-  'get_sequence_player'", "no attribute 'set_current_focal_length'", "Section does not have
-  a start frame", "MovieScene has no attribute get_display_rate", "playing past section end".
+description: Use when authoring Level Sequences from editor Python.
 metadata:
   engine-version: "5.9"
   category: animation

@@ -1,11 +1,6 @@
 ---
 name: ue-gameplay-framework
-description: Implement Unreal's gameplay framework in C++ — GameInstance, AGameModeBase/AGameMode,
-  AGameStateBase/AGameState, APlayerController, APawn/ACharacter, APlayerState, and AHUD —
-  including the server-only spawn/login flow, possession, controller-pawn lifecycle, and which
-  class each piece of logic belongs in. Use when setting up game rules, default pawn/controller
-  classes, player login/spawn/possession, replicated game or player state, match-state machines,
-  respawn logic, or deciding "where does this code live?"
+description: Use when placing logic in GameMode, State, Controller, Pawn.
 metadata:
   aliases: "GameMode, GameState, PlayerController, Pawn, Character, PlayerState, GameInstance, HUD, game framework"
   engine-version: "5.9"

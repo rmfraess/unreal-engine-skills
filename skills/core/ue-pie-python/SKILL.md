@@ -1,18 +1,6 @@
 ---
 name: ue-pie-python
-description: >
-  Drive and inspect a running Play-In-Editor (PIE) game from editor Python in UE 5.9 -
-  the PIE world, game-instance/world/local-player subsystems, GameplayStatics lookups, live
-  UMG widgets and their children, reading text, pressing buttons, real Slate clicks with
-  the engine's SlateInspector and WidgetFinder toolsets, starting and stopping PIE with
-  EditorAppToolset, window size, viewport captures with SceneCaptureToolset, and automation
-  tests with AutomationTestToolset. Use for automated playtests, UI checks, in-game
-  screenshots and smoke runs, and on these errors - "has no attribute
-  'SubsystemBlueprintLibrary'", "'GameInstance' object has no attribute 'get_subsystem'",
-  "Failed to find property 'widget_tree'", "has no attribute 'get_widget_from_name'",
-  "is protected and cannot be read", "Not supported during PIE", "Cannot get the current
-  level while PIE is active", "is not a live Editor, PIE, or Game world", "No test names
-  provided", or a PIE that runs at a few frames per second.
+description: Use when driving a running PIE game from editor Python.
 metadata:
   engine-version: "5.9"
   category: tooling

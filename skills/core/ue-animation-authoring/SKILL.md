@@ -1,14 +1,6 @@
 ---
 name: ue-animation-authoring
-description: Create and edit UAnimSequence assets programmatically — build a sequence from
-  code with UAnimSequenceFactory and IAnimationDataController (SetFrameRate,
-  SetNumberOfFrames, AddBoneCurve, SetBoneTrackKeys), import animation-only FBX onto an
-  existing USkeleton with UFbxImportUI, and verify results numerically with FAnimPose /
-  UAnimPoseExtensions. Use when generating animation from code or a DCC round-trip
-  (Blender/Maya export), writing bone track keys directly, importing a clip onto a shared
-  skeleton (e.g. a MetaHuman body), debugging why an authored clip evaluates in the wrong
-  place (skeleton ref pose vs mesh proportions, untracked bones), or validating poses
-  without opening the editor UI.
+description: Use when writing AnimSequence keys or FBX clips by code.
 metadata:
   engine-version: "5.9"
   category: animation
@@ -176,6 +168,6 @@ Engine source (5.8), paths under `Engine/Source/`:
   `FAnimPose`:87, `UAnimPoseExtensions`:158, `GetBonePose`:193, `GetRefBonePose`:216,
   `GetAnimPoseAtFrame`:309, `EvaluateAnimationBlueprintWithInputPose`:320.
 
-Related skills: [ue-animation-system](../ue-animation-system/SKILL.md) for the runtime
-AnimInstance/AnimBP side; [ue-importing-content](../ue-importing-content/SKILL.md) for
+Related skills: the `ue-animation-system` skill for the runtime
+AnimInstance/AnimBP side; the `ue-importing-content` skill for
 general asset import.

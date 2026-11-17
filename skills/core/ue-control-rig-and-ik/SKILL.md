@@ -1,14 +1,6 @@
 ---
 name: ue-control-rig-and-ik
-description: Procedural animation and inverse kinematics in Unreal Engine — Control Rig
-  (RigVM-based graph that manipulates a bone/control hierarchy), IK Rig (solver definitions
-  with Full-Body IK, Limb IK, Set Transform), the IK Retargeter (transfers animation
-  between skeletons of different proportions), and lightweight AnimGraph IK nodes
-  (Two Bone IK, FABRIK, CCDIK). Use when implementing foot placement on terrain, hand/weapon
-  IK, look-at, procedural pose fixups, runtime retargeting, or sharing an animation library
-  across characters with different skeletons. Covers UControlRig, URigHierarchy, FRigUnit,
-  UIKRigDefinition, UIKRetargeter, FAnimNode_ControlRig, FAnimNode_IKRig,
-  FAnimNode_RetargetPoseFromMesh, FIKRigGoal, UControlRigComponent, UIKRigComponent.
+description: Use when doing Control Rig, IK Rig, foot IK, retargeting.
 metadata:
   aliases: "Control Rig, IK, IK Rig, IK Retargeter, retargeting, full body IK"
   engine-version: "5.9"

@@ -1,16 +1,6 @@
 ---
 name: ue-packaging-and-deployment
-description: Cook, package, and ship an Unreal project — the cook process (by-the-book vs
-  on-the-fly, cook rules, always/never cook directories, shader sharing), build configurations
-  (Debug/DebugGame/Development/Test/Shipping) and build targets (Game/Client/Server/Editor)
-  declared in *.Target.cs files, UAT BuildCookRun command-line pipeline, pak files and the
-  modern IoStore (.utoc/.ucas) container format, asset chunking and Primary Asset Rules for
-  DLC/patching, ProjectPackagingSettings (bUseIoStore, bGenerateChunks, bCompressed,
-  DirectoriesToAlwaysCook/NeverCook), platform targets and per-platform config
-  (Platforms/<Platform>/Config, the 5.9 Wasm web target), content-on-demand / IoStore On-Demand,
-  and shipping-vs-development behavioral differences (WITH_EDITOR, stripped checks/logs). Use
-  when producing a runnable build, automating cook/package in CI, diagnosing packaging failures,
-  configuring what ships, or setting up chunked DLC delivery.
+description: Use when cooking, packaging, or fixing UE packaging errors.
 metadata:
   aliases: "packaging, package, cook, cooking, BuildCookRun, UAT, RunUAT, pak, IoStore, shipping build, DirectoriesToNeverCook, DirectoriesToAlwaysCook, web build, Wasm"
   engine-version: "5.9"

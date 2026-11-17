@@ -1,15 +1,6 @@
 ---
 name: ue-enhanced-input
-description: Implement player input with Unreal's Enhanced Input system — UInputAction (data
-  asset, value types Boolean/Axis1D/Axis2D/Axis3D), UInputMappingContext (key-to-action
-  mappings with per-key modifiers and triggers), UEnhancedInputComponent (BindAction with
-  ETriggerEvent), UEnhancedInputLocalPlayerSubsystem (AddMappingContext/RemoveMappingContext),
-  UInputModifier (Negate, SwizzleAxis, DeadZone, Scalar, Smooth), UInputTrigger (Pressed,
-  Released, Hold, Tap, Pulse, ChordedAction), FInputActionValue (Get<bool>(), Get<float>(),
-  Get<FVector2D>(), Get<FVector>()), and PlayerController/Pawn setup. Use when setting up
-  player controls, binding movement/look/jump/interact actions in C++, adding or swapping
-  mapping contexts at runtime (on-foot vs. in-vehicle vs. menu), reading analog values, or
-  migrating from legacy BindAxis/BindAction input.
+description: Use when binding Enhanced Input actions and contexts.
 metadata:
   aliases: "input, Enhanced Input, keybinding, key bindings, controls, InputAction, mapping context, gamepad"
   engine-version: "5.9"

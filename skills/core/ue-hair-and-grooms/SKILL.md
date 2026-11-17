@@ -1,17 +1,6 @@
 ---
 name: ue-hair-and-grooms
-description: >
-  Hair Strands grooms in UE 5.9: UGroomAsset groups, geometry settings (HairWidth,
-  HairWidth_Override, HairRootScale, HairTipScale), LODs and LOD mode, guides and interpolation,
-  groom materials (MSM_Hair, bUsedWithHairStrands, slot names); Alembic groom import through
-  UHairStrandsFactory and UGroomImportOptions (FGroomConversionSettings, groom_ attributes, units
-  and axes); UGroomBindingAsset (source/target skeletal mesh, Rigid vs Skinning, async build,
-  retargeting); UGroomComponent setup; editor Python patterns; converting hair cards to strands;
-  making a custom groom usable as MetaHuman Creator hair. Use when importing an .abc groom, the
-  .abc imports as a geometry cache or static mesh, hair is invisible, bald, ghostly or too thin,
-  hair renders with the default material, a binding will not build or is rejected, hair thins
-  with distance or in small captures, scene captures of grooms come out empty, or Python edits
-  to groom settings do nothing.
+description: Use when importing, binding, or fixing Hair Strands grooms.
 metadata:
   engine-version: "5.9"
   category: content-assets

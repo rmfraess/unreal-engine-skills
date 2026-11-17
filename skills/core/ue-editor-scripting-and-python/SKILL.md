@@ -1,18 +1,6 @@
 ---
 name: ue-editor-scripting-and-python
-description: >
-  Automate and extend the Unreal Editor using Python (the `unreal` module, startup scripts,
-  commandlets, and the UE 5.9 execute_python agent tool), Editor Utility Widgets/Blueprints
-  (Blutility: UEditorUtilityWidget, UAssetActionUtility), the editor
-  scripting subsystems (UEditorActorSubsystem, UEditorAssetSubsystem, ULevelEditorSubsystem,
-  UAssetEditorSubsystem), and how UFUNCTION specifiers (BlueprintCallable,
-  BlueprintInternalUseOnly, ScriptMethod, ScriptName) control what surfaces in Python. Use
-  when batch-processing assets, building in-editor tools, running headless Python, scripting
-  the editor from an agent, or after a Python error such as "has no attribute",
-  "is protected and cannot be read", "Cannot set ... on a temporary value", "Cannot
-  pythonize", "Cannot nativize", "Object of type Array is not JSON serializable", "Text and
-  str", "There are unsaved level changes" (LoadLevel), "imports must be at the top level of
-  the script", "running a slow task". Editor-only, never in packaged games.
+description: Use when scripting the UE editor in Python or Blutility.
 metadata:
   aliases: "editor Python, Python, unreal module, execute_python, Editor Utility Widget, Blutility, editor scripting, automation script"
   engine-version: "5.9"

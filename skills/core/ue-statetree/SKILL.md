@@ -1,18 +1,6 @@
 ---
 name: ue-statetree
-description: >
-  Build general-purpose StateTree logic in UE 5.9 - game flow, UI and cutscene sequencing,
-  interactables, not only AI - on UStateTreeComponent (GameplayStateTree) or a custom
-  UStateTreeSchema. Covers C++ tasks, conditions and evaluators (FStateTreeTaskCommonBase,
-  instance data, Input/Output/Parameter binding categories), transitions and events,
-  completion and the 5.9 state-selection rules (CompletedTransitionStatesCreateNewStates),
-  delegate-driven tasks with weak execution contexts and FinishTask, linked and sub-trees,
-  starting the tree late, building and testing a tree in code with FStateTreeCompiler, and
-  editor-Python traps. Use for state machine / flow graph / hierarchical FSM work with
-  StateTree, and on "set_state_tree crashes the editor", "Null assigned to TNotNull",
-  "bConsideredForCompletion undeclared identifier" in a Game or Shipping target, a widget
-  torn down every loop, a tree that never starts, or StateTree transitions written from
-  Python.
+description: Use when building StateTree flow logic, tasks, transitions.
 metadata:
   engine-version: "5.9"
   category: systems

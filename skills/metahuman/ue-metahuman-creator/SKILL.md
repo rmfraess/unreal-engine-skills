@@ -1,18 +1,6 @@
 ---
 name: ue-metahuman-creator
-description: Creates and edits MetaHumans in-editor with the MetaHuman Creator plugin
-  (MetaHumanCharacter, UE 5.6+) - the UMetaHumanCharacter asset (face/body state, skin,
-  eyes, makeup, body constraints, synthesized textures), the
-  UMetaHumanCharacterEditorSubsystem edit session (TryAddObjectToEdit, Commit* settings,
-  landmarks, ImportFromTemplate/FaceDna/Identity, RequestAutoRigging,
-  RequestTextureSources, CanBuildMetaHuman/BuildMetaHuman, SpawnMetaHumanActor), the
-  palette model (UMetaHumanCollection, UMetaHumanInstance, UMetaHumanWardrobeItem,
-  FMetaHumanPaletteItemKey) and the build pipelines (UMetaHumanDefaultPipeline,
-  EMetaHumanQualityLevel). Use when scripting MetaHuman creation (C++, Python),
-  batch-building MetaHuman Blueprints, conforming a custom head/body mesh or DNA, adding
-  grooms or clothing, custom wardrobe items (WardrobePaths,
-  groom missing from the wardrobe, invalid item), migrating legacy Quixel Bridge MetaHumans, or diagnosing "Character
-  is not rigged", "missing textures", optional content and cloud login.
+description: Use when scripting MetaHuman Creator characters or builds.
 metadata:
   aliases: "MetaHuman, MetaHuman Creator, digital human, character creator, groom, wardrobe"
   engine-version: "5.9"

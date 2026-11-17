@@ -1,6 +1,6 @@
 ---
 name: ue-auto-landscape-materials
-description: Build asset-agnostic automatic landscape materials in Unreal Engine 5.8 and 5.9. Use for painted layers plus generated slope or height masks, macro variation, distance-aware detail, and triplanar projection on steep terrain.
+description: Use when making slope/height-masked landscape materials.
 metadata:
   engine-version: "5.9"
   category: world-building

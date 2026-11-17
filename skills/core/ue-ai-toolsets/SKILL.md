@@ -1,17 +1,6 @@
 ---
 name: ue-ai-toolsets
-description: >
-  The UE 5.9 AI toolset system - the ToolsetRegistry plugin, Epic's engine toolsets
-  (EditorToolset, SlateInspectorToolset, AutomationTestToolset and about 40 more), the editor's built-in MCP server (Unreal MCP, ModelContextProtocol plugin,
-  list_toolsets / describe_tools / call_tool), and agent skills (UAgentSkill classes and
-  Markdown SKILL.md roots served by AgentSkillToolset ListSkills / GetSkills). Covers tool
-  naming, writing your own toolset in C++ (UToolsetDefinition, meta=(AICallable),
-  AIAccessMode, AIIgnore, AIRuntimeCallable, RegisterToolsetClass) or Python
-  (unreal.ToolsetDefinition, toolset_registry.tool_call, Registration), shipping a skill
-  folder, block/allow filters, and keeping the AI plugins out of game and Wasm cooks. Use when
-  an agent talks to the editor over MCP, when adding project tools or skills,
-  on "Toolset ... not found", "ToolsetIsNotRegistered", "is not AICallable", a cook that fails
-  on /ToolsetRegistry/ToolsetManifestSeed, or a SKILL.md that does not show up in ListSkills.
+description: Use when agents call UE editor MCP toolsets or skills.
 metadata:
   engine-version: "5.9"
   category: tooling

@@ -1,13 +1,6 @@
 ---
 name: ue-navigating-engine-source
-description: Locate, read, and cite exact Unreal Engine APIs in the on-disk engine source
-  instead of guessing. Use when you need a real function signature, class hierarchy,
-  UPROPERTY/UFUNCTION specifier, module name, or include path; when verifying that an API
-  exists in UE 5.9; when resolving "which module do I add to Build.cs?"; or when an API
-  changed between engine versions. Covers the full source tree layout (Runtime/Editor/
-  Developer/Plugins), the Public/Private/Classes folder convention, UHT-generated files,
-  naming prefixes as navigation hints, IWYU include rules, and repeatable search patterns
-  for finding any class, function, or type from first principles.
+description: Use when verifying a UE API against engine source.
 metadata:
   engine-version: "5.9"
   category: meta

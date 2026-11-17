@@ -1,12 +1,6 @@
 ---
 name: ue-cpp-fundamentals
-description: Write correct Unreal Engine C++ using the UObject reflection system — UCLASS/USTRUCT/
-  UENUM/UINTERFACE macros, UPROPERTY and UFUNCTION specifiers, GENERATED_BODY, the
-  *.generated.h pipeline, class prefixes (U/A/F/E/I), module API export macros, the Class Default
-  Object (CDO), NewObject vs CreateDefaultSubobject, garbage-collection-safe ownership, and UClass
-  vs UScriptStruct internals. Use when authoring or editing any UE C++ class, exposing members or
-  functions to Blueprints or replication, fixing UHT/reflection build errors, or choosing between
-  pointer and ownership types.
+description: Use when writing UCLASS/UPROPERTY C++ or fixing UHT errors.
 metadata:
   engine-version: "5.9"
   category: cpp-foundations

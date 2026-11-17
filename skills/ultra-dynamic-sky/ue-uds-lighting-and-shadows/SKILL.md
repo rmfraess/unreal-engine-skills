@@ -1,6 +1,6 @@
 ---
 name: ue-uds-lighting-and-shadows
-description: Configure lighting in Ultra Dynamic Sky — Sun and Moon directional light components, Cloud Shadows (volumetric and 2D), Sky Light modes (Capture Based / Custom Cubemap / Cubemap with Dynamic Color Tinting), Exposure (auto exposure / manual), static/stationary lighting setup, Screen Space Light Shafts, the Light Day/Night Toggle component for lights that come on at night, and the day-to-night material utility functions. Use any time the user mentions UDS lighting, shadows, sky light, ambient light, sun shadow softness, light angle, exposure problems, scene rendering black or wrong at night, baked lighting with UDS, god rays/light shafts, lights that come on at sunset, cubemap recapture cost, or making a child of UDS to override sun color.
+description: Use when tuning Ultra Dynamic Sky lighting or exposure.
 metadata:
   asset: Ultra Dynamic Sky (marketplace)
   category: lighting

@@ -1,13 +1,6 @@
 ---
 name: ue-memory-and-gc
-description: Manage UObject lifetime and plain C++ memory in Unreal Engine. Covers the garbage
-  collector reachability cycle and root set, keeping UObjects alive with UPROPERTY and TObjectPtr,
-  non-owning TWeakObjectPtr, path-only TSoftObjectPtr, TStrongObjectPtr for non-UObject owners,
-  FGCObject::AddReferencedObjects, AddToRoot/RemoveFromRoot, MarkAsGarbage and IsValid checks,
-  and the non-UObject smart pointers TSharedPtr/TSharedRef/TWeakPtr/TUniquePtr and MakeShared.
-  Use when choosing a pointer or ownership type, debugging crashes after garbage collection,
-  investigating dangling pointer or use-after-free bugs, holding UObjects from non-UObject
-  classes, or picking between TSharedPtr and TUniquePtr for plain C++ objects.
+description: Use when choosing UE pointer types or fixing GC crashes.
 metadata:
   engine-version: "5.9"
   category: cpp-foundations

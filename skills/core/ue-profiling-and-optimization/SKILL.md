@@ -1,14 +1,6 @@
 ---
 name: ue-profiling-and-optimization
-description: Profile and optimize Unreal Engine performance — Unreal Insights (trace-based
-  CPU/GPU/memory profiling, .utrace sessions, Timing Insights, Memory Insights), stat
-  commands (stat unit/fps/game/gpu/scenerendering/memory and the full stat command table),
-  stat groups, C++ instrumentation (DECLARE_STATS_GROUP, DECLARE_CYCLE_STAT,
-  SCOPE_CYCLE_COUNTER, QUICK_SCOPE_CYCLE_COUNTER, TRACE_CPUPROFILER_EVENT_SCOPE,
-  CSV_SCOPED_TIMING_STAT), memory profiling (LLM, MemReport, memreport -full), and the
-  measurement-first optimization workflow. Use when diagnosing frame-rate drops, hitches,
-  CPU/GPU bottlenecks, or memory growth, when adding timing instrumentation to find a
-  hotspot, or when deciding on CPU vs GPU vs memory optimization levers.
+description: Use when profiling UE with Insights, stat, or memreport.
 metadata:
   aliases: "performance, profiling, profiler, Unreal Insights, stat unit, FPS, frame time, memory"
   engine-version: "5.9"

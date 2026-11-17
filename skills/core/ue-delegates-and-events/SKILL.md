@@ -1,14 +1,6 @@
 ---
 name: ue-delegates-and-events
-description: Wire up callbacks and events in Unreal C++ using delegates — single-cast
-  (DECLARE_DELEGATE, DECLARE_DELEGATE_RetVal, payload variables), multicast
-  (DECLARE_MULTICAST_DELEGATE, DECLARE_TS_MULTICAST_DELEGATE), and dynamic
-  (DECLARE_DYNAMIC_MULTICAST_DELEGATE, BlueprintAssignable, AddDynamic, RemoveDynamic).
-  Covers all binding forms (BindUObject, AddUObject, BindLambda, AddWeakLambda,
-  BindRaw, AddSP), execution (Execute, ExecuteIfBound, Broadcast), FDelegateHandle
-  lifetime management, safe unbinding, and DECLARE_EVENT. Use when implementing the
-  observer pattern, exposing C++ events to Blueprints, decoupling game systems,
-  binding overlap/hit/ability callbacks, or debugging delegate crashes and silent no-ops.
+description: Use when declaring, binding, or debugging UE delegates.
 metadata:
   engine-version: "5.9"
   category: cpp-foundations

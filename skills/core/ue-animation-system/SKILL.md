@@ -1,14 +1,6 @@
 ---
 name: ue-animation-system
-description: Animate skeletal meshes in Unreal using the AnimInstance / Animation Blueprint
-  model — C++ UAnimInstance base class (NativeInitializeAnimation, NativeUpdateAnimation,
-  NativeThreadSafeUpdateAnimation), AnimGraph with state machines and blend spaces,
-  animation assets (UAnimSequence, UBlendSpace, UAnimMontage, UAnimComposite, UPoseAsset),
-  anim notifies and notify states, montage playback and delegates, linked anim layers,
-  Motion Matching (Pose Search plugin), and Motion Warping. Use when setting up character
-  animation, driving locomotion blends from C++, playing montages for actions, firing
-  gameplay events at precise animation frames (notifies), switching animation sets at
-  runtime, or integrating the Pose Search / Motion Warping plugins.
+description: Use when building AnimBPs, montages, notifies, or blends.
 metadata:
   aliases: "animation, AnimBP, Animation Blueprint, AnimInstance, montage, slot, state machine, anim notify, blend space"
   engine-version: "5.9"
@@ -339,6 +331,6 @@ Deep-dive references:
 - [references/motion-matching-and-warping.md](references/motion-matching-and-warping.md) —
   Pose Search / Motion Matching setup, Motion Warping integration.
 
-Related: [ue-animation-authoring](../ue-animation-authoring/SKILL.md) — creating and
+Related: the `ue-animation-authoring` skill — creating and
 editing AnimSequence assets from code (IAnimationDataController, animation-only FBX
 import, numeric pose verification).

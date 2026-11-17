@@ -1,6 +1,6 @@
 ---
 name: ue-game-thread-performance
-description: Explain how game-thread time drives frame rate and how to optimize it. Use when profiling CPU-bound frame-time spikes, tick-heavy actors, hitches, or when deciding whether to move work off the game thread.
+description: Use when frame time is game-thread bound or hitching.
 metadata:
   engine-version: "5.9"
   category: performance

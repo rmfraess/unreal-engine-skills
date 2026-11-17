@@ -1,18 +1,6 @@
 ---
 name: ue-metahuman-animator
-description: Facial performance to animation with MetaHuman Animator in Unreal Engine
-  5.8 — ingest footage into UFootageCaptureData (Capture Manager, Live Link Face iPhone
-  takes, mono webcam/DSLR video), build a UMetaHumanIdentity (Mesh to MetaHuman,
-  auto-rig service, Prepare for Performance), process a UMetaHumanPerformance from depth
-  footage, monocular video or audio only (Speech2Face), and export UAnimSequence /
-  ULevelSequence through UMetaHumanPerformanceExportUtils onto a MetaHuman face
-  (Face_Archetype_Skeleton, Face_ControlBoard_CtrlRig). Use when scripting MetaHuman
-  Animator (C++/Python), batch-converting USoundWave dialogue to face animation,
-  ingesting iPhone or webcam takes, debugging CanProcess/StartPipeline failures, or
-  applying exported animation to an assembled MetaHuman. Covers EDataInputType,
-  UCaptureData, UMetaHumanIdentityFace, UMetaHumanIdentityPose, UMetaHumanDepthGenerator,
-  UCaptureManagerIngestBlueprintLibrary, UMetaHumanBatchOperation,
-  FAudioDrivenAnimationSolveOverrides, EAudioDrivenAnimationMood.
+description: Use when turning footage or audio into MetaHuman animation.
 metadata:
   aliases: "MetaHuman Animator, facial animation, face capture, lip sync from audio, Performance asset"
   engine-version: "5.9"

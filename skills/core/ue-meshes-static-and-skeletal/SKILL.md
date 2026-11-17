@@ -1,14 +1,6 @@
 ---
 name: ue-meshes-static-and-skeletal
-description: Work with static and skeletal meshes in Unreal C++ — UStaticMesh +
-  UStaticMeshComponent, USkeletalMesh + USkeletalMeshComponent + USkinnedMeshComponent,
-  instanced meshes (ISM/HISM), material slots (SetMaterial/GetMaterial), sockets
-  (static and skeletal), collision setup (UBodySetup, ECollisionTraceFlag, simple vs
-  complex), the Skeleton/PhysicsAsset relationship, Nanite enable flag on static and
-  skeletal meshes, LODs, and mesh sections. Use when assigning or swapping meshes in
-  C++, configuring collision, enabling Nanite, choosing ISM vs HISM vs individual
-  components, attaching to mesh sockets, overriding material slots, querying LOD data,
-  or debugging missing materials, wrong skeleton, or silent socket attachment failures.
+description: Use when assigning meshes, sockets, LODs, mesh collision.
 metadata:
   aliases: "static mesh, skeletal mesh, StaticMesh, SkeletalMesh, LOD, LODs, mesh, sockets"
   engine-version: "5.9"
@@ -18,7 +10,8 @@ metadata:
 # Static & skeletal meshes
 
 After mesh/LOD reimport, a correct component material does not prove every section
-uses it. See [LOD section mapping and organic-normal repair](../ue-importing-content/references/organic-surfaces-and-material-sections.md)
+uses it. See LOD section mapping and organic-normal repair in the `ue-importing-content` skill's
+`references/organic-surfaces-and-material-sections.md`
 for the missing-slot failure and a repair that preserves mesh positions and UVs.
 
 Static meshes are rigid geometry rendered via `UStaticMeshComponent`. Skeletal meshes

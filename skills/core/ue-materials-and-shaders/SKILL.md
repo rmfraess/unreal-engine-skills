@@ -1,16 +1,6 @@
 ---
 name: ue-materials-and-shaders
-description: Author and drive Unreal materials — UMaterial (the node graph asset), material
-  instances (UMaterialInstanceConstant for editor-authored variants, UMaterialInstanceDynamic
-  for runtime parameter changes), material domain (Surface/Deferred Decal/Light Function/Post
-  Process/UI/Volume), shading models (Default Lit/Unlit/Subsurface/Clear Coat/Hair/Cloth/Eye),
-  blend modes (Opaque/Masked/Translucent/Additive), scalar/vector/texture parameters,
-  material functions, material parameter collections (global scene-wide values), and
-  the material C++ API (CreateDynamicMaterialInstance, SetScalarParameterValue,
-  SetVectorParameterValue, SetTextureParameterValue, UKismetMaterialLibrary). Use when
-  creating materials, making parameterized variants, changing material parameters at runtime,
-  setting global weather or world-state parameters, fixing material shader permutation count
-  or translucency overdraw, or cross-referencing the material class hierarchy.
+description: Use when authoring materials or setting params at runtime.
 metadata:
   aliases: "material, materials, shader, shaders, HLSL, material instance, MID, custom node"
   engine-version: "5.9"
@@ -22,7 +12,8 @@ metadata:
 For graph-specific effects, use `ue-material-graph-effects`. For reusable PBR graph structure and texture contracts, use `ue-master-material-authoring`. For terrain shading, use `ue-auto-landscape-materials` or `ue-landscape-rvt-and-grass` as appropriate.
 
 For generated tissue or other large organic surfaces, see
-[organic surface projection and seam diagnosis](../ue-importing-content/references/organic-surfaces-and-material-sections.md).
+organic surface projection and seam diagnosis in the `ue-importing-content` skill's
+`references/organic-surfaces-and-material-sections.md`.
 Distinguish UV seams, image-border wrapping and split mesh normals before changing
 the shader; retain approved lighting and material appearance on unaffected assets.
 

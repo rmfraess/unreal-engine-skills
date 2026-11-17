@@ -1,17 +1,6 @@
 ---
 name: ue-web-wasm-webgpu
-description: >
-  Platform facts for shipping a UE 5.9 game to the browser (HTML5 successor: the Wasm /
-  WebAssembly target, WebGPU RHI) that Epic's web-deploy and unreal-trim skills do not
-  spell out - mobile renderer tiers and no Lumen, C++ project and emscripten 6.0.10,
-  plugins to keep out of the Wasm cook, never-cook and always-cook rules, download size
-  (Brotli, .ucas), texture pool, click-to-start audio, cross-origin isolation
-  (COOP/COEP, SharedArrayBuffer, itch.io) and a smoke checklist. Use to package for web,
-  make a browser / WebGPU / itch.io build, shrink a web download, or on "Sdk: not found.
-  Required version 6.0.10", "is a content-only project", "which is in a module that is not available on the platform",
-  "Registered the path ... for two different domains", "Content is missing from cook",
-  "Failed to find shader map for default material", "The page is not cross-origin
-  isolated", "SharedArrayBuffer is not defined", "TEXTURE STREAMING POOL OVER ... BUDGET".
+description: Use when shipping a UE 5.9 game to web (Wasm/WebGPU).
 metadata:
   engine-version: "5.9"
   category: tooling

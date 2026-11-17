@@ -1,6 +1,6 @@
 ---
 name: ue-niagara-mesh-disintegration
-description: Build mesh-sampled Niagara dissolve and disintegration effects in Unreal Engine 5.8 and 5.9. Use when particles reproduce a static or animated skeletal mesh, peel away from its surface, or coordinate a material dissolve with particle emission.
+description: Use when dissolving a mesh into Niagara particles.
 metadata:
   engine-version: "5.9"
   category: vfx-audio

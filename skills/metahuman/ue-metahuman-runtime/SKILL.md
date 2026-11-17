@@ -1,18 +1,6 @@
 ---
 name: ue-metahuman-runtime
-description: >
-  Ship MetaHumans in a real UE 5.9 game - run time, low-end and web (mobile renderer, WebGPU).
-  A face AnimBP that plays baked face clips (plugin ABP_Face has no Slot node), the
-  HeadControlSwitch head snap, offline lip sync from audio, blinks,
-  AlwaysTickPoseAndRefreshBones under root motion, leader-pose bounds, LODSyncComponent, groom
-  LOD holes (bald at LOD 4/6), r.HairStrands.Strands=0 (cards only) vs r.HairStrands.Enable=0
-  (no hair at all), the ~318 MB /MetaHumanCoreTech models a plugin always-cooks, never-cook
-  subfolders, virtual-texture caps, mobile-path teeth and skin fixes, the ARKit face-tracking
-  UDP listener in Shipping, wardrobe and accessory rules. Use when a MetaHuman goes into a
-  packaged or web build, or on "the face does not move", "lip sync plays in Sequencer but not in
-  game", "the head jumps when a line starts", "they never blink", "hair disappears at
-  distance", "teeth glow white", "skin looks wet", "the character vanishes mid-scene", "the
-  build is huge".
+description: Use when shipping MetaHumans in packaged or web builds.
 metadata:
   engine-version: "5.9"
   category: metahuman

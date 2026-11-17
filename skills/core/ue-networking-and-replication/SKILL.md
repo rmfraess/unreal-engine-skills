@@ -1,16 +1,6 @@
 ---
 name: ue-networking-and-replication
-description: Implement server-authoritative multiplayer in Unreal C++ — network roles and
-  authority (HasAuthority, GetLocalRole, GetRemoteRole, ROLE_Authority/AutonomousProxy/SimulatedProxy),
-  actor replication setup (bReplicates, SetReplicates, bAlwaysRelevant, NetDormancy,
-  NetUpdateFrequency), property replication (UPROPERTY Replicated/ReplicatedUsing,
-  GetLifetimeReplicatedProps, DOREPLIFETIME/DOREPLIFETIME_CONDITION/DOREPLIFETIME_WITH_PARAMS),
-  RepNotify callbacks (OnRep_), RPCs (UFUNCTION Server/Client/NetMulticast, Reliable/Unreliable,
-  WithValidation, _Implementation/_Validate), replication conditions (COND_*), Push Model
-  (MARK_PROPERTY_DIRTY_FROM_NAME, FDoRepLifetimeParams::bIsPushBased), FFastArraySerializer,
-  and the Iris replication system. Use when replicating state across clients, adding RPCs, fixing
-  multiplayer authority bugs, choosing replication conditions, or diagnosing "works in single player
-  but not multiplayer" issues.
+description: Use when replicating state, RPCs, or fixing authority bugs.
 metadata:
   aliases: "multiplayer, networking, replication, RPC, netcode, dedicated server, listen server, Iris"
   engine-version: "5.9"

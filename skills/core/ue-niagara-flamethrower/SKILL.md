@@ -1,6 +1,6 @@
 ---
 name: ue-niagara-flamethrower
-description: Build a continuous flamethrower visual effect in Unreal Engine 5.8 and 5.9 Niagara. Use when making a weapon flame jet, fuel plume, fire breath, or similar nozzle-attached effect with smoke, embers, heat distortion, runtime controls, and gameplay hit detection.
+description: Use when building a flamethrower or fire-jet Niagara VFX.
 metadata:
   engine-version: "5.9"
   category: vfx-audio

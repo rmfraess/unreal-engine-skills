@@ -1,16 +1,6 @@
 ---
 name: ue-mover-movement-system
-description: Implement actor movement with Unreal's experimental Mover plugin
-  (UE 5.8 and 5.9) — the modular, rollback-networked successor to
-  CharacterMovementComponent. Covers UMoverComponent / UCharacterMoverComponent
-  setup, producing input via IMoverInputProducerInterface and
-  FCharacterDefaultInputs, movement modes and transitions, layered moves,
-  instant movement effects, movement modifiers (stance/crouch), shared settings
-  (UCommonLegacyMovementSettings), sync state queries, and backend selection
-  (Network Prediction, Chaos networked physics, standalone). Use when adopting
-  or evaluating Mover, creating a Mover-based pawn, authoring a custom movement
-  mode or layered move, migrating from CMC, wiring Enhanced Input into
-  ProduceInput, or debugging Mover prediction/rollback behavior.
+description: Use when adopting the Mover plugin instead of CMC.
 metadata:
   engine-version: "5.9"
   category: gameplay-framework

@@ -1,6 +1,6 @@
 ---
 name: ue-niagara-sequenced-effects
-description: Compose timed Niagara portal, impact, beam, projectile, and attack effects in Unreal Engine 5.8 and 5.9. Use when multiple emitters must coordinate anticipation, climax, travel, and dissipation with gameplay events.
+description: Use when timing multi-emitter Niagara portals or impacts.
 metadata:
   engine-version: "5.9"
   category: vfx-audio

@@ -1,6 +1,6 @@
 ---
 name: ue-niagara-renderers-and-materials
-description: Choose and author Niagara sprite, mesh, and ribbon renderers and their VFX materials in Unreal Engine 5.8 and 5.9. Use for SubUV animation, trails, beams, mesh particles, UV motion, or particle-driven material controls.
+description: Use when choosing Niagara sprite, mesh, ribbon renderers.
 metadata:
   engine-version: "5.9"
   category: vfx-audio

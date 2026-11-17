@@ -1,14 +1,6 @@
 ---
 name: ue-plugins-and-modules
-description: Create, structure, and manage Unreal Engine plugins — the .uplugin descriptor
-  (FileVersion, Modules array, CanContainContent, EnabledByDefault, Plugins dependencies),
-  plugin folder layout (Source/Content/Resources), EHostType module types (Runtime, Editor,
-  Developer, UncookedOnly, ServerOnly, ClientOnly) and ELoadingPhase values, IModuleInterface
-  StartupModule/ShutdownModule, IPluginManager/IPlugin runtime queries, content-only plugins,
-  engine vs project plugins, explicit-load plugins, plugin dependency hierarchy, and packaging
-  for distribution. Use when creating a reusable plugin, deciding plugin vs project module,
-  structuring an editor or runtime plugin, wiring plugin module C++, enabling plugins in a
-  project, or troubleshooting a plugin that won't load or whose content won't mount.
+description: Use when creating a UE plugin or fixing one that won't load.
 metadata:
   aliases: "plugin, plugins, uplugin, module, modules, Fab plugin"
   engine-version: "5.9"

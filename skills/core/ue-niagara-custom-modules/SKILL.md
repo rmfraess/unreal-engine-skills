@@ -1,6 +1,6 @@
 ---
 name: ue-niagara-custom-modules
-description: Build Niagara scratch-pad modules and emitter interactions in Unreal Engine 5.8 and 5.9. Use for custom particle attributes, attribute readers, collision-driven secondary effects, texture sampling, or reusable rain and waterfall behaviors.
+description: Use when writing Niagara scratch-pad modules.
 metadata:
   engine-version: "5.9"
   category: vfx-audio

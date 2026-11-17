@@ -1,14 +1,6 @@
 ---
 name: ue-landscape-and-foliage
-description: Terrain, instanced vegetation, and procedural environment generation in Unreal C++
-  — ALandscape / ALandscapeProxy / ULandscapeComponent (heightmap grid, material layers,
-  edit layers, splines, Nanite landscape), UFoliageType / AInstancedFoliageActor /
-  UHierarchicalInstancedStaticMeshComponent (HISM-backed instanced foliage, procedural
-  foliage volumes), and the PCG framework (UPCGComponent / UPCGGraph, point data,
-  landscape sampling, runtime generation). Use when creating or sculpting terrain,
-  painting weight layers or foliage, adding landscape splines, batching vegetation with
-  HISM, authoring PCG graphs, querying landscape data from C++, or debugging instancing
-  and PCG generation issues.
+description: Use when building landscapes, foliage, HISM, or PCG.
 metadata:
   aliases: "landscape, terrain, foliage, PCG, procedural content generation, grass"
   engine-version: "5.9"

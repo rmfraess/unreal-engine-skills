@@ -1,6 +1,6 @@
 ---
 name: ue-master-material-authoring
-description: Design reusable Unreal Engine 5.8 and 5.9 master materials and material instances. Use for PBR texture controls, material functions, UV options, static switches, channel-packed masks, or maintaining a family of related materials.
+description: Use when designing master materials and instance families.
 metadata:
   engine-version: "5.9"
   category: content-assets

@@ -1,16 +1,6 @@
 ---
 name: ue-sequencer-and-cinematics
-description: Create and drive Unreal Engine cinematics from C++ — ULevelSequence (the cinematic
-  asset), ALevelSequenceActor (the level-placed container), ULevelSequencePlayer
-  (CreateLevelSequencePlayer, Play, Stop, PlayLooping, SetPlaybackPosition, OnFinished),
-  possessables vs spawnables, runtime binding overrides (SetBinding/SetBindingByTag),
-  track and MovieScene concepts, Cine Camera (UCineCameraComponent, ACineCameraActor —
-  filmback, focal length, aperture, focus), Camera Cuts track, and Movie Render Queue for
-  high-quality offline output. Use when triggering or controlling a cutscene at runtime,
-  overriding sequence bindings for dynamic actors, reacting to sequence-end events,
-  animating a film-style camera, firing gameplay callbacks from an event track, or
-  rendering frames with the Movie Render Pipeline. For authoring sequences from editor
-  Python (Level Sequence / MovieScene scripting) load ue-sequencer-python.
+description: Use when playing or binding Level Sequences at runtime.
 metadata:
   aliases: "Sequencer, Level Sequence, LevelSequence, MovieScene, cutscene, cinematic, camera cut, Movie Render Queue, MRQ"
   engine-version: "5.9"

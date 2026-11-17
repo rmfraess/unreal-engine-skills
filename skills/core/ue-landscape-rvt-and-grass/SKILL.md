@@ -1,6 +1,6 @@
 ---
 name: ue-landscape-rvt-and-grass
-description: Integrate runtime virtual textures and material-driven landscape grass in Unreal Engine 5.8 and 5.9. Use for terrain-to-mesh color blending, RVT write/sample setup, grass masks, vegetation culling, or reducing visible grass pop-in.
+description: Use when blending meshes via RVT or masking landscape grass.
 metadata:
   engine-version: "5.9"
   category: world-building

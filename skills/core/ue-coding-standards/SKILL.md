@@ -1,13 +1,6 @@
 ---
 name: ue-coding-standards
-description: Write Unreal C++ that conforms to Epic's coding standard — type prefixes
-  (U/A/F/E/I/T/S), PascalCase naming, the bBool prefix, enum class style, Allman braces,
-  tab indentation, const correctness, nullptr/override/final usage, TEXT() string literals,
-  include order with generated.h last, IWYU and forward declarations, API export macros
-  (MODULE_API), UPROPERTY/UFUNCTION specifiers with Category, TObjectPtr for UObject
-  members, and engine types over std containers. Use when writing or reviewing any UE
-  C++, naming types or members, structuring headers, or making code consistent with the
-  engine and surrounding project code.
+description: Use when writing or reviewing UE C++ style and naming.
 metadata:
   engine-version: "5.9"
   category: meta

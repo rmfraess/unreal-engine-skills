@@ -1,16 +1,6 @@
 ---
 name: ue-skin-weights
-description: Read, edit, transfer, and rebuild skeletal mesh skin weights (weight
-  painting) in Unreal Engine 5.8 and 5.9 — USkinWeightModifier for scripted per-vertex weight
-  edits on an asset (Python/Blueprint/C++), GeometryScript bone weight functions on
-  a DynamicMesh (TransferBoneWeightsFromMesh with ClosestPointOnSurface or robust
-  InpaintWeights, ComputeSmoothBoneWeights, PruneBoneWeights, SetVertexBoneWeights),
-  normalization and influence limits, skin weight profiles, and verification by posing.
-  Use when clothing or accessories deform wrong (collar lifts off the neck, shoulder
-  spikes, candy-wrapper twists), when re-skinning modified or generated geometry to an
-  existing skeleton, when binding new meshes to bones, when auditing weights (sums,
-  max influences, stray bones), or when a task says weight paint, skinning, bind,
-  re-skin, or transfer weights.
+description: Use when editing, transferring, or fixing skin weights.
 metadata:
   engine-version: "5.9"
   category: animation

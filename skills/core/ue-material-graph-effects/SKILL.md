@@ -1,6 +1,6 @@
 ---
 name: ue-material-graph-effects
-description: Author animated and interactive Unreal Engine 5.8 and 5.9 material graph effects. Use for scrolling UVs, periodic motion, vertex animation, reactive foliage or seaweed WPO, masked dissolve, emissive edges, or per-actor material changes driven by gameplay.
+description: Use when animating materials with UV scroll, WPO, dissolve.
 metadata:
   engine-version: "5.9"
   category: content-assets

@@ -1,6 +1,6 @@
 ---
 name: ue-uds-simulation
-description: Use Ultra Dynamic Sky's real-world astronomical simulation — Simulate Real Sun, Simulate Real Moon, Simulate Real Stars; latitude/longitude/time zone setup; North Yaw; daylight savings; city presets; the simulation date; Simulation Speed; and Use System Time (sync with the OS clock). Use any time the user mentions real-world sun position, latitude/longitude, city presets, accurate sunrise/sunset times for a real location, real star map, real moon phases matching a date, North direction in the level, daylight savings handling, or syncing in-game time to the player's actual system clock.
+description: Use when matching UDS sun, moon, stars to real places.
 metadata:
   asset: Ultra Dynamic Sky (marketplace)
   category: simulation
