@@ -303,6 +303,16 @@ Source: `Runtime/CoreUObject/Public/UObject/ObjectMacros.h:1285`.
   `enter_progress_frame` to keep the editor responsive and allow cancellation.
 - **Forgetting to save** — call `EAS->SaveAsset()` or the Python equivalent; unsaved
   changes to assets are lost when the editor closes.
+- **Script-saved assets go dirty when the Content Browser first shows them** — the browser
+  renders a missing thumbnail into each package and marks it, so a batch saved by script
+  shows up as unsaved later and invites a blind Save All. After a scripted batch save, show the
+  folder (`EditorAssetLibrary.sync_browser_to_objects`), confirm the data is unchanged
+  (fingerprint values, not `str()` of structs, which embeds memory addresses), and save once.
+  To find an unexplained dirtying trigger, test load, PIE and browser display separately on a
+  fresh editor, checking dirty packages after each. To tell a real edit from a spurious dirty:
+  fingerprint the dirty in-memory assets (lengths, key samples, settings), `reload_packages`
+  them with `ASSUME_POSITIVE`, fingerprint again and diff; save only when nothing but
+  thumbnails/derived data differs, and re-check the fingerprints after the save.
 - **Hardcoding asset paths** — use the Asset Registry to discover paths dynamically; see
   `ue-asset-management`.
 - **`SpawnActorFromClass` vs `SpawnActor`** — `SpawnActorFromClass` on
@@ -312,8 +322,22 @@ Source: `Runtime/CoreUObject/Public/UObject/ObjectMacros.h:1285`.
   attribute or property name. Check what this session exposes (`dir()`, `help()`, or the 5.9
   `search_symbols` / `get_symbol` tools) before calling; a C++ function that is not a
   `UFUNCTION`, is `BlueprintInternalUseOnly`, or is protected is simply not there.
+- **Blueprint class defaults set from Python don't reach instances until a recompile** — a
+  Blueprint records at compile time which defaults differ from its native parent, and spawned
+  instances copy only those. After `set_editor_property` on `get_default_object(bp.generated_class())`,
+  compile the Blueprint (then save) or new actors keep the native defaults.
+- **`unreal.Rotator(a, b, c)` is roll, pitch, yaw** — positional order differs from C++
+  `FRotator(Pitch, Yaw, Roll)`; pass keywords (`unreal.Rotator(pitch=..., yaw=..., roll=...)`).
 - **Chaining on `None`** — `load_asset`, `find_object`, `get_game_world` and similar return
   `None` instead of raising; check before calling a method on the result.
+- **Throwaway asset experiments: revert from disk, not by hand.** After trying a value on a
+  saved asset (material switch, property), discard with
+  `unreal.EditorLoadingAndSavingUtils.reload_packages([obj.get_outermost()],
+  unreal.ReloadPackagesInteractionMode.ASSUME_POSITIVE)`, then confirm the package is no longer
+  dirty. Setting values back by hand misses ones you forgot you touched; prefer a live dynamic
+  material instance in PIE when the test allows it, which never dirties the asset. Static
+  switches cannot be set on a dynamic instance and force a shader recompile, so wait for it to
+  finish before judging a capture.
 
 ## References & source material
 

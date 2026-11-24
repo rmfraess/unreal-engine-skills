@@ -326,9 +326,14 @@ board), `LightingEnvironments/` (`Studio`, `Split`, `Fireside`, `Moonlight`, `Tu
 - **Commit, not raw property writes.** Writing `Character->EyesSettings` directly leaves the
   preview and the identity state out of sync. Use `Commit*`. In Python, properties like
   `skin_settings` are `BlueprintReadOnly`: read, modify the copy, commit.
-- **Rig state.** `EMetaHumanCharacterRigState { Unrigged, RigPending, Rigged }`. Any face
-  sculpt or conform after rigging invalidates the DNA (back to `Unrigged`); re-run
-  `RequestAutoRigging`. `RemoveFaceRig` reverts to the archetype DNA. A rigged face is what
+- **Rig state.** `EMetaHumanCharacterRigState { Unrigged, RigPending, Rigged }`.
+  `GetRiggingState` is just `HasFaceDNA()`, and a face conform or template import plus
+  `CommitFaceState` does **not** clear the DNA. The character stays `Rigged` and
+  `can_build_meta_human` stays True, so a build pairs the old rig with the new face. After
+  any face shape change on a rigged character, call `remove_face_rig`, then
+  `request_auto_rigging` (blocking, same rig type as before; about a minute), then export the
+  preview head and confirm it still matches the target before building. `RemoveFaceRig`
+  reverts to the archetype DNA. A rigged face is what
   gives the built `SKM_Face` its RigLogic DNA and the 200+ facial controls that MetaHuman
   Animator, Live Link Face (`ABP_MH_LiveLink`, `Face/ARKit/` mapping) and Control Rig drive.
   `JointsOnly` is lighter; `JointsAndBlendShapes` adds blendshapes (`HasFaceDNABlendshapes()`)
@@ -337,13 +342,138 @@ board), `LightingEnvironments/` (`Studio`, `Split`, `Fireside`, `Moonlight`, `Tu
   animated maps that arrive with the texture download. Desired resolutions live in
   `SkinSettings.DesiredTextureSourcesResolutions` (`ERequestTextureResolution` 2k/4k/8k);
   `NeedsToDownloadTextureSources()` tells you when a re-download is needed.
+- **Pass the edited constraint objects back.** Iterating the array from
+  `get_body_constraints` yields copies: edit them, collect them into a list, and pass that list
+  to `set_body_constraints` (as Epic's `example_sculpt_body.py` does). Passing the original
+  array back applies nothing and raises nothing. Re-read the constraints to confirm.
+- **Try body/face changes on a scratch copy with a live preview.** `duplicate_asset` the
+  character, `try_add_object_to_edit`, `spawn_meta_human_actor(character, keep_transient=True)`
+  (spawns at the world origin; move it where the light is right), then `set_body_constraints`:
+  the preview actor updates without a commit. Capture each variant from fixed cameras with
+  `unreal.ViewportService.capture_with_view` (front, 3/4 low, side) and compare side by side.
+  Then `remove_object_to_edit` and delete the scratch asset; the real character is untouched.
+  Creator's preview draws a thin line at the face/body boundary that the build does not.
+- **Diagnose a body-shape complaint (lumps, ledges, odd neck) on the posed in-game mesh
+  first, before any sculpt.** Rest-pose exports and Creator previews can be smooth while the
+  game pose shows a ring or ledge from skinning/correctives where face and body meshes meet;
+  sculpting the rest pose then changes nothing the user sees. Steps, cheapest first:
+  1. **Split geometry from shading first, before any mesh work**, in PIE at the user's camera
+     and view (front close-ups included), time frozen and shot repeatability checked (recipe:
+     `ue-pie-python`, Captures). Set every face and body slot to
+     `/Engine/BasicShapes/BasicShapeMaterial`: if the lumps vanish, they are drawn by the skin
+     material, and no mesh edit can fix them. Then bisect cumulatively with the skin material's
+     own scalars on the head MIDs (`M_skin_unified_baked`), one capture per step: animated
+     wrinkle weights (`head_wm*_normal_*`, e.g. `neckStretch_L/R`) → `Fake AO Strength`,
+     `Material AO Power` → `Micro Skin Normal Strength`, `Intensity Neck` → `Normal Flatten` 1 +
+     `Normal Global Strength Post-Bake` 0 → `Specular Global Multiply Post-Bake` 0; what is left
+     after that is painted into the colour map. Horizontal neck folds in a character's baked
+     face normal map, raked by a low sun, read as lumps from the front and side.
+     `Clay Basecolor Blend` exists on the head material only, so it leaves the body skin
+     textured. Only when the defect survives the plain material is it geometry; continue below.
+     When it is the maps, retouch the maps rather than the mesh (recipe:
+     [references/python-scripting.md](references/python-scripting.md#retouching-the-face-skin-maps)).
+  2. Capture the posed meshes from PIE (recipe:
+     [references/python-scripting.md](references/python-scripting.md#capturing-the-posed-in-game-mesh))
+     and check the arms are down (not the rest pose).
+  3. Render posed and rest meshes as clay through the same script, side by side, with a key
+     light from the camera side, ~40 deg up. An overhead sun buries the neck in the head's
+     cast shadow and hides the shape.
+  4. If only the posed clay shows it, run a stock MetaHuman preset (own head and body) through
+     the same pose and renders before touching the character (recipe:
+     [references/python-scripting.md](references/python-scripting.md#stock-preset-in-the-same-pose)).
+     Judge the size of the difference the way the user sees it: a faint line on the preset
+     against obvious lumps on the character means the character's own geometry is the cause.
+     Never write that off as template behaviour because the preset shows a trace of it.
+     Isolate one factor per control, and prove it:
+     - A body solve starts from the current body, so the character's constraints on another
+       preset give a different neck base (seam ring up to ~1 cm off in shape, ~2.5 cm higher).
+       Measure the seam ring (the skin's full open boundary) between the two before crediting
+       the result to the head or the body (vertex matching and ring detection:
+       [references/python-scripting.md](references/python-scripting.md#moving-vertices-between-two-characters-heads)).
+     - A stock head mesh swapped onto the custom body in PIE does not reach the seam and
+       looks falsely clean.
+     - Rig vs shape: write the character's head positions into a stock-rigged exported head
+       and pose it on the same body (recipe:
+       [references/python-scripting.md](references/python-scripting.md#rig-vs-shape-test)).
+       Still lumpy means the shape, not weights, correctives or the auto-rig.
+     - Shape: profile the head's neck radius against the stock head on the same body per
+       2 cm height and per angle (back, side, front). A custom neck a few mm to ~1 cm thinner
+       than stock above the seam correlated with the posed roll; treat it as a lead, not a
+       proven cause.
+     Blending the stock neck into the custom head is not a fix: it cleared the roll in clay
+     back views but put a fold across the throat where the blend met the jaw, visible only in
+     textured front close-ups. Re-solving the neck with Epic's fitter (`adapt_neck`) is not
+     one either: on an already conformed head it moved the neck under 6 mm and changed
+     nothing visible. `import_from_template` already sets
+     `bAdaptNeck = !isolate_head_from_body`, so a default conform has had the neck solve;
+     only a vertex-exact edit (`isolate_head_from_body=True`) skips it. If both posed and rest show the defect, sculpt. If a shape fix the user
+     reviewed did not change what they see, do not try another variant: go back to step 2,
+     because the fix was aimed at the wrong state.
+  5. Before any new shape attempt after a rejected one, have the user mark the defect on a
+     current screenshot (which region, which view). Several scripted neck variants in a row
+     each fixed a measured proxy while the user's complaint was elsewhere.
+  Never slim a neck to fix posed lumps: a thinner column over the same base pinches harder.
+  Measure against the stock head on the same body, not only against girth norms (lean adult
+  man about 38-40 cm girth, neck about 0.8x jaw width, wider than deep). Single-vertex slope
+  reads are noisy: profile at 1 cm steps before calling something a corner. Adding muscle
+  ridges to a thick neck read lumpier.
+- **Accept a head or neck shape change only from textured in-game close-ups.** Before
+  applying it to the real character or committing, pose a scratch export in PIE with the
+  character's real materials (re-applied by slot name after the mesh swap), animation frozen,
+  at the gameplay camera's closest zoom, from the front (slightly below the chin), front-side,
+  side and back, next to the unchanged character in the same frames (recipe: `ue-pie-python`,
+  Captures). Untextured clay renders from the back and sides at a distance passed a change
+  the user then called grotesque from the front. A geometry check that the build equals the
+  target proves only that the build is faithful, not that the shape is right. Treat any
+  warning from your own script (many triangles turned > 30 deg in a blend band, flips) as a
+  blocker until you have looked at that region close up.
+- Before using a saved per-vertex mask for fitting **or measuring** a bust transfer, verify its vertex order against the current export. Matching counts or skin index sets do not prove a jaw or occlusion label still belongs to the same point. If correspondence is unknown, select the region from current geometry, inspect it, then measure face-to-surface distances at fixed scale. Exclude the shoulder shelf as well as the seam from equal-height matches: a radial ray there can hit a different anatomical surface. Check changed triangle turns against the original before exporting the target.
+- **The face owns the upper neck, the body owns its base.** A head conform pins everything
+  below the chin to the body seam, so the lower neck's size is the body's seam ring, set by
+  the body constraints (`Neck`, `Neck Base`, `Muscularity`). A head-only edit (vertex-exact
+  recipe: [references/python-scripting.md](references/python-scripting.md#editing-an-existing-head-vertex-exact))
+  reshapes the column from just above the seam ring up to the jaw; it cannot move the ring
+  itself. Body constraints barely reach the base either: `Muscularity` 1.5 -> 0.8 with
+  `Neck`/`Neck Base` cut 4-5 cm shrank chest and shoulders slightly but left the trapezius
+  mound and neck base essentially as they were. Render a scratch-copy body before promising a
+  body fix, and tell the user which half each option reaches before applying either.
+- **Undo a head edit from version control, not by re-editing.** If the character and its
+  built output were committed before the edit, stop PIE, close the Editor
+  (`CloseMainWindow`, then confirm the process is gone), `git revert --no-edit <newest> <older>`
+  for committed edits (keeps history), or `git checkout <previous> -- <every Content path the
+  edit changed>` for uncommitted ones. Confirm `git diff --stat <good> HEAD -- Content` is
+  empty, relaunch and export the head to confirm it matches the pre-edit export. The committed rig and build come
+  back with it, so no re-rig or rebuild is needed.
 - **Fixed body types.** `bFixedBodyType` is set when a whole body rig is imported from DNA
   (`FImportFromDNAParams::bImportWholeRig`, `ImportBodyWholeRig`) or a legacy compatibility
   body (`EMetaHumanBodyType::f_med_nrw`...) is chosen: the body constraints then do nothing
   until `ResetParametricBody`.
 - **Pipeline quality only matters for Optimized/UEFN.** `Cinematic` ignores
-  `PipelineQuality`. Legacy pipelines come from `UMetaHumanCharacterPaletteProjectSettings::DefaultCharacterLegacyPipelines`
-  keyed by `EMetaHumanQualityLevel`; `BP_DefaultPipeline` is the current default.
+  `PipelineQuality`. A Cinematic build into an existing Optimized folder: face LOD0 went from
+  18.6k verts and 588 bones to 33.8k and 737, with 8 face LODs on 4 body LODs and 8K face
+  normal/SRMF. It also copies about 170 shared assets into `CommonFolderPath`. Python may raise
+  a logged control-rig error ("Cannot break link ... Face_ControlBoard_CtrlRig") although
+  assembly succeeded: check the log and the saved output. Saving is yours: the build leaves its
+  packages dirty.
+- **Cinematic face colour is baked at 2K.** `BP_DefaultLegacyPipeline`'s editor pipeline
+  (`editor_pipeline` property, not a method) has
+  `material_baking_options.face_baking_options.texture_resolutions_overrides['T_Head_BC']` =
+  2048, even when the source maps are 4K. Raise it on the class default before
+  `build_meta_human` and restore it after; never save the engine asset. The value is an
+  `unreal.MetaHumanBuildTextureResolution` entry: map a size with
+  `getattr(unreal.MetaHumanBuildTextureResolution, f'RES{size}')`.
+- **Restart the Editor after a rebuild, before PIE.** Blueprints that reference the rebuilt
+  BP can keep a transient `BP_<Name>_TEMP_..._C` class in memory. A character copying from it
+  gets groom components with no assets, so the character appears bald.
+- **Scripted rebuild of an existing character:** refuse to start with unsaved packages; open
+  for edit, apply any temporary pipeline override (above) in `try/finally`; build; accept the
+  known control-rig error only; assert every dirtied package is under the build or common
+  folder, then save them; verify output (texture sizes, LOD counts); re-run every post-build
+  fix script (seam, materials, grooms); restart the Editor. Keep it as one project script so
+  a rebuild never drops a fix. For pose-only edits on an assembled face, use the [corrective promotion recipe](references/python-scripting.md#promoting-a-pose-corrective-to-an-assembled-face) rather than re-conforming the neutral head.
+- **Legacy pipelines** come from `UMetaHumanCharacterPaletteProjectSettings::DefaultCharacterLegacyPipelines`
+  keyed by `EMetaHumanQualityLevel`; Cinematic uses `BP_DefaultLegacyPipeline`.
+  `BP_DefaultPipeline` is the current default.
 - **LODs.** Face/body LOD settings come from `Face_LODSettings*` / `Body_LODSettings*`;
   `FMetaHumanLODProperties` in the default editor pipeline overrides them and strips LODs
   (`FMetaHumanCharacterEditorBuild::StripLODsFromMesh`). Preview LOD is `EMetaHumanCharacterLOD`

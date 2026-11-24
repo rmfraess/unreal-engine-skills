@@ -226,6 +226,12 @@ for lod in range(n):
 build = SMES.get_lod_build_settings(mesh, 0)                    # out-param -> returned struct
 ```
 
+A skeletal LOD copied into a `DynamicMesh` (GeometryScript `copy_mesh_from_skeletal_mesh`, or
+Vibe3D `load_mesh_from_skeletal_mesh`) carries per-triangle material IDs that are that LOD's
+**section indices**, not material slot indices: on a multi-LOD MetaHuman face, ID 0 at LOD 3 is the
+`head_LOD3` slot (12), not slot 0. Map each with `sub.get_lod_material_slot(mesh, lod, id)` before
+indexing `mesh.materials`.
+
 On a component at run time or in PIE: `comp.get_num_lods()`, `comp.set_forced_lod(n)` and
 `comp.get_forced_lod()` use **1-based** values (`1` = LOD 0, `0` = automatic). Per-LOD screen
 sizes and bone-reduction settings have no Python getter on the mesh; when the mesh uses an LOD

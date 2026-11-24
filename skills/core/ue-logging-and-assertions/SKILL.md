@@ -190,6 +190,12 @@ this is PIE debugging only.
   `LowLevelFatalError` which crashes unconditionally.
 - **`UE_LOGFMT` requires the header** — `#include "Logging/StructuredLog.h"`; missing it
   produces an undefined-macro error, not a useful diagnostic.
+- **A custom `FOutputDevice` added to `GLog` to capture lines** (for example to quote the reason
+  a call failed) is buffered by default. The editor runs a dedicated logging thread, so the
+  device's `Serialize` runs there later. The capture misses lines logged moments before you read
+  it and races with the reader. Override `CanBeUsedOnMultipleThreads()` to return `true`, so
+  lines are delivered synchronously on the logging caller's thread, and guard the collected
+  data with an `FCriticalSection`.
 
 ## Version notes
 

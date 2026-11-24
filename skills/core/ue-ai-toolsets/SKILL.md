@@ -147,6 +147,12 @@ Rules the registry enforces (`ToolsetDefinition.h`, `ToolsetDefinition.cpp`):
 - Parameters and results go through the toolset JSON converter: use `FString`, numbers, `bool`, enums,
   `TArray`/`TMap`, `BlueprintType` structs and object references. Return a struct with named fields rather than a
   bare `bool` so the agent can read why something failed.
+- **Never give a tool a non-const reference (output) parameter.** The schema publishes it as a required INPUT
+  and the call returns only the return value, so the data is lost over MCP. Return the value instead and fail
+  with `UKismetSystemLibrary::RaiseScriptError(Message)` (a Python exception and an MCP tool error); it does
+  nothing without a script frame, so check `FFrame::GetThreadLocalTopStackFrame()` and log instead for plain
+  C++ callers. Keep a bool-plus-reference overload, without `UFUNCTION`, for internal C++ callers. A startup
+  scan of the registered functions for `CPF_OutParm` without `CPF_ReturnParm` catches regressions.
 - `GetToolsToHide` / `IsToolsetHidden` (on `IToolsetProvider`) let a toolset withhold tools from a restricted host.
 
 ### Tools in a cooked game
@@ -270,6 +276,10 @@ The AI plugins are editor tools. In a project that ships a game:
   `results` or `id`.
 - **A SKILL.md that does not appear:** its plugin is disabled, its description is empty, its key collides with an
   earlier root, or `AgentSkillBlockedNames` matches it. A wrapped YAML description shows up truncated.
+- **`execute_python` runs inside an open editor transaction.** Work that resets the undo buffer (deleting
+  assets) is unsafe there, and guarded delete helpers refuse it; `EditorAssetLibrary.delete_directory` also
+  skips assets the script just loaded. Delete as a standalone MCP `call_tool` to
+  `EditorToolset.AssetToolset.Delete` (`path`), then confirm with `does_asset_exist` and the folder on disk.
 - **Experimental.** Every plugin here is `IsExperimentalVersion`; re-check names after an engine update.
 
 ## References & source material

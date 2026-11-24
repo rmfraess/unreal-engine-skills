@@ -1,6 +1,6 @@
 ---
 name: ue-physics-and-chaos
-description: Use when setting collision, traces, forces, or ragdolls.
+description: Use when testing cloth, collision, traces, or rigid bodies.
 metadata:
   aliases: "physics, collision, Chaos, traces, line trace, sweep, ragdoll, constraints"
   engine-version: "5.9"
@@ -22,6 +22,15 @@ are the most common source of "my overlap/hit never fires" bugs.
 - Simulating physics objects — enabling rigid-body physics, applying forces/impulses.
 - Building ragdolls or constraining bodies with `UPhysicsConstraintComponent`.
 - Debugging "overlap never fires", "trace misses", or "physics not simulating" problems.
+
+## Garment motion
+
+1. Watch real clothing footage or a cloth-simulation clip with a comparable cut and motion. Link the observed moment and label capture versus simulation. Use it for what it shows: a sleeve staying continuous during a reach is evidence about shape, not a measurement of linen mass.
+2. Record the skinned control and cloth candidate on the actual player at normal speed, with the same camera and walk, stop, and overhead reach. Fit the garment before proposing anatomy changes. Judge drape dressed at gameplay distance, then inspect the same poses close up with skin unmasked: the outfit mask can hide intersections. For sleeves, include a one-handed reach and inspect the resting arm too; a two-arm lift can miss a bad relaxed fit. Check that cuffs and tuck hold while loose fabric gathers, lags and settles. Judge each garment against its own reference; wool trousers need not swing like linen sleeves.
+3. If cloth stretches across the body, keep the failing garment as a positive control. Reproduce the defect on the same pawn, pose and camera, then swap in one independently fitted panel. Capture the panel with simulation on, off and on again. If it stays continuous and folds only with physics on, test its first join (e.g. sleeve to torso) before rebuilding the outfit. A passing panel narrows the problem; it does not identify the original fault or validate the joined garment.
+4. **Separate cut from fabric response.** For a puffy garment, compare the original, a revised cut with unchanged Chaos settings, then that same cut with revised fabric settings. Match pawn, animation time, camera and playback speed. Judge bulk in front/side idle and weight by how folds release after stopping or lowering an arm. For a pose-specific defect, hold the exact failing animation frame on both garments and compare physics off → on → off before changing the cut or solver. An idle toggle cannot explain a crease that appears only during a reach. If skin shows with simulation off, inspect local fit and skinning first. Report cut, solver activity and visible motion separately; a group of solver edits tests the group, not any individual parameter.
+
+For apparent bulk, [measure the settled render against unmasked skin](references/cloth-fit-depth.md). For asset isolation, binding, a flat tuck, or a pose-specific fold, use the [Chaos Cloth A/B recipe](references/cloth-scratch-test.md). If a fold appears only with simulation on, isolate body contact before recutting: keep cloth running, compare collider on → off → on, and check unmasked skin at the fold so clipping cannot pass as better drape.
 
 ## Collision model — three controls per component
 

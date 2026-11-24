@@ -76,6 +76,19 @@ with open(r"C:/tmp/shot_01.png", "wb") as f:
 r"C:/tmp/shot_01.png"
 ```
 
+## Held range-of-motion poses
+
+1. With MetaHuman optional content installed, load `/MetaHumanCharacter/Optional/Animation/TemplateAnimations/Technical_Loops/BodyROM/mhc_body_rom_body`. Sample `unreal.AnimationLibrary.get_bone_pose_for_time(seq, 'neck_01', t, False)` across `seq.get_play_length()` to choose neutral and contrasting poses; named curves alone do not establish motion.
+2. On the transient pawn's body, call `body.play_animation(seq, False)`, then `body.stop()`. For each selected time, call `body.set_position(t, False)` and await a ticking tool such as `InputToolset.InputToolset.ApplyInput`. Keep camera and pose time identical for each mesh.
+3. Compare `body.get_socket_transform('head').make_relative(body.get_socket_transform('spine_05')).rotation` across poses; require a change on the intended axis. Check the face and body `head` socket locations agree, then inspect matched skin renders for folds or gaps. Socket agreement proves joint alignment, not surface continuity. Report held poses separately from continuous playback or speech.
+
+### Construct a one-handed reach when existing clips lift both arms
+
+1. Sample candidate clips with `AnimPoseExtensions.get_anim_pose_at_time` and `get_bone_pose(..., AnimPoseSpaces.WORLD)`. Compare each hand’s height relative to its own clavicle across the clip; prefer an existing asymmetric reach if one measures up.
+2. Otherwise duplicate the bilateral clip with `SystemLibrary.duplicate_object(clip, unreal.find_object(None, '/Engine/Transient'))` and assert the copy’s outer is the transient package. On the resting side, intersect `{clavicle} ∪ SkeletonModifier.get_children_names(clavicle, True)` with `AnimationLibrary.get_animation_track_names(copy)`; assert the clavicle, upper arm, forearm and hand tracks are included.
+3. Sample a compatible idle pose. On the copy’s controller, open a bracket, then for each selected bone get its **local** idle transform and assert `set_bone_track_keys(bone, [tr.translation], [tr.rotation], [tr.scale3d], False)`. Close the bracket in `finally`. The torso and reaching arm retain their original animation; the resting arm still follows the torso.
+4. Play the duplicate on the transient pawn. Read both hand-to-clavicle heights at rest, lift, peak and release; the clip name or the edited track list does not prove the live pose. Label the recording a constructed test motion, not authored gameplay.
+
 ## Logs — `ConsoleToolset.LogsToolset`
 
 Header: `Engine/Plugins/Experimental/Toolsets/ConsoleToolset/Source/ConsoleToolset/Private/LogsToolset.h`

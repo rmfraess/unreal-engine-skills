@@ -93,6 +93,71 @@ engine source or config cited at the end. "Unverified" lists what neither covers
 
 Full graph notes and the C++: [references/face-animation-and-lip-sync.md](references/face-animation-and-lip-sync.md).
 
+## Wearing a built MetaHuman on a Character (C++ copy of its components)
+
+- Copy its components **under their Blueprint variable names** (LOD Sync and the MetaHuman
+  component find parts by name; hair vanishes beyond ~2 m without LOD Sync); the Body mesh goes
+  on the Character's own Mesh. Then rename LOD Sync's `Body` entry in `ComponentsToSync` to the
+  Mesh's name, re-key `CustomLODMapping['Body']` the same way (a Cinematic build maps 8 face
+  LODs onto 4 body LODs through it), and call `RefreshSyncComponents()`. Otherwise the body
+  picks its own LOD and a bright crack opens at the neck from mid distance.
+- **Give the grooms their own `CustomLODMapping` entries** (one per groom component name, set
+  in the same C++ before the refresh, so a rebuild cannot wipe them). Grooms are Passive in LOD
+  Sync and copy the face's LOD *number*; groom LOD2+ is cards, so with 8 face LODs the hair turns
+  to flat cards at face LOD2 (about 2 m). For a hero character, keep strands across the whole
+  player zoom range and skip the low card tiers: face→groom `{0,0,1,1,1,1,2,5}` (strands to
+  face LOD5, then the best cards, then the helmet). Expose it as an `EditAnywhere` array so it
+  can be tuned. **Strand cost barely falls with distance** (about 2.7 ms GPU at 4 m and at 7 m,
+  against about 0.3-0.6 ms for cards), so extending strands costs the full price at every
+  distance it covers: measure the groom's cost by toggling the groom components' visibility at
+  each zoom step and report it with the change.
+- **Read live LODs with `LODSyncComponent.get_lod_sync_debug_text()`** (`Name : rendered
+  (desired)` per synced part). `get_predicted_lod_level()` and `forced_lod_model` read stale or
+  0 on synced parts, and the groom's own LOD is not exposed to Python. An empty string means LOD
+  Sync lost its components (see `ue-pie-python`, section 5).
+- A retargeted template locomotion AnimBP pins a MetaHuman's legs through its foot-IK rig
+  (it reads `ik_foot_*` bones MetaHuman lacks). Repoint the rig at `foot_*`
+  (`ue-control-rig-and-ik`); don't zero the node's Alpha, which loses slope adaptation.
+
+### Neck/shoulder seam: diagnose in this order
+
+The line is the face/body mesh boundary. Each cause shows at a different distance, so test at
+the distances the game camera actually uses, not only close up.
+
+1. **Reproduce per LOD pair.** In PIE, disable the LOD Sync component's tick, then
+   `set_forced_lod(n+1)` on Face and Body (mapped pair from `CustomLODMapping`). Frame it with a
+   narrow-FOV camera far away; a close camera forces LOD0 and hides mid-distance causes. Read
+   the pairing at several distances from `get_lod_sync_debug_text()`, zooming with the game's
+   zoom input.
+2. **Crack (bright gap) at mid distance:** LOD Sync is not driving the body (above).
+3. **Hard sheen line, textures matching across it:** Recompute Normals on both meshes' LOD
+   build settings; each mesh averages normals from its own triangles only. On every face LOD,
+   copy the paired body LOD's normal onto coincident boundary vertices (Vibe3D
+   `load_mesh_from_skeletal_mesh` / `save_mesh_to_skeletal_mesh_lod`) and set
+   `recompute_normals` False on both. Touch only seam vertices.
+4. **Crease only at face LOD3 and lower:** the lower face skin materials enable
+   `Normal LOD Baked` (a 256 px baked normal map the body lacks). Fade that texture to flat
+   within a few cm of the seam (export, blend toward (128,128,255), reimport keeping its
+   settings); don't switch it off, which loses face detail. The dynamic-mesh material ID is the
+   LOD's section index: map it with `SkeletalMeshEditorSubsystem.get_lod_material_slot`.
+5. **Skin smoother above the line:** a build can leave `Use Micro Skin Details` off on the face
+   skin and on for the body (Optimized builds). Turn it on with a uniform mask.
+
+Keep every fix in one re-runnable script called by the rebuild script: a Creator rebuild
+regenerates both meshes and the face materials. `EditorAssetLibrary` and services built on it
+report assets missing while PIE runs: compute with PIE stopped.
+
+### Measuring a character's cost
+
+In PIE with frame caps off, sample `PerfToolset.StatsToolset.GetFrameTimings` ~90 times (one
+`ApplyInput` tick between reads), take medians, and compare the character visible vs its
+skeletal and groom components hidden, at full zoom-in and at the default camera distance. The
+difference is the character's cost; the absolute numbers are mostly the scene. Re-read LODs
+after toggling visibility: predicted LOD goes stale on hidden components.
+
+C++ details, the leg fix, a close-inspection zoom camera and the seam isolation steps:
+[references/character-integration.md](references/character-integration.md).
+
 ## 2. Lip sync: bake it offline
 
 Run-time solving needs the realtime solver models (section 6), an audio or video source and Live
@@ -285,7 +350,18 @@ Method, measured numbers and the accessory table:
 
 - An AnimBP without a Slot gives **no error** when a montage is played on it.
 - The editor viewport is not the truth for MetaHumans driven by Sequencer: grooms and faces lag
-  the body there and `bHiddenInGame` is ignored. Judge in PIE.
+  the body there and `bHiddenInGame` is ignored. Scrubbing a sequence in the editor shows a
+  bald, unmoving face (jaw bones and face-board curves read 0). Judge in PIE, or render the
+  range with Movie Render Queue (`MoviePipelinePIEExecutor`, PNG frames, then mux the voice
+  with ffmpeg) and look at frames.
+- **Face clips survive a rebuild to a different face rig.** Sequencer face animation keyed on
+  the face-board Control Rig (and clips of face-board curves) drives whatever face RigLogic is
+  attached, so an Optimized-to-Cinematic rebuild needs no re-export. Confirm with one render.
+- **Hero character detail:** keep full detail when the camera is close and let LODs step down
+  with distance; never lower face detail to match the body. Raise the weaker part instead
+  (Cinematic build, larger bakes: `ue-metahuman-creator`). When the user says quality drops
+  too early, push the high tier further out **and** skip the low intermediate tiers in the same
+  change, and report the GPU cost per distance with it.
 - A build leaves a few dirty `T_PreBakedGroom_*` packages that are not on disk; saving them fails.
   They clear after a level change plus garbage collection. (jam)
 - Saving a groom binding while it is still building can stall the editor (`ue-hair-and-grooms`).
@@ -331,6 +407,9 @@ Engine source and content (UE 5.9):
   `Engine/Plugins/MetaHuman/MetaHumanAnimator/Content/GenericTracker/` (mounted as `/MetaHuman`).
 
 Deep-dive references in this skill:
+- [references/character-integration.md](references/character-integration.md) — wearing a built
+  MetaHuman on a playable Character, template locomotion leg fix, close-inspection camera,
+  isolating the face/body seam.
 - [references/face-animation-and-lip-sync.md](references/face-animation-and-lip-sync.md) — face
   AnimBP graph, offline bake calls and batch rules, blink pass, mobile-path face look in C++.
 - [references/wardrobe-and-accessories.md](references/wardrobe-and-accessories.md) — body under

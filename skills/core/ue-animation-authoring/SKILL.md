@@ -82,6 +82,8 @@ Rules that save a rebuild:
 - Call `AddBoneCurve` before `SetBoneTrackKeys` for a bone that has no track yet;
   `RemoveAllBoneTracks` resets a sequence you are regenerating.
 
+For a pose-only diagnostic, duplicate the source clip with `SystemLibrary.duplicate_object` into `find_object(None, '/Engine/Transient')`; assert its `data_model_interface` is owned by the copy. At a fixed clip time, replace only the test chain's local rotation keys on the copy. Separate cumulative rotations in character space, convert back to parent locals, and verify each live joint, the unchanged parent chain, and an all-axes reconstruction against the original pose. Bone-relative Euler labels need not match anatomical axes. When redistributing rotation across a chain, measure end-joint translation as well as orientation: the head can keep its exact angle while its pivot moves enough to change the visible fold.
+
 ## Importing animation-only FBX onto an existing skeleton
 
 For a clip exported from a DCC (armature + baked keys, no mesh), drive the legacy FBX

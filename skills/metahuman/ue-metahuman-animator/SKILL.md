@@ -388,6 +388,25 @@ the detail-panel payloads behind the Content Browser "Speech to Anim/Level Seque
   `Anger`, `Confidence`, ... with display names "Happy", "Sad"
   (`SpeechAnimationSolverTypes.h`:13-27); Python exposes the C++ names
   (`HAPPINESS`, not `HAPPY`). Check `dir(unreal.AudioDrivenAnimationMood)`.
+- **Face clips in Sequencer on a 5.9 assembled MetaHuman.** `ABP_Face` is only Root + Copy Pose
+  From Mesh, with no slot, so a Skeletal Animation track on the Face binding does nothing (the jaw
+  curve reads 0). Load the clip into a face-board Control Rig track instead:
+  `ControlRigSequencerLibrary.find_or_create_control_rig_track_from_reference(world, seq,
+  make_control_rig_reference('/MetaHumanCharacter/Face/Face_ControlBoard_CtrlRig'), face_binding)`
+  then `load_anim_sequence_into_control_rig_section(section, anim, face_component, FrameNumber(0), ...)`.
+- **Verify face animation with a render or PIE, never an editor scrub.** Scrubbing a sequence
+  in the editor and capturing the viewport (or reading the face anim instance's
+  `CTRL_expressions_jawOpen` curve or the jaw bone) can show a neutral, shut-mouthed face with no
+  strand hair even when the animation is fine: RigLogic and grooms do not update from a scrub.
+  Render a few seconds with Movie Render Queue (recipe in `ue-sequencer-python`) and look at
+  frames from mid-sentence.
+- **Face-board Control Rig keys survive a MetaHuman rebuild.** A clip loaded into a
+  `Face_ControlBoard_CtrlRig` track stores control keys, not bones, so rebuilding the character
+  (Optimized to Cinematic, more face joints, a face skeleton copied into the project) still
+  plays it. Re-render to confirm rather than re-solving the audio.
+- **Head movement opens a neck seam on a body-driven MetaHuman.** Exported `HeadYaw/Pitch/...`
+  curves turn only the face mesh's head (measured 9 cm off the body's `head` bone); the body
+  neck stays put. Export with `enable_head_movement = False` unless the body's head is driven too.
 - **Deprecated ingest classes.** `UMetaHumanCaptureSource`, `UMetaHumanCaptureSourceSync`,
   `FMetaHumanTakeInfo`/`FMetaHumanTake` are `UE_DEPRECATED(5.7)`; the shipped
   `create_capture_data.py` still uses them. New code goes through Capture Manager.

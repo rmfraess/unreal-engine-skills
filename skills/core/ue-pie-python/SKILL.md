@@ -46,8 +46,12 @@ PIE are in the Sequencer skills.
    (`CompileWidgetBlueprint: Not supported during PIE`, `Cannot get the current level while
    PIE is active`). Save and compile first; stop PIE, fix, start again.
 4. **The game only advances while the editor ticks.** A script that blocks (a `time.sleep`
-   in a helper module, a long synchronous loop) freezes PIE. Wait with
-   `await asyncio.sleep(...)`, which lets the editor tick.
+   in a helper module, a long synchronous loop) freezes PIE. To sample game state over time,
+   await a tool that spans time (see "Sampling over time"), or split the samples across
+   separate `execute_python` calls.
+5. **Asset queries come back empty during PIE.** `EditorAssetLibrary.list_assets` returned
+   nothing for a folder that existed while PIE ran; stop PIE before asset reads, or load by
+   exact path.
 
 ## 1. Session: start, size, stop
 
@@ -94,6 +98,22 @@ for _ in range(100):                                   # wait for a player contr
   in a helper module, or run it as a background task that writes JSON lines a later call
   reads.
 
+## Sampling over time
+
+`asyncio.sleep` inside one `execute_python` script does not let the game tick (every sample
+reads the same frame). Awaiting a tool that spans time does: loop
+`await call_tool('InputToolset.InputToolset.ApplyInput', Entries=..., DurationSeconds=0.12)`
+and read state after each await.
+
+- `ApplyInput` entries use lowercase keys: `{'action': {'refPath': '/Game/Input/IA_Move.IA_Move'},
+  'value': {'x': 0, 'y': 1, 'z': 0}}` for an Enhanced Input action, `{'key': 'MouseWheelAxis',
+  'value': {'x': 1, ...}}` for a raw key (proves the mapping context, not just the handler).
+  `DurationSeconds=0` is a one-tick tap.
+- For a neck-turn check, hold a real animation at several positions on the transient body, keeping the camera fixed. Verify head rotation relative to the upper spine changes and face/body head sockets coincide after each tick. Camera orbit alone does not test deformation. For MetaHumans, see [held range-of-motion poses](references/pie-toolsets.md#held-range-of-motion-poses).
+- Measure animation in actor space, not world space: sample
+  `pawn.get_actor_transform().inverse_transform_location(mesh.get_socket_location('foot_l'))`
+  while moving; a value that never changes means that bone is not animating.
+
 ## 2. Finding things in the PIE world
 
 ```python
@@ -117,6 +137,12 @@ tagged = unreal.GameplayStatics.get_all_actors_with_tag(world, "Enemy")
   instance is one route (not run); a `BlueprintCallable` getter in the game is the reliable
   one.
 - Never search worlds by name: stale `/Memory/UEDPIE_*` worlds linger after a session.
+- **Check the possessed pawn before a character-specific capture.** Load the expected generated class with `cls = unreal.load_class(None, generated_class_path)` and compare `pawn.get_class() == cls` for an exact match: `cls` is an Unreal class handle, not a Python type for `isinstance`. If the map supplies a different pawn and spawn behavior is not under test, spawn the intended pawn transiently in server PIE, call `pc.possess(spawned)`, let PIE tick, then re-fetch `GameplayStatics.get_player_pawn(world, 0)` and assert its identity and required mesh. This tests the character without changing the map's GameMode.
+- **Identify an unexplained object on screen** by listing every actor's primitive components
+  within a few metres of the pawn (any class, not just `StaticMeshActor`), then read
+  `get_actor_label()`, class, controller and `auto_possess_ai`. A `DefaultPawn` with
+  `PLACED_IN_WORLD` and an AI controller is a leftover level placeholder, not the game mode's
+  spawn; check the map before touching the game mode.
 - Out-param functions return their outputs (`get_all_actors_of_class` returns the list).
 
 ## 3. Live widgets
@@ -203,14 +229,25 @@ Toolset and parameter details: [references/pie-toolsets.md](references/pie-tools
 
 - **Call setters, not `set_editor_property`, on live game objects.** On a component of a
   Blueprint actor a notified property change re-runs the construction script and replaces the
-  components. If you must write a property, pass
-  `unreal.PropertyAccessChangeNotifyMode.NEVER` as the third argument.
+  components. Anything that cached the old components (LOD Sync's part list, anim links) silently
+  stops working, so later readings and A/B tests in the same session are garbage. That includes
+  the spring arm length and LOD Sync's own mapping. Change state the way the player does (the
+  zoom action through `ApplyInput`) or through a setter function; if you must write a property,
+  pass `unreal.PropertyAccessChangeNotifyMode.NEVER` as the third argument. When a readout turns
+  empty or stops changing mid-run, suspect your own earlier write before the game, and step
+  through your setup with a read after each step to find which one did it.
 - **Deferred spawning is not exposed:** `GameplayStatics.BeginDeferredActorSpawnFromClass` /
   `FinishSpawningActor` are `BlueprintInternalUseOnly`. `EditorActorSubsystem.spawn_actor_*`
   places into the editor world, not the PIE world. To spawn into PIE, call a game-side
   `BlueprintCallable` that spawns (it can do the deferred spawn in C++), or have the game
-  spawn it. A debug camera you spawn this way: set it as the view target with
+  spawns it (or an editor plugin's PIE spawn service, if the project has one). A debug camera
+  you spawn this way: set it as the view target with
   `pc.set_view_target_with_blend(cam, 0.0)`; a light you move must be Movable.
+- **Re-find a spawned actor by something only it has** (spawn location, a tag you set), not
+  `get_all_actors_of_class(...)[0]`: level actors of the same class come first.
+- **Side-by-side comparison:** spawn the source asset (e.g. the original character Blueprint)
+  next to the player's version under the same light and camera to tell whether a visual fault
+  comes from the source or from your game-side setup.
 
 ## 6. Captures
 
@@ -222,8 +259,41 @@ Toolset and parameter details: [references/pie-toolsets.md](references/pie-tools
   width for a 1:1 image.
 - In a script the result carries the PNG as base64 under `image` → `data`: decode it to a file
   and return the path, never the base64.
+- **Fixed-angle character close-ups to files** (for before/after looks at a mesh change):
+  zoom the gameplay camera in through its own input action, freeze the scene with
+  `unreal.GameplayStatics.set_global_time_dilation(world, 0.0001)` and confirm
+  `GameplayStatics.get_time_seconds(world)` stops advancing between shots (a `slomo` sent
+  through `PIEActorService.console_command` left game time running, so the idle moved the head
+  and its cast shadow between "identical" frames). Before comparing variants, take two shots
+  with no change and diff them (`numpy` mean absolute difference under ~1/255 on the region of
+  interest); a paired comparison without that check can show lighting "changes" that are just
+  animation. Then per view `pc.set_control_rotation(unreal.Rotator(pitch=p, yaw=pawn_yaw + dy, roll=0))`, await
+  a short `ApplyInput` so the camera updates, and
+  `unreal.AutomationLibrary.take_high_res_screenshot(1600, 900, path)`. Front is `dy` 180 with
+  a small positive pitch, side about 100, back about 20. Capture the unchanged and the changed
+  mesh in the same session from the same list of views, and crop the same box from each.
+- `set_skeletal_mesh_asset` on a live component resets its materials to the new mesh's
+  defaults: record `get_material_slot_names()` and `get_material(i)` first and re-apply by slot
+  name with `get_material_index(name)` / `set_material(i, m)`, or the swap is judged in the
+  wrong skin.
+- **Material A/B in PIE.** Runtime materials on a live component are often already
+  `MaterialInstanceDynamic`s: read them with `mi.get_scalar_parameter_value(name)` and write the
+  MID directly (the editor-only `MaterialEditingLibrary.get_material_instance_*` getters reject
+  MIDs). Prefer the material's own scalar controls over swapping textures. To preview a texture in a
+  virtual-texture slot (`... VT` parameters), import it with `virtual_texture_streaming=True`:
+  a plain texture there renders garbage (black skin). Load the original the same way as the
+  candidate and compare those two, because the import path alone changes the look. To split geometry from
+  shading, set every slot to `/Engine/BasicShapes/BasicShapeMaterial`: what survives is mesh.
+- Validate posed mesh parity with the compared LOD actively rendered on both players. A read of an inactive tier may contain differently posed vertices outside the corrective patch; compare those indices separately before attributing a visible regression.
+- To test corrective continuity, sweep the actual camera input to both stops, log rendered LODs in each direction, and transfer only to tiers reached. Project displacement onto each tier’s own skin triangles rather than reusing vertex IDs; verify off/on/restored geometry and compare zoom recordings with the correction disabled and enabled.
+- Test a corrective morph at the actual gameplay zoom with LOD Sync untouched. Read the rendered face LOD from sync debug text, compare posed vertices off/on/restored on that specific LOD, and use LOD0 as a positive control. Full runtime weight can produce zero displacement on a lower LOD.
+- When widening a corrective morph, project and measure the residual ridge separately from its original core. Compare both morphs on one scratch mesh with the same pose driver; a better core score alone does not prove the surrounding ridge improved.
+- Verify the first skin frame actually shows skin: a live MID readback can precede a warm shader in the rendered frame. Take a warmed repeat and a restored control; identify head MIDs by material instance and slot readback, not a presumed `skin` slot name.
+- Check the rendered orientation against the requested camera, even on a warm repeat. If a high-resolution shot shows the previous view, discard that pairing and capture the settled live framebuffer with `CaptureGameViewport`.
 - Settle before capturing: about 0.3-0.4 s after a UI change, about 1 s after a camera cut or a
   sequence scrub (temporal AA, texture streaming). Look at every capture you report.
+
+- For a moving A/B, start and stop a `SceneCaptureToolset` viewport recording around actual playback. Log clip position, pose, and applied correction each Slate tick. Stop on a verified clip position past the release, using bounded ticking waits; wall-clock duration and zero dropped frames do not prove playback reached it. Unregister the callback and stop the recording in `finally`. Check the finalized MP4's achieved frame rate: if fast reversals are undersampled, slow the clip and restore its original playback speed in the comparison video.
 
 ## 7. Logs and assertions
 
@@ -289,8 +359,7 @@ failure in a fresh editor before calling it a regression.
 - SlateInspectorToolset `Drag`, `Type`, `HitTest`, `WaitFor` (checks once: poll it),
   `Observe`/`Unobserve`, `Focus`, `Scroll`, `MouseDown`/`MouseMove`/`MouseUp`,
   `ReleaseHeldInput`, `GetUMGInfo`; `Click` ran over MCP only, never inside a script.
-- The engine's `InputToolset` `ApplyInput` for keys and Enhanced Input actions; SceneCapture
-  viewport recording to MP4; WidgetFinder `WaitForQuery` and `Highlight`.
+- WidgetFinder `WaitForQuery` and `Highlight`.
 - `unreal.load_object(None, "/Game/UI/W_X.W_X:WidgetTree.<Name>")` for a design-time widget.
 
 ## References & source material

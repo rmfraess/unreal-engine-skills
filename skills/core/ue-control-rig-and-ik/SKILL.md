@@ -239,6 +239,35 @@ blend, before output.
   retargeting; confirm chains are matched in the IK Retargeter editor's Hierarchy panel.
 - **Retarget pose discrepancy (T vs A pose)** — the single most common source of broken
   retargeting; edit the retarget pose for each skeleton to match the source pose.
+- **Root Motion op with empty bones** — `IKRetargeterController.add_default_ops()` leaves the
+  Root Motion op's source root, target root and target pelvis empty; batch-retargeted locomotion
+  then has a static root and the pelvis travels the whole distance. Set them with
+  `rc.get_op_controller(index).set_source_root_bone('root')`, `set_target_root_bone('root')` and
+  `set_target_pelvis_bone('pelvis')` before `run_batch_retarget_with_results` (importing text into
+  `get_settings()` silently does nothing). Check by sampling the root bone over the clip.
+- **Retargeted posture slouches** — a source clip's relaxed spine/neck pose reads worse on a
+  taller target. Duplicate the target retarget pose (`rc.duplicate_retarget_pose`), then add
+  rotation offsets on an upper-spine and neck bone with
+  `set_rotation_offset_for_retarget_pose_bone(bone, base_quat * delta, TARGET)`. Probe each axis
+  with a small delta on one clip first. The bend axis depends on the skeleton's bone frames.
+  Measure head-ahead-of-shoulders and neck tilt from composed bone poses, then batch-retarget again.
+  `overwrite_existing_files` resets root-motion flags on clips, so record and restore them.
+- **Template foot-IK rig on a skeleton without IK bones** — the UE5 Mannequin
+  `CR_Mannequin_FootIK` (kept as the last node when the template `ABP_Unarmed` is
+  batch-retargeted) reads and traces `ik_foot_l/r`; on a skeleton without them (e.g.
+  MetaHuman) the legs freeze on the ground while the arms animate. Zeroing its Alpha unpins
+  the legs but loses slope adaptation, so fix the rig instead: duplicate it, and in its `RigVMModel`
+  set every `*.Item.Name` pin that reads `ik_foot_*` to `foot_*` with
+  `controller.set_pin_default_value`. Point the AnimBP node's `control_rig_asset_reference`
+  at it (`import_text` with `BlueprintRigClass=...`); `control_rig_class` is deprecated. The
+  node maps bones by name, so shared leg bone names need no hierarchy import. Calling
+  `RigHierarchyController.import_bones_from_asset` from Python crashed the 5.9 Editor
+  (`IsTopologyExclusivelyOwned` assertion). Verify in PIE by sampling foot heights on a
+  transient tilted cube and the foot swing while jogging (actor-space foot positions).
+- **The template foot-IK rig only moves feet up/down** — it traces each foot, offsets it in Z
+  and lowers the pelvis, then solves FBIK; it never rotates the foot to the ground normal, so
+  toes sink a few cm into a slope (about 3 cm at 15°). Foot tilt needs a per-foot rotation from
+  the trace hit normal added to the rig; budget it as rig work, not a setting.
 - **FBIK on many characters** — Full Body IK is iterative and CPU-heavy; budget using LOD
   thresholds (`LODThresholdForIK` on `FAnimNode_RetargetPoseFromMesh`; `LODThreshold` on
   `FAnimNode_IKRig` and `FAnimNode_ControlRig`).

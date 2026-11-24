@@ -299,6 +299,13 @@ skill for full Mover setup, modes, layered moves, and backends.
   `ObjectInitializer.SetDefaultSubobjectClass`, not just override in the Character.
 - **`JumpMaxHoldTime` non-zero without `StopJumping()`** — the character
   accumulates vertical velocity indefinitely until hold time expires.
+- **Motion blur smears the character at close camera zoom** — limbs cross a large share of
+  the screen per frame up close. Don't disable blur globally: in the zoom update, set
+  `Camera->PostProcessSettings.bOverride_MotionBlurAmount = true` and map `MotionBlurAmount`
+  from the arm length (e.g. 0.1 at the closest zoom → engine default 0.5 at the default
+  distance) with `FMath::GetMappedRangeValueClamped`, exposed as an `EditAnywhere` tuning
+  value. Verify by reading the camera's post-process value at several zoom steps in PIE and
+  capturing a close jog.
 - **Moving a `Static` mobility component at runtime** — mobility must be
   `Movable`; static components ignore transforms at play.
 - **Overlapping `PhysicsVolume`** changes CMC's water mode automatically if the

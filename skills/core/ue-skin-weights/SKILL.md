@@ -178,10 +178,12 @@ with `GetBoneIndex`/`GetAllBonesInfo`. Full function and option tables:
    a pose on a `USkeletalMeshComponent` / `UPoseableMeshComponent` and inspect, or
    compute linear blend skinning offline — `v' = Σᵢ wᵢ · Mᵢ · v` with
    `Mᵢ = PoseGlobalᵢ · RefGlobalᵢ⁻¹` — and compare the deformed region against the
-   body (e.g. max collar-to-neck distance before vs. after the fix).
-3. **Count what changed.** Record per-bone weighted-vertex counts before and after;
-   an edit that touched thousands of vertices when the region holds dozens means the
-   selection was wrong. `CommitWeightsToSkeletalMesh` is transactional — undo works.
+   body (e.g. max collar-to-neck distance before vs. after the fix). For the pose the
+   player actually sees, read the running PIE component with
+   `GeometryScript_SceneUtils.copy_mesh_from_component(component, DynamicMesh(), options,
+   True)`: it returns the current skinned pose. Verify morph inclusion per capture path rather than assuming either outcome: on a source-model LOD in editor PIE, switching a component morph off/on/off changed the same indexed triangle bends and restored them. Match material-filtered topology, fixed camera and head transforms, and viewport captures. Swap a scratch mesh onto the PIE component with `set_skeletal_mesh_asset` to
+   test it in the real animation without saving anything.
+3. **Prove the repair stayed local.** Identify the failing patch and the adjoining fit to preserve before smoothing. Count changed vertices and compare source weights (and rest positions if refitting) against the accepted mesh outside the patch; counts alone cannot tell whether a shoulder cap moved. For joined garments, use the [panel-based repair and pose checks](references/scratch-garment-fit-preview.md). `CommitWeightsToSkeletalMesh` is transactional — undo works.
 
 ## Gotchas
 
@@ -214,6 +216,16 @@ with `GetBoneIndex`/`GetAllBonesInfo`. Full function and option tables:
   — keep influences local to the region's bone chain.
 - **The editor paint tool and these APIs edit the same data** — don't script against
   an asset that is open in the Skin Weights tool with uncommitted brush strokes.
+- To distinguish a posed crease from a cast shadow, bracket a held pose with actor shadows on/off/restored. Project the captured face and body through the gameplay camera, pick the nearest triangles in the visible patch, verify identical topology across poses, then compare their areas and adjacent-face angles. Record pitch and roll as well as yaw; a combined pose does not isolate a twist-weight defect.
+- **Prove weights are the cause before replacing them.** Diff the suspect mesh's weights
+  against a reference with the same topology (per-vertex sum of absolute differences, plus
+  which bones carry the difference), then test the swap on a scratch duplicate in the pose
+  that shows the defect. A large weight difference in the defect region is not proof:
+  transplanting a template's weights onto a fitted mesh can leave the defect unchanged.
+- **Seam vertices must keep weights that match the neighbouring mesh.** Where two skinned
+  meshes meet (head and body, sleeve and hand), the shared border only stays closed while
+  both sides skin it identically. Replacing one side's border weights from another source
+  opens a gap in the pose; exclude a band near the border, and re-check the posed seam gap.
 
 ## References & source material
 
@@ -234,6 +246,8 @@ Engine source (UE 5.9):
 - `Engine/Source/Editor/SkeletalMeshEditor/Public/SkeletalMeshEditorSubsystem.h` — LOD regeneration and skeletal mesh editor scripting
 
 Deep dives in this skill:
+
+- [Scratch garment fit preview](references/scratch-garment-fit-preview.md) — fit a cut to the body, then compare skinned garments on the real player without changing the production character.
 
 - [skin-weight-modifier-workflows](references/skin-weight-modifier-workflows.md) — audit, repair, and rebind recipes with `USkinWeightModifier`
 - [geometry-script-bone-weights](references/geometry-script-bone-weights.md) — full GeometryScript function/option reference, transfer + bind pipelines

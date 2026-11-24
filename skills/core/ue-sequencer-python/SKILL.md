@@ -56,6 +56,7 @@ C++ runtime playback is in `ue-sequencer-and-cinematics`; the general Python rul
 | `'LevelSequenceActor' object has no attribute 'get_sequence_player'` | `GetSequencePlayer` is the `SequencePlayer` property's `BlueprintGetter`: `lsa.get_editor_property("sequence_player")`. |
 | `'CineCameraComponent' object has no attribute 'set_current_focal_length'` / `'set_current_aperture'` | Both are `BlueprintSetter`s: `cc.set_editor_property("current_focal_length", 35.0)`, `"current_aperture"`. |
 | `MovieSceneBindingLifetimeSection: Section does not have a start frame` | Sections can be open-ended (binding lifetime, spawn, infinite). Check `sec.has_start_frame()` / `has_end_frame()` before `get_start_frame()` / `get_end_frame()`. |
+| `'MovieSceneBindingProxy' object has no attribute 'get_binding_id'` | The ID comes from the sequence: `LevelSequenceEditorBlueprintLibrary.get_bound_objects(seq.get_binding_id(proxy))` returns the live objects in the open sequence. |
 | `'MovieScene' object has no attribute 'get_display_rate'` | Call it on the sequence: `seq.get_display_rate()`. |
 | `'SoundWave' object has no attribute 'get_duration'` | `GetDuration` is not a `UFUNCTION`; read the property: `snd.get_editor_property("duration")` (seconds). |
 | Log: `Sequencer sound playing past section end` | An audio section ends after the playback end (or has no end). See *Audio sections*. |
@@ -268,6 +269,26 @@ existing = some_level_sequence_actor.get_editor_property("sequence_player")
   durations on cut sections do nothing. Epic's in-editor Sequencer camera skill says it cannot be set
   from script; in 5.9 `unreal.MovieSceneTrackExtensions.set_camera_cut_can_blend(track, True)` exists
   and is accepted (the call ran; the resulting blend was not looked at).
+- Lens values set on a `create_camera` spawnable and saved with `save_default_spawnable_state` did
+  not survive (renders stayed at 35 mm); delete the auto-added CameraComponent float tracks and add
+  your own with `set_property_name_and_path('Current Focal Length', 'CurrentFocalLength')` etc.
+- Movie Render Queue's first frame can be a ghosted double image even with engine warm-up
+  (temporal AA has no history); render one or two extra frames and trim them, offsetting audio.
+- **Scripted MRQ render (verified):** close the sequence in Sequencer first, then
+  `q = unreal.get_editor_subsystem(unreal.MoviePipelineQueueSubsystem)`; `queue = q.get_queue();
+  queue.delete_all_jobs(); job = queue.allocate_new_job(unreal.MoviePipelineExecutorJob)`; set
+  `job.sequence` and `job.map` as `unreal.SoftObjectPath`s; on `cfg = job.get_configuration()` use
+  `find_or_add_setting_by_class` for `MoviePipelineOutputSetting` (`output_directory =
+  unreal.DirectoryPath(abs_path)`, `output_resolution`, `use_custom_playback_range` +
+  `custom_start_frame/custom_end_frame`, `file_name_format = '{frame_number}'`),
+  `MoviePipelineDeferredPassBase`, `MoviePipelineImageSequenceOutput_PNG` and
+  `MoviePipelineAntiAliasingSetting` (`engine_warm_up_count`); then
+  `q.render_queue_with_executor(unreal.MoviePipelinePIEExecutor)`. It returns at once: poll the
+  output folder's file count from outside the editor, not with a sleep on the game thread. Turn
+  editor background throttling off for the render. Mux with
+  `ffmpeg -framerate <fps> -i %04d.png -i line.wav -t <seconds> -c:v libx264 -pix_fmt yuv420p -c:a aac out.mp4`.
+- Editor-viewport captures while scrubbing do not show what renders for MetaHumans (frozen face,
+  missing groom hair). Judge MetaHuman shots from an MRQ render or PIE.
 - Epic ships in-editor Sequencer guidance as agent skills (`SequencerCoreSkill`,
   `SequencerBindingsSkill`, `SequencerCameraSkill`, `SequencerKeyframingSkill`, ...) in
   `Engine/Plugins/Experimental/Toolsets/AnimationAssistantToolset/Content/Python/animation_toolset/skills/`
